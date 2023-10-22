@@ -10,29 +10,36 @@ int line=0;
 extern int error_flag;
 %}
 
-
-
-
 digit [0-9]
 integers {digit}+
-id [a-zA-Z_][a-zA-Z0-9_]*
+floats {integers}"."{integers}
+parenthesis {"["|"]"|"{"|"}"|"("|")"}
+constructor {"Circle"|"Tri"|"RegPoly"}
+std_token {"INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"}
+boolean {"true" | "false"}
 line_op {"->"|"-"|"<->"}
 relational {">"| "<" |">="| "<=" | "==" | "!=" }
-prim_datatype {"int"|"real"|"bool"|"point"|"angle"|"label"}
-nonprim_datatype {"array"|"line"|"circle"|"tri"|"para"|"regPoly"}
+datatype {"int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"}
 logical {"and"|"or"}
 assign {"+:="|"-:="|"^:="|"/:="|"%:="}
 unary {"++"|"--"|"not"}
 operators {"+"|"-"|"*"|"/"|"%"|"^"}
 string_literals (\"([^"]|"\\\"")*\")
-
-parenthesis {"["|"]"|"{"|"}"|"("|")"}
-punctuation {","}
-
+id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
+{floats} {
+    return FLOATS;
+}
 
+{constructor} {
+    return CONSTRUCTOR;
+}
+
+{parenthesis} {
+    return PARENTHESIS;
+}
 
 {integers} {
     return INTEGERS;
@@ -43,12 +50,12 @@ punctuation {","}
 }
 
 "$"[^$]*\n {
-    return SINGLE_COMMENT:
+    return SINGLE_COMMENT;
 }
 
 
 "$$"[^$]*"$$" {
-    return SINGLE_COMMENT:
+    return MULTI_COMMENT;
 }
 
 "if" {
@@ -80,93 +87,11 @@ punctuation {","}
     // fprintf(seq,"datatype: %s\n",yytext);
     return VOID;
     }
-"INTERSECTION" {
-    return INTERSECTION;
-}
 
-"MIDPOINT" {
-    return MIDPOINT;
-}
-
-"SHORTEST_DISTANCE" {
-    return SHORTEST_DISTANCE;
-}
-
-"ANGLE_BISECTOR" {
-    return ANGLE_BISECTOR;
-}
-
-"LINE_AT_ANGLE" {
-    return LINE_AT_ANGLE;
-}
-
-"TANGENT" {
-    return TANGENT;
-}
-
-"COMMON_TANGENT" {
-    return COMMON_TANGENT;
-}
-
-"EXCENTRE" {
-    return EXCENTRE;
-}
-
-"INCENTRE" {
-    return INCENTRE;
-}
-
-"CENTROID" {
-    return CENTROID;
-}
-
-"CIRCUMCENTRE" {
-    return CIRCUMCENTRE;
-}
-
-"ORTHOCENTRE" {
-    return ORTHOCENTRE;
-}
-"ALTITUDE" {
-    return ALTITUDE;
-}
-
-"MEDIAN" {
-    return MEDIAN;
-}
-
-"DIAGONAL" {
-    return DIAGONAL;
-}
-
-"AREA" {
-    return AREA;
-}
-
-"PERIMETER" {
-    return PERIMETER;
-}
 
 {operators} {
     return OPERATORS;
 }
-
-"Circle" {
-    return Circle;
-}
-
-"Tri" {
-    return Tri;
-}
-
-"Para" {
-    return Para;
-}
-
-"RegPoly" {
-    return RegPoly;
-}
-
 "stop" {
     return BREAK;
 }
@@ -180,7 +105,7 @@ punctuation {","}
 }
 
 "||" {
-    return PARALLEL:
+    return PARALLEL;
 }
 
 "|-" {
@@ -188,13 +113,8 @@ punctuation {","}
 }
 
 
-"true" {
-    return TRUE;
-}
-
-
-"false" {
-    return FALSE;
+{boolean} {
+    return BOOLEAN;
 }
 
 "func" {
@@ -210,17 +130,12 @@ punctuation {","}
 }
 
 
-{prim_datatype} {
+{datatype} {
     // fprintf(parsed,"%s",yytext);
     // fprintf(seq,"datatype: %s\n",yytext);
-    return PRIM_TYPE;
+    return DATATYPE;
     }
 
-{nonprim_datatype} {
-    // fprintf(parsed,"%s",yytext);
-    // fprintf(seq,"datatype: %s\n",yytext);
-    return NONPRIM_TYPE;
-    }
 
 {relational} {
     // fprintf(parsed,"%s",yytext);
@@ -235,9 +150,6 @@ punctuation {","}
 ":=" {
     return EQUAL;
 }
-
-
-
 {string_literals}  {
     // fprintf(parsed,"%s",yytext);
     // fprintf(seq,"punctuation: \"\n");
@@ -245,7 +157,6 @@ punctuation {","}
     // fprintf(seq,"punctuation: \"\n");
     return STRING_TOKEN;
 }
-
 {id} { 
     
     fprintf(parsed,"%s",yytext);

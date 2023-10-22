@@ -46,11 +46,10 @@ int yylex();
 %token FLOATS
 %token CONSTRUCTOR
 %%
+
  S: Func S| Fig S|
  Func:
  Fig:
-
-
  decl : DATATYPE ID  check_arr decl_assign
  decl_assign : EQUAL decl_token | ;
  decl_token : ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN | point_assign | angle_assign |construct | arr_assign | line_assign | construct; 
@@ -61,10 +60,9 @@ int yylex();
  display_angle : ',' BOOLEAN | ;
  arr_assign : '{' mult_integers '}'| '{''}'
  mult_integers : INTEGERS ',' mult_integers | INTEGERS 
-construct :  CONSTRUCTOR '(' input_list ')';
-input_list:  INTEGERS ',' input_list| ID ',' input_list | FLOATS ',' input_list |FLOATS | INTEGERS  | ID;
-
-
+ construct :  CONSTRUCTOR '(' input_list ')';
+ input_list:  INTEGERS ',' input_list| ID ',' input_list | FLOATS ',' input_list |FLOATS | INTEGERS  | ID;
+ 
 %%
 void yyerror(char * s)
 /* yacc error handler */

@@ -15,17 +15,6 @@ int yylex();
 %token WHILE
 %token RETURN
 %token VOID
-%token INTERSECTION
-%token MIDPOINT
-%token SHORTEST_DISTANCE
-%token ANGLE_BISECTOR
-%token LINE_AT_ANGLE
-%token TANGENT
-%token COMMON_TANGENT
-%token EXCENTRE
-%token INCENTRE
-%token CENTROID
-%token CIRCUMCENTRE
 %token CONTINUE
 %token LOGICAL_OP
 %token PARALLEL
@@ -46,21 +35,22 @@ int yylex();
 %token NOT
 %%
 
- S: Func S| Fig S|
- Func: 
- Fig:
- decl : DATATYPE ID check_arr decl_assign ',' decl  | DATATYPE ID  check_arr decl_assign 
+ S: Func S| Fig S|;
+ Func: ;
+ Fig: ;
+ Decl : DATATYPE ID_LIST ENDLINE;
+ ID_LIST : ID check_arr decl_assign ',' ID_LIST  |  ID  check_arr decl_assign;
  decl_assign : EQUAL decl_token | ;
  decl_token :  STATEMENT  | point_assign | angle_assign |construct | arr_assign | line_assign | construct; 
  check_arr: '[' INTEGERS  ']' | '[' ']' | 
  point_assign : '(' INTEGERS ','  INTEGERS ',' STRING_TOKEN ')'
- angle_assign : '<' ID ID ID ',' BOOLEAN'>' | '<' ID ID ID '>' ;
+ angle_assign : '<' ID ID ID ',' BOOLEAN '>' | '<' ID ID ID '>' ;
  line_assign : ID LINE_OP line_assign | ID;
- arr_assign : '{' mult_integers '}'| '{''}'
- mult_integers : INTEGERS ',' mult_integers | INTEGERS 
+ arr_assign : '{' mult_integers '}'| '{''}';
+ mult_integers : INTEGERS ',' mult_integers | INTEGERS ;
  construct :  CONSTRUCTOR '(' input_list ')';
  input_list:  STATEMENT ',' input_list | STATEMENT ;
- STATEMENT:  STATEMENT '+' STATEMENT | STATEMENT '*' STATEMENT | STATEMENT '/' STATEMENT| STATEMENT '%' STATEMENT | STATEMENT '^' STATEMENT | '(' STATEMENT ')' |  Unary |Func_dec | ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN  ;
+ STATEMENT:  STATEMENT '+' STATEMENT | STATEMENT '*' STATEMENT | STATEMENT '/' STATEMENT| STATEMENT '%' STATEMENT | STATEMENT '^' STATEMENT | '(' STATEMENT ')' |  Unary | Func_dec | ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN  ;
  Unary: UNARY ID | ID UNARY | NOT ID;
  Func_dec: ID '(' input_list ')';
 %%

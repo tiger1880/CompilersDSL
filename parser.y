@@ -8,8 +8,6 @@ int yylex();
 /* %start S */
 %token INTEGERS
 %token LINE_OP  
-%token SINGLE_COMMENT
-%token MULTI_COMMENT
 %token IF
 %token ELIF
 %token ELSE
@@ -45,27 +43,29 @@ int yylex();
 %token ID
 %token FLOATS
 %token CONSTRUCTOR
+%token NOT
 %%
 
  S: Func S| Fig S|
- Func:
+ Func: 
  Fig:
- decl : DATATYPE ID  check_arr decl_assign
+ decl : DATATYPE ID check_arr decl_assign ',' decl  | DATATYPE ID  check_arr decl_assign 
  decl_assign : EQUAL decl_token | ;
- decl_token : ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN | point_assign | angle_assign |construct | arr_assign | line_assign | construct; 
- check_arr: '[' INTEGERS  ']' | '[' ']'
+ decl_token :  STATEMENT  | point_assign | angle_assign |construct | arr_assign | line_assign | construct; 
+ check_arr: '[' INTEGERS  ']' | '[' ']' | 
  point_assign : '(' INTEGERS ','  INTEGERS ',' STRING_TOKEN ')'
- angle_assign : '<' ID ID ID display_angle'>' ;
+ angle_assign : '<' ID ID ID ',' BOOLEAN'>' | '<' ID ID ID '>' ;
  line_assign : ID LINE_OP line_assign | ID;
- display_angle : ',' BOOLEAN | ;
  arr_assign : '{' mult_integers '}'| '{''}'
  mult_integers : INTEGERS ',' mult_integers | INTEGERS 
  construct :  CONSTRUCTOR '(' input_list ')';
- input_list:  INTEGERS ',' input_list| ID ',' input_list | FLOATS ',' input_list |FLOATS | INTEGERS  | ID;
- 
+ input_list:  STATEMENT ',' input_list | STATEMENT ;
+ STATEMENT:  STATEMENT '+' STATEMENT | STATEMENT '*' STATEMENT | STATEMENT '/' STATEMENT| STATEMENT '%' STATEMENT | STATEMENT '^' STATEMENT | '(' STATEMENT ')' |  Unary |Func_dec | ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN  ;
+ Unary: UNARY ID | ID UNARY | NOT ID;
+ Func_dec: ID '(' input_list ')';
 %%
 void yyerror(char * s)
-/* yacc error handler */
+/* yacc error handler */| ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN
 {   
     printf ( "%d\n", yylval);
     fprintf (stderr, "%s\n", s);

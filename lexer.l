@@ -22,7 +22,7 @@ relational {">"| "<" |">="| "<=" | "==" | "!=" }
 datatype {"int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"}
 logical {"and"|"or"}
 assign {"+:="|"-:="|"^:="|"/:="|"%:="}
-unary {"++"|"--"|"not"}
+unary {"++"|"--"}
 operators {"+"|"-"|"*"|"/"|"%"|"^"}
 string_literals (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
@@ -49,14 +49,10 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return LINE_OP;
 }
 
-"$"[^$]*\n {
-    return SINGLE_COMMENT;
+"$"[^$]*\n | "$$"[^$]*"$$" {
+    ;
 }
 
-
-"$$"[^$]*"$$" {
-    return MULTI_COMMENT;
-}
 
 "if" {
     return IF;
@@ -127,6 +123,10 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 
 {unary} {
     return UNARY;
+}
+
+"not" {
+    return NOT;
 }
 
 

@@ -13,17 +13,17 @@ extern int error_flag;
 digit [0-9]
 integers {digit}+
 floats {integers}"."{integers}
-parenthesis {"["|"]"|"{"|"}"|"("|")"}
-constructor {"Circle"|"Tri"|"RegPoly"}
-std_token {"INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"}
-boolean {"true" | "false"}
-line_op {"->"|"-"|"<->"}
-relational {">"| "<" |">="| "<=" | "==" | "!=" }
-datatype {"int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"}
-logical {"and"|"or"}
-assign {"+:="|"-:="|"^:="|"/:="|"%:="}
-unary {"++"|"--"}
-operators {"+"|"-"|"*"|"/"|"%"|"^"}
+parenthesis "["|"]"|"{"|"}"|"("|")"
+constructor "Circle"|"Tri"|"RegPoly"|"Para"
+std_token "INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"
+boolean  "true"|"false"
+line_op "->"|"-"|"<->"
+relational ">"| "<" |">="| "<=" | "==" | "!=" 
+datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
+logical "and"|"or"
+assign "+:="|"-:="|"^:="|"/:="|"%:="
+unary "++"|"--"
+operators "+"|"-"|"*"|"/"|"%"|"^"
 string_literals (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
@@ -50,9 +50,8 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 }
 
 "$"[^$]*\n | "$$"[^$]*"$$" {
-    ;
-}
 
+}
 
 "if" {
     return IF;
@@ -88,6 +87,7 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 {operators} {
     return OPERATORS;
 }
+
 "stop" {
     return BREAK;
 }
@@ -107,7 +107,6 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 "|-" {
     return PERPENDICULAR;
 }
-
 
 {boolean} {
     return BOOLEAN;
@@ -129,19 +128,15 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return NOT;
 }
 
-
 {datatype} {
     // fprintf(parsed,"%s",yytext);
     // fprintf(seq,"datatype: %s\n",yytext);
     return DATATYPE;
-    }
-
+}
 
 {relational} {
-    // fprintf(parsed,"%s",yytext);
-    // fprintf(seq,"reserved keyword: %s\n",yytext);
     return REL_OP;
-    }
+}
 
 {assign} {
     return ASSIGN_OP;
@@ -150,6 +145,7 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 ":=" {
     return EQUAL;
 }
+
 {string_literals}  {
     // fprintf(parsed,"%s",yytext);
     // fprintf(seq,"punctuation: \"\n");
@@ -157,13 +153,13 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     // fprintf(seq,"punctuation: \"\n");
     return STRING_TOKEN;
 }
+
 {id} { 
     
     fprintf(parsed,"%s",yytext);
     fprintf(seq,"ID: %s\n",yytext);
     return ID;
     }
-
 
 
 [\t ]   {

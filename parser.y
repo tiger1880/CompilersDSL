@@ -67,13 +67,25 @@ int yylex();
  assignment :  point_assign | line_assign | arr_assign | angle_assign | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
- point_assign : '(' INTEGERS ','  INTEGERS ',' STRING_TOKEN ')'     /* can have floats */
+
+ point_assign : '(' INTEGERS ','  INTEGERS ',' STRING_TOKEN ')' |  
+                '(' FLOATS ','  INTEGERS ',' STRING_TOKEN ')'|
+                '(' INTEGERS ','  FLOATS ',' STRING_TOKEN ')'|
+                '(' FLOATS ','  FLOATS ',' STRING_TOKEN ')';  /* can have floats */
+
  angle_assign : '<' ID ID ID ',' BOOLEAN '>' | '<' ID ID ID '>' ;
+
  line_assign : ID LINE_OP line_assign | ID;
+
  arr_assign : '{' mult_integers '}'| '{''}';       /* can have floats,strings,other datatypes */
- mult_integers : INTEGERS ',' mult_integers | INTEGERS ;
+
+ mult_integers : INTEGERS ',' mult_integers 
+                | FLOATS ',' mult_integers
+                | STRING_TOKEN ',' mult_integers
+                | INTEGERS | FLOATS | STRING_TOKEN ;
  
- construct :  CONSTRUCTOR '(' param_list ')';     
+ construct :  CONSTRUCTOR '(' param_list ')'; 
+     
  param_list:  decl_token ',' param_list | decl_token ;
  
  expression:  expression '+' expression 

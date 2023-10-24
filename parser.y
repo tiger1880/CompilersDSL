@@ -34,6 +34,7 @@ int yylex();
 %token FLOATS
 %token CONSTRUCTOR
 %token NOT
+%token OPERATORS
 %%
 
  S: func S| fig S|;
@@ -85,7 +86,7 @@ int yylex();
                 | INTEGERS | FLOATS | STRING_TOKEN ;
  
  construct :  CONSTRUCTOR '(' param_list ')'; 
-     
+
  param_list:  decl_token ',' param_list | decl_token ;
  
  expression:  expression '+' expression 
@@ -118,7 +119,14 @@ while_loop : WHILE '(' predicate ')' '{' break_stmt '}' ;
 
 
 /* Predicate */
-predicate : ;
+predicate : predicate LOGICAL_OP predicate 
+            | predicate OPERATORS predicate 
+            | predicate REL_OP predicate
+            | predicate PARALLEL predicate 
+            | predicate PERPENDICULAR predicate 
+            | '(' predicate ')' 
+            | NOT predicate
+            | expression ;
 
 
 

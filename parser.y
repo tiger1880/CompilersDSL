@@ -105,7 +105,11 @@ int yylex();
  func_call: ID '(' param_list ')' ;
 
 /* Conditional */
-cond_stmt : ;
+cond_stmt : IF '(' predicate ')' '{' break_stmt '}' 
+            | IF '(' predicate ')' '{' break_stmt '}' ELSE '{' break_stmt '}' 
+            | IF '(' predicate ')' '{' break_stmt '}' elif_stmt '{' break_stmt '}' ELSE '{' break_stmt '}';
+
+elif_stmt : ELIF '(' predicate ')' '{' break_stmt '}' | elif_stmt ELIF '(' predicate ')' '{' break_stmt '}' ;
 
 /* Loops */
 loop : for_loop | while_loop ;

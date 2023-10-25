@@ -1,26 +1,30 @@
 %option yylineno
 
 %{
+
 #include <stdio.h>
 #include "y.tab.h"
+extern FILE *fp,*fout_token,*fout_parse ;
 int line = 0; // what is yylineno for then ?
 extern int error_flag; // ?? 
+
 %}
 
 digit [0-9]
 integers {digit}+
 floats {integers}"."{integers}
 parenthesis "["|"]"|"{"|"}"|"("|")"
+punctuation ,
 constructor "Circle"|"Tri"|"RegPoly"|"Para"
 std_token "INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"
 boolean  "true"|"false"
-line_op "->"|"-"|"<->"
+line_op "->"|"<->"
 relational ">"|"<"|">="|"<="|"=="|"!=" 
 datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
 logical "and"|"or"
 assign "+:="|"-:="|"^:="|"/:="|"%:="
 unary "++"|"--"
-operators "+"|"-"|"*"|"/"|"%"|"^"
+operators "+"|"*"|"/"|"%"|"^"|"-"
 string_literal (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
@@ -37,7 +41,12 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 
 {parenthesis} {
     printf("PARENTHESIS: %s\n", yytext);
-    return PARENTHESIS;
+    return *yytext;
+}
+
+{punctuation} {
+    printf("PUNCTUATION: %s\n", yytext);
+    return *yytext;
 }
 
 {integers} {
@@ -90,7 +99,7 @@ $.*     { printf("line comment: %s\n", yytext);}
 
 {operators} {
     printf("OPERATORS: %s\n", yytext);
-    return OPERATORS;
+    return *yytext;
 }
 
 "stop" {
@@ -119,17 +128,17 @@ $.*     { printf("line comment: %s\n", yytext);}
 }
 
 {boolean} {
-    printf("boolean: %s\n", yytext);
+    printf("BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }
 
 "func" {
-    printf("func: %s\n", yytext);
+    printf("FUNC: %s\n", yytext);
     return FUNC;
 }
 
 "fig" {
-    printf("fig: %s\n", yytext);
+    printf("FIG: %s\n", yytext);
     return FIG;
 }
 
@@ -139,7 +148,7 @@ $.*     { printf("line comment: %s\n", yytext);}
 }
 
 "not" {
-    printf("not: %s\n", yytext);
+    printf("NOT: %s\n", yytext);
     return NOT;
 }
 
@@ -159,17 +168,17 @@ $.*     { printf("line comment: %s\n", yytext);}
 }
 
 ":=" {
-    printf(":= EQUAL: %s\n", yytext);
+    printf("EQUAL: %s\n", yytext);
     return EQUAL;
 }
 
 {string_literal}  {
-    printf("string_literal: %s\n", yytext);
+    printf("STRING_LITERAL: %s\n", yytext);
     return STRING_TOKEN;
 }
 
 {id} { 
-    printf("identifier: %s\n", yytext);
+    printf("IDENTIFIER: %s\n", yytext);
     return ID;
 }
 
@@ -186,11 +195,11 @@ $.*     { printf("line comment: %s\n", yytext);}
     //     exit(1);
     // }
     // fprintf(parsed,"%s",yytext); 
-    return ENDLINE;
+    // return ENDLINE;
 }
 
 . {
-    printf("unmatched: %s\n", yytext);
+    printf("Invalid token: %s\n", yytext);
 }
 
 %%
@@ -201,6 +210,7 @@ int  yywrap(){
     return 1;
 }
 
+/*
 int main(){
 
     printf("here we are\n");
@@ -215,3 +225,4 @@ int main(){
 
     return 0;
 }
+*/

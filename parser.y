@@ -35,6 +35,7 @@ int yylex();
 %token CONSTRUCTOR
 %token NOT
 %token OPERATORS
+%token PARENTHESIS
 %%
 
  S: func S| fig S|;

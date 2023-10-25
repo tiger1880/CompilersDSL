@@ -5,7 +5,7 @@ extern FILE *fp,*fout_token,*fout_parse ;
 void yyerror(char *s);
 int yylex();
 %}
-/* %start S */
+
 %token INTEGERS
 %token LINE_OP  
 %token IF
@@ -37,14 +37,14 @@ int yylex();
 %token OPERATORS
 %%
 
- program: func program | fig program | stmt program | ;
+ program: func program | fig program | stmt program ;
  
  /*Function Defination */
  func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
- arg_list : argument list1 ;
+ arg_list : list1 | ;
+ list1: list1 ',' argument  | argument ; // arglist with atleast 1 argument
  argument : DATATYPE ID ;
- list1 : arg_list | ',' arg_list | ;
- func_body : stmt func_body | ;
+ func_body : func_body stmt | ;
  
  
  /* Figure defination */
@@ -128,22 +128,27 @@ predicate : predicate LOGICAL_OP predicate
             | NOT predicate
             | expression ;
 
-
-
 %%
-void yyerror(char * s)
+
 /* yacc error handler */
+void yyerror(char * s)
 {   
     printf ( "%d\n", yylval);
     fprintf (stderr, "%s\n", s);
 }
   
 int main(int argc, char*argv[])
-{    extern FILE *yyin; 
+{    
+    extern FILE *yyin; 
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
     fout_parse = fopen("parse.txt","w");
     yyin = fp;
-    yyparse();
+    int x = yyparse();
+
+    if (x != 0){
+        fprintf(stderr, "Error in parsing\n");
+    }
+    
     return 0;
 } 

@@ -35,18 +35,17 @@ int yylex();
 %token CONSTRUCTOR
 %token NOT
 %token OPERATORS
-%token PARENTHESIS
 %%
 
- S: func S| fig S|;
+ program: func program | fig program | stmt program | ;
  
  /*Function Defination */
  func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
  arg_list : argument list1 ;
  argument : DATATYPE ID ;
  list1 : arg_list | ',' arg_list | ;
- func_body : func_stmt func_body | ;
- func_stmt : stmt | return_stmt ;
+ func_body : stmt func_body | ;
+ 
  
  /* Figure defination */
  fig: FIG ID '(' params ')' '{' fig_body '}' ;
@@ -54,7 +53,9 @@ int yylex();
         /*| 'scale' EQUAL decl_token ',' 'center' EQUAL decl_token ; */
  fig_body : stmt fig_body | ;
 
- stmt : cond_stmt | loop | decl_stmt | assign_stmt ;
+ stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt ;
+ stmt2 : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt ;
+ break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
  assign_stmt : assign_stmt_defn ENDLINE;
  assign_stmt_defn : ID EQUAL decl_token | ID ASSIGN_OP decl_token | UNARY expression | expression UNARY | func_call ;
@@ -65,7 +66,7 @@ int yylex();
  decl_stmt : DATATYPE ID_LIST ENDLINE;
  ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
  decl_assign : EQUAL decl_token | ;
- decl_token :  expression | assignment;
+ decl_token :  assignment | predicate;
  assignment :  point_assign | line_assign | arr_assign | angle_assign | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
@@ -73,19 +74,16 @@ int yylex();
  point_assign : '(' INTEGERS ','  INTEGERS ',' STRING_TOKEN ')' |  
                 '(' FLOATS ','  INTEGERS ',' STRING_TOKEN ')'|
                 '(' INTEGERS ','  FLOATS ',' STRING_TOKEN ')'|
-                '(' FLOATS ','  FLOATS ',' STRING_TOKEN ')';  /* can have floats */
+                '(' FLOATS ','  FLOATS ',' STRING_TOKEN ')';
 
  angle_assign : '<' ID ID ID ',' BOOLEAN '>' | '<' ID ID ID '>' ;
 
  line_assign : ID LINE_OP line_assign | ID;
 
- arr_assign : '{' mult_integers '}'| '{''}';       /* can have floats,strings,other datatypes */
+ arr_assign : '{' mult_elements '}' | '{''}';      
 
- mult_integers : INTEGERS ',' mult_integers 
-                | FLOATS ',' mult_integers
-                | STRING_TOKEN ',' mult_integers
-                | INTEGERS | FLOATS | STRING_TOKEN ;
- 
+ mult_elements : DATATYPE ',' mult_elements | DATATYPE ; 
+                
  construct :  CONSTRUCTOR '(' param_list ')'; 
 
  param_list:  decl_token ',' param_list | decl_token ;
@@ -106,22 +104,19 @@ int yylex();
  func_call: ID '(' param_list ')' ;
 
 /* Conditional */
-cond_stmt : IF '(' predicate ')' '{' break_stmt '}' 
-            | IF '(' predicate ')' '{' break_stmt '}' ELSE '{' break_stmt '}' 
-            | IF '(' predicate ')' '{' break_stmt '}' elif_stmt '{' break_stmt '}' ELSE '{' break_stmt '}';
+cond_stmt : IF '(' predicate ')' '{' stmt '}' 
+            | IF '(' predicate ')' '{' stmt '}' ELSE '{' stmt '}' 
+            | IF '(' predicate ')' '{' stmt '}' elif_stmt ELSE '{' stmt '}';
 
-elif_stmt : ELIF '(' predicate ')' '{' break_stmt '}' | elif_stmt ELIF '(' predicate ')' '{' break_stmt '}' ;
+elif_stmt : ELIF '(' predicate ')' '{' stmt '}' | elif_stmt ELIF '(' predicate ')' '{' stmt '}' ;
 
 /* Loops */
 loop : for_loop | while_loop ;
 
-break_stmt : stmt | BREAK ENDLINE | CONTINUE ENDLINE ;
-
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' predicate '|' assign_stmt ')' '{' break_stmt '}' ;
+for_loop : FOR '(' for_loop_decl '|' predicate '|' assign_stmt ')' '{' stmt2 '}' ;
 
-while_loop : WHILE '(' predicate ')' '{' break_stmt '}' ;
-
+while_loop : WHILE '(' predicate ')' '{' stmt2 '}' ;
 
 /* Predicate */
 predicate : predicate LOGICAL_OP predicate 

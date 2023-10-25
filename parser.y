@@ -136,7 +136,7 @@ predicate : predicate LOGICAL_OP predicate
 
 %%
 void yyerror(char * s)
-/* yacc error handler */| ID | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN
+/* yacc error handler */
 {   
     printf ( "%d\n", yylval);
     fprintf (stderr, "%s\n", s);

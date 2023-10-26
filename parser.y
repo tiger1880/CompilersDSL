@@ -79,13 +79,8 @@ int yylex();
  decl_stmt : DATATYPE ID_LIST ENDLINE;
  ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
  decl_assign : EQUAL decl_token | ;
-<<<<<<< HEAD
- decl_token :  assignment | predicate;
- assignment :  point | arr_assign | angle | construct ;
-=======
  decl_token :  assignment | expression;
- assignment :  point_assign | line_assign | arr_assign | angle_assign | construct ;
->>>>>>> 5f951b9d075ea56d048aab7ae7ddf5cc02b3da5e
+ assignment :  point | arr_assign | angle | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
   

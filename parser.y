@@ -80,23 +80,19 @@ int yylex();
  ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
  decl_assign : EQUAL decl_token | ;
  decl_token :  assignment | predicate;
- assignment :  point_assign | line_assign | arr_assign | angle_assign | construct ;
+ assignment :  point | arr_assign | angle | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
   
  num:  INTEGERS | FLOATS ; 
 
- point_assign : '(' num ','  num ',' STRING_TOKEN ')' 
+ point : '(' num ','  num ',' STRING_TOKEN ')' 
               |  '(' num ','  num  ')'
               ; 
 
- angle_assign : '<' ID ID ID ',' BOOLEAN '>' 
+ angle : '<' ID ID ID ',' BOOLEAN '>' 
               | '<' ID ID ID '>' 
               ;
-
- line_assign : ID LINE_OP line_assign 
-             | ID
-             ;
 
  arr_assign : '{' mult_elements '}' | '{''}';      
 
@@ -106,15 +102,21 @@ int yylex();
 
  param_list:  decl_token ',' param_list | decl_token ;
  
+// need to take care of arrays, unary
+// test: norms, member access
  expression:  expression '+' expression 
             | expression '-' expression 
             | expression '*' expression 
             | expression '/' expression
             | expression '%' expression 
             | expression '^' expression 
-            | '-' expression
-            /* | UNARY factor */
-            /* | factor UNARY */
+            | expression LINE_OP expression
+            | expression PARALLEL expression
+            | expression PERPENDICULAR expression
+            | PARALLEL expression PARALLEL
+            | '-' expression //check precedence => create test case
+            /* | UNARY id_list */
+            /* | id_list UNARY */
             | NOT expression 
             | expression AND expression
             | expression OR expression
@@ -122,17 +124,21 @@ int yylex();
             | expression ASSIGN_OP expression
             | expression CMP_OP expression
             | expression EQ_CMP_OP expression
-            /* | ID */
+            | id_list
+            /* | id_list '.' func_call */
             | FLOATS 
             | INTEGERS 
             | STRING_TOKEN 
             | BOOLEAN 
-            | func_call
-            | point_assign
-            | line_assign
-            | angle_assign
+            /* | func_call */
+            | point
+            | angle
             | '(' expression ')'
             ; 
+
+ id_list: id_list '.' ID  // will ensure left to right associativity
+        | ID
+        ;   
 
  func_call: ID '(' param_list ')' ;
 

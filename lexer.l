@@ -1,5 +1,3 @@
-%option yylineno
-
 %{
 
 #include <stdio.h>

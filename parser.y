@@ -116,30 +116,28 @@ int yylex();
             | ID 
             | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN  ;
     */
- expression:  factor '+' factor 
-            | factor '*' factor 
-            | factor '/' factor
-            | factor '%' factor 
-            | factor '^' factor 
+ expression:  expression '+' expression 
+            | expression '*' expression 
+            | expression '/' expression
+            | expression '%' expression 
+            | expression '^' expression 
             /* | UNARY factor */
             /* | factor UNARY */
-            | NOT factor 
-            | factor AND factor
-            | factor OR factor 
-            | factor EQUAL factor 
-            | factor ASSIGN_OP factor
-            | factor CMP_OP factor
-            | factor EQ_CMP_OP factor
-            | factor
-            ;
- factor: ID
-       | FLOATS 
-       | INTEGERS  
-       | STRING_TOKEN 
-       | BOOLEAN 
-       /* | func_call */
-       | '(' expression ')'
-       ;  
+            | NOT expression 
+            | expression AND expression
+            | expression OR expression
+            | expression EQUAL expression
+            | expression ASSIGN_OP expression
+            | expression CMP_OP expression
+            | expression EQ_CMP_OP expression
+            | ID
+            | FLOATS 
+            | INTEGERS //add unary -9 type
+            | STRING_TOKEN 
+            | BOOLEAN 
+            /* | func_call */
+            | '(' expression ')'
+            ; 
 
  func_call: ID '(' param_list ')' ;
 

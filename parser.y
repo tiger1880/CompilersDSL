@@ -68,14 +68,13 @@ int yylex();
  fig_body : fig_body stmt | ;
 
  /* Statements */
- stmt : cond_stmt | loop | decl_stmt | return_stmt ;
- stmt2 : cond_stmt | loop | decl_stmt | return_stmt | break_stmt ;
+ stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt ;
+ stmt2 : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt ;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
- //assign_stmt : assign_stmt_defn ENDLINE;
- //assign_stmt_defn : ID EQUAL decl_token | ID ASSIGN_OP decl_token | UNARY expression | expression UNARY | func_call ;
-
- return_stmt : RETURN ret_var ;
+ assign_stmt : expression ENDLINE;
+ 
+ return_stmt : RETURN ret_var ENDLINE;
  ret_var : decl_token | VOID ; 
  
  decl_stmt : DATATYPE ID_LIST ENDLINE;

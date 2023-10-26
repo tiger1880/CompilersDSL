@@ -56,6 +56,8 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return LINE_OP;
 }
 
+"."  {printf("MEMEBER ACCESS: ."); return *yytext;}
+
 $.*     { printf("line comment: %s\n", yytext);}
 "$$"([^$]|$[^$])*"$$" { printf("block comment: %s\n", yytext);}
 

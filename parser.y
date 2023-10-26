@@ -39,13 +39,15 @@ int yylex();
 // precedence
 
 %right EQUAL ASSIGN_OP
+%left PARALLEL PERPENDICULAR
 %left OR 
 %left AND
 %left EQ_CMP_OP
 %left CMP_OP 
-%left '+' '-'
+%left '+' '-' LINE_OP
 %left '*' '/' '%'
 %left '^'
+%nonassoc UNARY
 %right NOT
 
 %%
@@ -66,12 +68,12 @@ int yylex();
  fig_body : fig_body stmt | ;
 
  /* Statements */
- stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt ;
- stmt2 : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt ;
+ stmt : cond_stmt | loop | decl_stmt | return_stmt ;
+ stmt2 : cond_stmt | loop | decl_stmt | return_stmt | break_stmt ;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
- assign_stmt : assign_stmt_defn ENDLINE;
- assign_stmt_defn : ID EQUAL decl_token | ID ASSIGN_OP decl_token | UNARY expression | expression UNARY | func_call ;
+ //assign_stmt : assign_stmt_defn ENDLINE;
+ //assign_stmt_defn : ID EQUAL decl_token | ID ASSIGN_OP decl_token | UNARY expression | expression UNARY | func_call ;
 
  return_stmt : RETURN ret_var ;
  ret_var : decl_token | VOID ; 
@@ -80,7 +82,7 @@ int yylex();
  ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
  decl_assign : EQUAL decl_token | ;
  decl_token :  assignment | expression;
- assignment :  point | arr_assign | angle | construct ;
+ assignment :  arr_assign | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
   
@@ -114,9 +116,9 @@ int yylex();
             | expression PARALLEL expression
             | expression PERPENDICULAR expression
             | PARALLEL expression PARALLEL
-            | '-' expression //check precedence => create test case
-            /* | UNARY id_list */
-            /* | id_list UNARY */
+            | '-' expression //check precedence => create test case 
+            | UNARY expression 
+            | expression UNARY 
             | NOT expression 
             | expression AND expression
             | expression OR expression
@@ -130,7 +132,7 @@ int yylex();
             | INTEGERS 
             | STRING_TOKEN 
             | BOOLEAN 
-            /* | func_call */
+            | func_call 
             | point
             | angle
             | '(' expression ')'
@@ -153,20 +155,11 @@ elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' assign_stmt ')' '{' stmt2 '}' ;
+for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt2 '}' ;
 
 while_loop : WHILE '(' expression ')' '{' stmt2 '}' ;
 
-/* Predicate 
-predicate : predicate LOGICAL_OP predicate 
-            | predicate OPERATORS predicate 
-            | predicate REL_OP predicate
-            | predicate PARALLEL predicate 
-            | predicate PERPENDICULAR predicate 
-            | '(' predicate ')' 
-            | NOT predicate
-            | expression ;
-*/
+
 
 %%
 

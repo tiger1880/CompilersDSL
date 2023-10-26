@@ -17,7 +17,7 @@ int yylex();
 %token VOID
 %token CONTINUE
 %token BREAK
-%token LOGICAL_OP
+%token LOGICAL_OP REL_OP// remove
 %token PARALLEL
 %token PERPENDICULAR
 %token BOOLEAN
@@ -25,7 +25,7 @@ int yylex();
 %token FIG
 %token UNARY
 %token DATATYPE
-%token REL_OP
+%token CMP_OP EQ_CMP_OP
 %token ASSIGN_OP
 %token EQUAL
 %token STRING_TOKEN
@@ -33,11 +33,25 @@ int yylex();
 %token ID
 %token FLOATS
 %token CONSTRUCTOR
-%token NOT
+%token NOT AND OR 
 %token OPERATORS
+
+// precedence
+
+%right EQUAL ASSIGN_OP
+%left OR 
+%left AND
+%left EQ_CMP_OP
+%left CMP_OP 
+%left '+' '-'
+%left '*' '/' '%'
+%left '^'
+%right NOT
+
 %%
 
- program: func program | fig program | stmt program ;
+ program: func program | fig program | stmt program | ; // favour left recursion since it leads to smaller stack
+ // empty program ??
  
  /*Function Defination */
  func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
@@ -46,13 +60,13 @@ int yylex();
  argument : DATATYPE ID ;
  func_body : func_body stmt | ;
  
- 
- /* Figure defination */
+ /* Figure Defination */
  fig: FIG ID '(' params ')' '{' fig_body '}' ;
  params : decl_token ',' decl_token ;
         /*| 'scale' EQUAL decl_token ',' 'center' EQUAL decl_token ; */
- fig_body : stmt fig_body | ;
+ fig_body : fig_body stmt | ;
 
+ /* Statements */
  stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt ;
  stmt2 : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt ;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
@@ -88,6 +102,7 @@ int yylex();
 
  param_list:  decl_token ',' param_list | decl_token ;
  
+ /*
  expression:  expression '+' expression 
             | expression '*' expression 
             | expression '/' expression
@@ -100,7 +115,32 @@ int yylex();
             | func_call 
             | ID 
             | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN  ;
- 
+    */
+ expression:  factor '+' factor 
+            | factor '*' factor 
+            | factor '/' factor
+            | factor '%' factor 
+            | factor '^' factor 
+            /* | UNARY factor */
+            /* | factor UNARY */
+            | NOT factor 
+            | factor AND factor
+            | factor OR factor 
+            | factor EQUAL factor 
+            | factor ASSIGN_OP factor
+            | factor CMP_OP factor
+            | factor EQ_CMP_OP factor
+            | factor
+            ;
+ factor: ID
+       | FLOATS 
+       | INTEGERS  
+       | STRING_TOKEN 
+       | BOOLEAN 
+       /* | func_call */
+       | '(' expression ')'
+       ;  
+
  func_call: ID '(' param_list ')' ;
 
 /* Conditional */
@@ -149,6 +189,6 @@ int main(int argc, char*argv[])
     if (x != 0){
         fprintf(stderr, "Error in parsing\n");
     }
-    
+
     return 0;
 } 

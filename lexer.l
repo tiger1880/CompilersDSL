@@ -19,10 +19,9 @@ constructor "Circle"|"Tri"|"RegPoly"|"Para"
 std_token "INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"
 boolean  "true"|"false"
 line_op "->"|"<->"
-relational ">"|"<"|">="|"<="|"=="|"!=" 
+cmp_op ">"|"<"|">="|"<="
 datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
-logical "and"|"or"
-assign "+:="|"-:="|"^:="|"/:="|"%:="
+assign "+:="|"-:="|"^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
 operators "+"|"*"|"/"|"%"|"^"|"-"
 string_literal (\"([^"]|"\\\"")*\")
@@ -112,9 +111,14 @@ $.*     { printf("line comment: %s\n", yytext);}
     return CONTINUE;
 }
 
-{logical} {
+and {
     printf("LOGICAL_OP: %s\n", yytext);
-    return LOGICAL_OP;
+    return AND;
+}
+
+or {
+    printf("LOGICAL_OP: %s\n", yytext);
+    return OR;
 }
 
 "||" {
@@ -157,10 +161,15 @@ $.*     { printf("line comment: %s\n", yytext);}
     return DATATYPE;
 }
 
-{relational} {
-    printf("REL_OP: %s\n", yytext);
-    return REL_OP;
+{cmp_op} {
+    printf("CMP_OP: %s\n", yytext);
+    return CMP_OP;
 }
+
+"=="|"!=" {
+    printf("EQ_CMP_OP: %s\n", yytext);
+    return EQ_CMP_OP
+} 
 
 {assign} {
     printf("ASSIGN_OP: %s\n", yytext);
@@ -195,7 +204,7 @@ $.*     { printf("line comment: %s\n", yytext);}
     //     exit(1);
     // }
     // fprintf(parsed,"%s",yytext); 
-    // return ENDLINE;
+    return ENDLINE;
 }
 
 . {

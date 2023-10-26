@@ -80,7 +80,7 @@ int yylex();
  decl_stmt : DATATYPE ID_LIST ENDLINE;
  ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
  decl_assign : EQUAL decl_token | ;
- decl_token :  assignment | predicate;
+ decl_token :  assignment | expression;
  assignment :  point_assign | line_assign | arr_assign | angle_assign | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
@@ -121,8 +121,8 @@ int yylex();
             | expression '/' expression
             | expression '%' expression 
             | expression '^' expression 
-            /* | UNARY factor */
-            /* | factor UNARY */
+            /* | UNARY expression */
+            /* | expression UNARY */
             | NOT expression 
             | expression AND expression
             | expression OR expression
@@ -130,33 +130,33 @@ int yylex();
             | expression ASSIGN_OP expression
             | expression CMP_OP expression
             | expression EQ_CMP_OP expression
-            | ID
+            /*| ID */
             | FLOATS 
             | INTEGERS //add unary -9 type
             | STRING_TOKEN 
             | BOOLEAN 
-            /* | func_call */
+            | func_call 
             | '(' expression ')'
             ; 
 
  func_call: ID '(' param_list ')' ;
 
 /* Conditional */
-cond_stmt : IF '(' predicate ')' '{' stmt '}' 
-            | IF '(' predicate ')' '{' stmt '}' ELSE '{' stmt '}' 
-            | IF '(' predicate ')' '{' stmt '}' elif_stmt ELSE '{' stmt '}';
+cond_stmt : IF '(' expression ')' '{' stmt '}' 
+            | IF '(' expression ')' '{' stmt '}' ELSE '{' stmt '}' 
+            | IF '(' expression ')' '{' stmt '}' elif_stmt ELSE '{' stmt '}';
 
-elif_stmt : ELIF '(' predicate ')' '{' stmt '}' | elif_stmt ELIF '(' predicate ')' '{' stmt '}' ;
+elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression ')' '{' stmt '}' ;
 
 /* Loops */
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' predicate '|' assign_stmt ')' '{' stmt2 '}' ;
+for_loop : FOR '(' for_loop_decl '|' expression '|' assign_stmt ')' '{' stmt2 '}' ;
 
-while_loop : WHILE '(' predicate ')' '{' stmt2 '}' ;
+while_loop : WHILE '(' expression ')' '{' stmt2 '}' ;
 
-/* Predicate */
+/* Predicate 
 predicate : predicate LOGICAL_OP predicate 
             | predicate OPERATORS predicate 
             | predicate REL_OP predicate
@@ -165,6 +165,7 @@ predicate : predicate LOGICAL_OP predicate
             | '(' predicate ')' 
             | NOT predicate
             | expression ;
+*/
 
 %%
 

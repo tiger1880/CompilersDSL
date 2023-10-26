@@ -51,7 +51,6 @@ int yylex();
 %%
 
  program: func program | fig program | stmt program | ; // favour left recursion since it leads to smaller stack
- // empty program ??
  
  /*Function Defination */
  func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
@@ -84,15 +83,20 @@ int yylex();
  assignment :  point_assign | line_assign | arr_assign | angle_assign | construct ;
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
+  
+ num:  INTEGERS | FLOATS ; 
 
- point_assign : '(' INTEGERS ','  INTEGERS ',' STRING_TOKEN ')' |  
-                '(' FLOATS ','  INTEGERS ',' STRING_TOKEN ')'|
-                '(' INTEGERS ','  FLOATS ',' STRING_TOKEN ')'|
-                '(' FLOATS ','  FLOATS ',' STRING_TOKEN ')';
+ point_assign : '(' num ','  num ',' STRING_TOKEN ')' 
+              |  '(' num ','  num  ')'
+              ; 
 
- angle_assign : '<' ID ID ID ',' BOOLEAN '>' | '<' ID ID ID '>' ;
+ angle_assign : '<' ID ID ID ',' BOOLEAN '>' 
+              | '<' ID ID ID '>' 
+              ;
 
- line_assign : ID LINE_OP line_assign | ID;
+ line_assign : ID LINE_OP line_assign 
+             | ID
+             ;
 
  arr_assign : '{' mult_elements '}' | '{''}';      
 
@@ -102,25 +106,13 @@ int yylex();
 
  param_list:  decl_token ',' param_list | decl_token ;
  
- /*
  expression:  expression '+' expression 
+            | expression '-' expression 
             | expression '*' expression 
             | expression '/' expression
             | expression '%' expression 
             | expression '^' expression 
-            | '(' expression ')' 
-            | UNARY expression
-            | expression UNARY
-            | NOT expression 
-            | func_call 
-            | ID 
-            | FLOATS | INTEGERS | STRING_TOKEN | BOOLEAN  ;
-    */
- expression:  expression '+' expression 
-            | expression '*' expression 
-            | expression '/' expression
-            | expression '%' expression 
-            | expression '^' expression 
+            | '-' expression
             /* | UNARY factor */
             /* | factor UNARY */
             | NOT expression 
@@ -130,12 +122,15 @@ int yylex();
             | expression ASSIGN_OP expression
             | expression CMP_OP expression
             | expression EQ_CMP_OP expression
-            | ID
+            /* | ID */
             | FLOATS 
-            | INTEGERS //add unary -9 type
+            | INTEGERS 
             | STRING_TOKEN 
             | BOOLEAN 
-            /* | func_call */
+            | func_call
+            | point_assign
+            | line_assign
+            | angle_assign
             | '(' expression ')'
             ; 
 

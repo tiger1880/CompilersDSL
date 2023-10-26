@@ -168,7 +168,7 @@ or {
 
 "=="|"!=" {
     printf("EQ_CMP_OP: %s\n", yytext);
-    return EQ_CMP_OP
+    return EQ_CMP_OP;
 } 
 
 {assign} {

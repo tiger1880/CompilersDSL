@@ -1,11 +1,11 @@
+%option yylineno
+
 %{
 
-#include <stdio.h>
-#include "y.tab.h"
-extern FILE *fp,*fout_token,*fout_parse ;
-int line = 0; // what is yylineno for then ?
-extern int error_flag; // ?? 
-
+    #include <stdio.h>
+    #include "y.tab.h"
+    FILE *fp,*fout_token,*fout_parse ;
+    
 %}
 
 digit [0-9]
@@ -197,7 +197,7 @@ or {
 }
 
 \n  {
-    line++; 
+    // line++; 
     // if(error_flag!=0) 
     // {
     //     // fprintf(parsed," : invalid statement");
@@ -208,14 +208,13 @@ or {
 }
 
 . {
-    printf("Invalid token: %s\n", yytext);
+    fprintf(stderr,"Error: Invalid token: %s\n", yytext);
+    exit(1);
 }
 
 %%
 
-
 int  yywrap(){
-
     return 1;
 }
 

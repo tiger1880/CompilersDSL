@@ -1,9 +1,13 @@
 %{
-#include <stdio.h>
-FILE *yyin; // input file
-extern FILE *fp,*fout_token,*fout_parse ;
-void yyerror(char *s);
-int yylex();
+    #include <stdio.h>
+    
+    void yyerror(const char *s);
+    int yylex();
+
+    extern FILE *fp,*fout_token,*fout_parse ;
+    extern int yylineno;
+    extern char* yytext;
+
 %}
 
 %token INTEGERS
@@ -55,14 +59,14 @@ int yylex();
  program: func program | fig program | stmt program | ; // favour left recursion since it leads to smaller stack
  
  /*Function Defination */
- func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
+ func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}';
  arg_list : list1 | ;
  list1: list1 ',' argument  | argument ; // arglist with atleast 1 argument
  argument : DATATYPE ID ;
  func_body : func_body stmt | ;
  
  /* Figure Defination */
- fig: FIG ID '(' params ')' '{' fig_body '}' ;
+ fig: FIG ID '(' params ')' '{' fig_body '}' ; 
  params : decl_token ',' decl_token ;
         /*| 'scale' EQUAL decl_token ',' 'center' EQUAL decl_token ; */
  fig_body : fig_body stmt | ;
@@ -83,19 +87,19 @@ int yylex();
  decl_token :  assignment | expression;
  assignment :  arr_assign | construct ;
  
- check_arr: '[' INTEGERS  ']' | '[' ']' | ;
+ check_arr: '[' INTEGERS ']' | '['']'   | ;
   
  num:  INTEGERS | FLOATS ; 
 
- point : '(' num ','  num ',' STRING_TOKEN ')' 
-              |  '(' num ','  num  ')'
+ point : '(' num ',' num ',' STRING_TOKEN ')'  
+              |  '(' num ','  num ')'  
               ; 
 
  angle : '<' ID ID ID ',' BOOLEAN '>' 
               | '<' ID ID ID '>' 
               ;
 
- arr_assign : '{' mult_elements '}' | '{''}';      
+ arr_assign : '{' mult_elements'}' | '{' '}' ;      
 
  mult_elements : DATATYPE ',' mult_elements | DATATYPE ; 
                 
@@ -134,7 +138,7 @@ int yylex();
             | func_call 
             | point
             | angle
-            | '(' expression ')'
+            | '(' expression ')'  
             ; 
 
  id_list: id_list '.' ID  // will ensure left to right associativity
@@ -144,8 +148,8 @@ int yylex();
  func_call: ID '(' param_list ')' ;
 
 /* Conditional */
-cond_stmt : IF '(' expression ')' '{' stmt '}' 
-            | IF '(' expression ')' '{' stmt '}' ELSE '{' stmt '}' 
+cond_stmt : IF '(' expression ')' '{' stmt '}'  
+            | IF '(' expression ')' '{' stmt '}'   ELSE '{' stmt '}'   
             | IF '(' expression ')' '{' stmt '}' elif_stmt ELSE '{' stmt '}';
 
 elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression ')' '{' stmt '}' ;
@@ -154,19 +158,16 @@ elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt2 '}' ;
+for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt2 '}'  ;
 
-while_loop : WHILE '(' expression ')' '{' stmt2 '}' ;
-
-
+while_loop : WHILE '(' expression ')' '{' stmt2 '}'  ;
 
 %%
 
 /* yacc error handler */
-void yyerror(char * s)
+void yyerror(const char * s)
 {   
-    printf ( "%d\n", yylval);
-    fprintf (stderr, "%s\n", s);
+    fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
   
 int main(int argc, char*argv[])

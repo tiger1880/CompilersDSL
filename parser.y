@@ -179,6 +179,7 @@ int main(int argc, char*argv[])
 
     if (x != 0){
         fprintf(stderr, "Error in parsing\n");
+        return 1;
     }
 
     return 0;

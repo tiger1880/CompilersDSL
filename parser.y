@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
-FILE *yyin; // input file
-extern FILE *fp,*fout_token,*fout_parse ;
+extern FILE *yyin; // input file
+FILE* fout_token;
 void yyerror(char *s);
 int yylex();
 %}
@@ -171,7 +171,7 @@ void yyerror(char * s)
   
 int main(int argc, char*argv[])
 {    
-    extern FILE *yyin; 
+    FILE *fp,*fout_parse ;
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
     fout_parse = fopen("parse.txt","w");

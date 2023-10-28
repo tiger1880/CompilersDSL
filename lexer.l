@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include "y.tab.h"
-extern FILE *fp,*fout_token,*fout_parse ;
+extern FILE *fout_token;
 int line = 0; // what is yylineno for then ?
 extern int error_flag; // ?? 
 
@@ -27,167 +27,167 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 {floats} {
-    printf("FLOATS: %s\n", yytext);
+    fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
 }
 
 {constructor} {
-    printf("CONSTRUCTOR: %s\n", yytext);
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
     return CONSTRUCTOR;
 }
 
 {parenthesis} {
-    printf("PARENTHESIS: %s\n", yytext);
+    fprintf(fout_token, "PARENTHESIS: %s\n", yytext);
     return *yytext;
 }
 
 {punctuation} {
-    printf("PUNCTUATION: %s\n", yytext);
+    fprintf(fout_token, "PUNCTUATION: %s\n", yytext);
     return *yytext;
 }
 
 {integers} {
-    printf("INTEGERS: %s\n", yytext);
+    fprintf(fout_token, "INTEGERS: %s\n", yytext);
     return INTEGERS;
 }
 
 {line_op} {
-    printf("LINE_OP: %s\n", yytext);
+    fprintf(fout_token, "LINE_OP: %s\n", yytext);
     return LINE_OP;
 }
 
-"."  {printf("MEMEBER ACCESS: ."); return *yytext;}
+"."  {fprintf(fout_token, "MEMEBER ACCESS: ."); return *yytext;}
 
-$.*     { printf("line comment: %s\n", yytext);}
-"$$"([^$]|$[^$])*"$$" { printf("block comment: %s\n", yytext);}
+$.*     { fprintf(fout_token, "line comment: %s\n", yytext);}
+"$$"([^$]|$[^$])*"$$" { fprintf(fout_token, "block comment: %s\n", yytext);}
 
 "if" {
-    printf("IF: %s\n", yytext);
+    fprintf(fout_token, "IF: %s\n", yytext);
     return IF;
 } 
 
 "elif" {
-    printf("ELIF: %s\n", yytext);
+    fprintf(fout_token, "ELIF: %s\n", yytext);
     return ELIF;
 }
 
 "else" {
-    printf("ELSE: %s\n", yytext);
+    fprintf(fout_token, "ELSE: %s\n", yytext);
     return ELSE;
 }
 
 "repeat" {
-    printf("FOR: %s\n", yytext);
+    fprintf(fout_token, "FOR: %s\n", yytext);
     return FOR;
 }
 
 "until" {
-    printf("WHILE: %s\n", yytext);
+    fprintf(fout_token, "WHILE: %s\n", yytext);
     return WHILE;
 }
 
 "return" {
-    printf("RETURN: %s\n", yytext);
+    fprintf(fout_token, "RETURN: %s\n", yytext);
     return RETURN;
 }
 
 "void" {
-    printf("VOID: %s\n", yytext);
+    fprintf(fout_token, "VOID: %s\n", yytext);
     return VOID;
 }
 
 {operators} {
-    printf("OPERATORS: %s\n", yytext);
+    fprintf(fout_token, "OPERATORS: %s\n", yytext);
     return *yytext;
 }
 
 "stop" {
-    printf("STOP: %s\n", yytext);
+    fprintf(fout_token, "STOP: %s\n", yytext);
     return BREAK;
 }
 
 "advance" {
-    printf("CONTINUE: %s\n", yytext);
+    fprintf(fout_token, "CONTINUE: %s\n", yytext);
     return CONTINUE;
 }
 
 and {
-    printf("LOGICAL_OP: %s\n", yytext);
+    fprintf(fout_token, "LOGICAL_OP: %s\n", yytext);
     return AND;
 }
 
 or {
-    printf("LOGICAL_OP: %s\n", yytext);
+    fprintf(fout_token, "LOGICAL_OP: %s\n", yytext);
     return OR;
 }
 
 "||" {
-    printf("PARALLEL: %s\n", yytext);
+    fprintf(fout_token, "PARALLEL: %s\n", yytext);
     return PARALLEL;
 }
 
 "|-" {
-    printf("PERPENDICULAR: %s\n", yytext);
+    fprintf(fout_token, "PERPENDICULAR: %s\n", yytext);
     return PERPENDICULAR;
 }
 
 {boolean} {
-    printf("BOOLEAN: %s\n", yytext);
+    fprintf(fout_token, "BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }
 
 "func" {
-    printf("FUNC: %s\n", yytext);
+    fprintf(fout_token, "FUNC: %s\n", yytext);
     return FUNC;
 }
 
 "fig" {
-    printf("FIG: %s\n", yytext);
+    fprintf(fout_token, "FIG: %s\n", yytext);
     return FIG;
 }
 
 {unary} {
-    printf("UNARY: %s\n", yytext);
+    fprintf(fout_token, "UNARY: %s\n", yytext);
     return UNARY;
 }
 
 "not" {
-    printf("NOT: %s\n", yytext);
+    fprintf(fout_token, "NOT: %s\n", yytext);
     return NOT;
 }
 
 {datatype} {
-    printf("DATATYPE: %s\n", yytext);
+    fprintf(fout_token, "DATATYPE: %s\n", yytext);
     return DATATYPE;
 }
 
 {cmp_op} {
-    printf("CMP_OP: %s\n", yytext);
+    fprintf(fout_token, "CMP_OP: %s\n", yytext);
     return CMP_OP;
 }
 
 "=="|"!=" {
-    printf("EQ_CMP_OP: %s\n", yytext);
+    fprintf(fout_token, "EQ_CMP_OP: %s\n", yytext);
     return EQ_CMP_OP;
 } 
 
 {assign} {
-    printf("ASSIGN_OP: %s\n", yytext);
+    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
     return ASSIGN_OP;
 }
 
 ":=" {
-    printf("EQUAL: %s\n", yytext);
+    fprintf(fout_token, "EQUAL: %s\n", yytext);
     return EQUAL;
 }
 
 {string_literal}  {
-    printf("STRING_LITERAL: %s\n", yytext);
+    fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     return STRING_TOKEN;
 }
 
 {id} { 
-    printf("IDENTIFIER: %s\n", yytext);
+    fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
     return ID;
 }
 
@@ -218,20 +218,3 @@ int  yywrap(){
 
     return 1;
 }
-
-/*
-int main(){
-
-    printf("here we are\n");
-
-    int x;
-    do{
-        x = yylex();
-    }
-    while(x != 0);
-
-    printf("and now we are no more\n");
-
-    return 0;
-}
-*/

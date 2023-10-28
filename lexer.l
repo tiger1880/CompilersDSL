@@ -9,8 +9,8 @@ extern int error_flag; // ??
 %}
 
 digit [0-9]
-integers {digit}+
-floats {integers}"."{integers}
+integers [1-9][0-9]*|0
+floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
 constructor "Circle"|"Tri"|"RegPoly"|"Para"

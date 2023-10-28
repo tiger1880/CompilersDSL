@@ -1,4 +1,4 @@
-# CompilersDSL
+# Angle
 
 ## Table of contents
 
@@ -14,7 +14,7 @@
 ## make Commands
 
 ## Authors - Team 7
-- Tejal Kulkarni - CS21BTECH11058
+- Tejal Kulkarni    - CS21BTECH11058
 - Nitya Bhamidipaty - CS21BTECH11041
-- Deepshikha - CS21BTECH11016
-- Muskan Jaiswal - CS21BTECH11037
+- Deepshikha        - CS21BTECH11016
+- Muskan Jaiswal    - CS21BTECH11037

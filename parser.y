@@ -66,8 +66,8 @@ int yydebug = 1;
  
  /* Figure Defination */
  fig: FIG ID '(' params ')' '{' fig_body '}' ;
- params : decl_token ',' decl_token 
-        | SCALE EQUAL decl_token ',' CENTER EQUAL decl_token ;
+ params : expression ',' expression 
+        | SCALE EQUAL expression ',' CENTER EQUAL expression ;
  fig_body : fig_body stmt | ;
 
  /* Statements */
@@ -75,10 +75,10 @@ int yydebug = 1;
  stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
- assign_stmt : expression ENDLINE ;
+ assign_stmt : expression ENDLINE | construct ENDLINE;
  
  return_stmt : RETURN ret_var ENDLINE;
- ret_var : decl_token | ; 
+ ret_var : construct | expression | ; 
  
  decl_stmt : DATATYPE ID_LIST ENDLINE;
 
@@ -99,11 +99,12 @@ int yydebug = 1;
                 
  construct :  CONSTRUCTOR '(' param_list ')' | CONSTRUCTOR '(' ')' ; 
 
- param_list: param_list ',' decl_token | decl_token ;
+ valid_arg: construct | expression ;
+ param_list: param_list ',' valid_arg | valid_arg ;
  
  point : '(' expression ','  expression ',' STRING_TOKEN ')' 
-              |  '(' expression ','  expression  ')'
-              ; 
+        |  '(' expression ','  expression  ')'
+        ; 
 
  vertex: ID | point ;
 
@@ -113,6 +114,7 @@ int yydebug = 1;
 
 // need to take care of arrays
 // test: norms, member access
+// cannot have constructors in expressions
  expression:  expression '+' expression 
             | expression '-' expression 
             | expression '*' expression 

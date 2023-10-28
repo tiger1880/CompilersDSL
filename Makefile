@@ -35,7 +35,7 @@ run: $(TARGET)
 
 # Test target: run tests for the lexer and parser
 test: $(TEST)
-	./$(TEST)
+	bash $(TEST)
 
 
  

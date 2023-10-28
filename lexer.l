@@ -186,6 +186,11 @@ or {
     return EQ_CMP_OP;
 } 
 
+"|" {
+    fprintf(fout_token, "SEPERATOR: %s\n", yytext);
+    return *yytext;
+}
+
 {assign} {
     fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
     return ASSIGN_OP;

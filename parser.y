@@ -156,12 +156,19 @@ int yydebug = 1;
 
  func_call: id_list '(' param_list ')' | id_list '(' ')' ;
 
-/* Conditional */
-cond_stmt : IF '(' expression ')' '{' stmt '}' 
-            | IF '(' expression ')' '{' stmt '}' ELSE '{' stmt '}' 
-            | IF '(' expression ')' '{' stmt '}' elif_stmt ELSE '{' stmt '}';
 
-elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression ')' '{' stmt '}' ;
+stmt_list: stmt_list stmt | stmt ;  
+stmt_block: '{' stmt_list '}' | '{' '}';
+
+/* Conditional */
+cond_stmt : IF '(' expression ')' stmt_block
+            | IF '(' expression ')' stmt_block ELSE stmt_block 
+            | IF '(' expression ')' stmt_block elif_stmt ELSE stmt_block;
+
+elif_stmt : ELIF '(' expression ')' stmt_block | elif_stmt ELIF '(' expression ')' stmt_block;
+
+/* stmt_list: stmt_list stmt | stmt ;   */
+/* stmt_block: '{' stmt_list '}' | '{' '}'; */
 
 /* Loops */
 loop : for_loop | while_loop ;

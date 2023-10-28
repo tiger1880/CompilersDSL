@@ -4,6 +4,7 @@ extern FILE *yyin; // input file
 FILE* fout_token;
 void yyerror(char *s);
 int yylex();
+int yydebug = 1;
 %}
 
 %token INTEGERS
@@ -33,7 +34,7 @@ int yylex();
 %token FLOATS
 %token CONSTRUCTOR
 %token NOT AND OR 
-%token OPERATORS
+%token SCALE CENTER
 
 // precedence
 
@@ -65,8 +66,8 @@ int yylex();
  
  /* Figure Defination */
  fig: FIG ID '(' params ')' '{' fig_body '}' ;
- params : decl_token ',' decl_token ;
-        /*| 'scale' EQUAL decl_token ',' 'center' EQUAL decl_token ; */
+ params : decl_token ',' decl_token 
+        | SCALE EQUAL decl_token ',' CENTER EQUAL decl_token ;
  fig_body : fig_body stmt | ;
 
  /* Statements */
@@ -74,7 +75,7 @@ int yylex();
  stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
- assign_stmt : expression ENDLINE;
+ assign_stmt : expression ENDLINE ;
  
  return_stmt : RETURN ret_var ENDLINE;
  ret_var : decl_token | ; 
@@ -124,7 +125,7 @@ int yylex();
             | NOT expression 
             | expression AND expression
             | expression OR expression
-            | expression EQUAL expression
+            | id_list EQUAL expression
             | expression ASSIGN_OP expression
             | expression CMP_OP expression
             | expression EQ_CMP_OP expression

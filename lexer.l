@@ -17,7 +17,7 @@ constructor "Circle"|"Tri"|"RegPoly"|"Para"
 std_token "INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"
 boolean  "true"|"false"
 line_op "->"|"<->"
-cmp_op ">"|"<"|">="|"<="
+cmp_op ">="|"<="
 datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
 assign "+:="|"-:="|"^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
@@ -41,6 +41,16 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return *yytext;
 }
 
+scale {
+    fprintf(fout_token, "KEYWORD: %s\n", yytext);
+    return SCALE;
+}
+
+center {
+    fprintf(fout_token, "KEYWORD: %s\n", yytext);
+    return CENTER;
+}
+
 {punctuation} {
     fprintf(fout_token, "PUNCTUATION: %s\n", yytext);
     return *yytext;
@@ -56,7 +66,7 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return LINE_OP;
 }
 
-"."  {fprintf(fout_token, "MEMEBER ACCESS: ."); return *yytext;}
+"."  {fprintf(fout_token, "MEMEBER ACCESS: .\n"); return *yytext;}
 
 $.*     { fprintf(fout_token, "line comment: %s\n", yytext);}
 "$$"([^$]|$[^$])*"$$" { fprintf(fout_token, "block comment: %s\n", yytext);}
@@ -164,6 +174,11 @@ or {
 {cmp_op} {
     fprintf(fout_token, "CMP_OP: %s\n", yytext);
     return CMP_OP;
+}
+
+\<|\> {
+    fprintf(fout_token, "%c: %s\n", *yytext, yytext);
+    return *yytext;
 }
 
 "=="|"!=" {

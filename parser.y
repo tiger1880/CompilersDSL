@@ -81,14 +81,26 @@ int yydebug = 1;
  ret_var : decl_token | ; 
  
  decl_stmt : DATATYPE ID_LIST ENDLINE;
- ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
+
+ ID_LIST: ID_LIST  ',' ID check_arr decl_assign   
+        | ID check_arr decl_assign
+        ;
+
  decl_assign : EQUAL decl_token | ;
- decl_token :  assignment | expression;
- assignment :  arr_assign | construct ;
+ decl_token :  arr_assign | construct | expression ;
  
- dim : '[' INTEGERS  ']' | '[' ']' ;
+ dim : '[' expression  ']' | '[' ']' ;
  check_arr:  check_arr dim | ;
   
+ arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}';
+ comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
+ arr1d_in_list: mult_elements | ;
+ mult_elements : mult_elements ',' expression  | expression ; 
+                
+ construct :  CONSTRUCTOR '(' param_list ')' | CONSTRUCTOR '(' ')' ; 
+
+ param_list: param_list ',' decl_token | decl_token ;
+ 
  point : '(' expression ','  expression ',' STRING_TOKEN ')' 
               |  '(' expression ','  expression  ')'
               ; 
@@ -99,14 +111,6 @@ int yydebug = 1;
               | '<' vertex vertex vertex '>' 
               ;
 
- arr_assign : '{' arr_assign '}' | '{' mult_elements '}' | '{''}';      
-
- mult_elements : expression ',' mult_elements | expression ; 
-                
- construct :  CONSTRUCTOR '(' param_list ')'; 
-
- param_list: param_list ',' decl_token | decl_token ;
- 
 // need to take care of arrays
 // test: norms, member access
  expression:  expression '+' expression 

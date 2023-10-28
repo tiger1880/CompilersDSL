@@ -9,8 +9,8 @@ extern int error_flag; // ??
 %}
 
 digit [0-9]
-integers {digit}+
-floats {integers}"."{integers}
+integers [1-9][0-9]*|0
+floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
 constructor "Circle"|"Tri"|"RegPoly"|"Para"
@@ -111,6 +111,14 @@ $.*     { fprintf(fout_token, "line comment: %s\n", yytext);}
     return *yytext;
 }
 
+"scale" {
+    fprintf(fout_token, "KEYWORD: %s\n", yytext);
+}
+
+"center" {
+    fprintf(fout_token, "KEYWORD: %s\n", yytext);
+}
+
 "stop" {
     fprintf(fout_token, "STOP: %s\n", yytext);
     return BREAK;
@@ -176,9 +184,9 @@ or {
     return CMP_OP;
 }
 
-\<|\> {
-    fprintf(fout_token, "%c: %s\n", *yytext, yytext);
-    return *yytext;
+"<"|">" {
+    fprintf(fout_token, "CMP_OP/BRACKET: %s\n", yytext);
+    return *yytext
 }
 
 "=="|"!=" {

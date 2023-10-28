@@ -44,7 +44,7 @@ int yydebug = 1;
 %left OR 
 %left AND
 %left EQ_CMP_OP
-%left CMP_OP 
+%left CMP_OP '<' '>'
 %left '+' '-' LINE_OP
 %left '*' '/' '%'
 %left '^'
@@ -86,9 +86,9 @@ int yydebug = 1;
  decl_token :  assignment | expression;
  assignment :  arr_assign | construct ;
  
- check_arr: '[' INTEGERS  ']' | '[' ']' | ;
+ dim : '[' INTEGERS  ']' | '[' ']' ;
+ check_arr:  check_arr dim | ;
   
-
  point : '(' expression ','  expression ',' STRING_TOKEN ')' 
               |  '(' expression ','  expression  ')'
               ; 
@@ -99,9 +99,9 @@ int yydebug = 1;
               | '<' vertex vertex vertex '>' 
               ;
 
- arr_assign : '{' mult_elements '}' | '{''}';      
+ arr_assign : '{' arr_assign '}' | '{' mult_elements '}' | '{''}';      
 
- mult_elements : DATATYPE ',' mult_elements | DATATYPE ; 
+ mult_elements : expression ',' mult_elements | expression ; 
                 
  construct :  CONSTRUCTOR '(' param_list ')'; 
 
@@ -128,6 +128,8 @@ int yydebug = 1;
             | id_list EQUAL expression
             | expression ASSIGN_OP expression
             | expression CMP_OP expression
+            | expression '<' expression
+            | expression '>' expression
             | expression EQ_CMP_OP expression
             | id_list
             /* | ID '.' func_call */
@@ -143,7 +145,9 @@ int yydebug = 1;
 
  id_list: id_list '.' ID  // will ensure left to right associativity
         | ID
-        ;   
+        | ID arr_access
+        ;  
+ arr_access: arr_access '[' expression ']' | '[' expression ']' ;
 
  func_call: ID '(' param_list ')' ;
 

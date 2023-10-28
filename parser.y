@@ -132,7 +132,6 @@ int yydebug = 1;
             | expression '>' expression
             | expression EQ_CMP_OP expression
             | id_list
-            /* | ID '.' func_call */
             | FLOATS 
             | INTEGERS 
             | STRING_TOKEN 
@@ -149,7 +148,7 @@ int yydebug = 1;
         ;  
  arr_access: arr_access '[' expression ']' | '[' expression ']' ;
 
- func_call: ID '(' param_list ')' ;
+ func_call: id_list '(' param_list ')' | id_list '(' ')' ;
 
 /* Conditional */
 cond_stmt : IF '(' expression ')' '{' stmt '}' 

@@ -158,19 +158,19 @@ int yydebug = 1;
 
 
 stmt_list: stmt_list stmt | stmt ;  
-stmt_block: '{' stmt_list '}' | '{' '}';
+stmt_block: '{' stmt_list '}' | '{' '}' ;
 
 /* Conditional */
-cond_stmt : IF '(' expression ')' stmt_block
-            | IF '(' expression ')' stmt_block ELSE stmt_block 
-            | IF '(' expression ')' stmt_block elif_stmt ELSE stmt_block
-            | IF '(' expression ')' stmt_block elif_stmt 
+cond_stmt : IF '(' expression ')'   stmt_block
+            | IF '(' expression ')' stmt_block  ELSE  stmt_block 
+            | IF '(' expression ')'  stmt_block elif_stmt ELSE stmt_block
+            | IF '(' expression ')' stmt_block  elif_stmt 
             ;
 
-elif_stmt : ELIF '(' expression ')' stmt_block | elif_stmt ELIF '(' expression ')' stmt_block;
+elif_stmt : ELIF '(' expression ')' stmt_block | elif_stmt  ELIF '(' expression ')' stmt_block;
 
 stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
-stmt_loop_block: '{' stmt_loop_list '}' | '{' '}';
+stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
 
 /* Loops */
 empty_space: empty_space ENDLINE | ;
@@ -178,9 +178,9 @@ empty_space: empty_space ENDLINE | ;
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' empty_space stmt_loop_block ;
+for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' stmt_loop_block ;
 
-while_loop : WHILE '(' expression ')' empty_space stmt_loop_block ;
+while_loop : WHILE '(' expression ')' stmt_loop_block ;
 
 %%
 

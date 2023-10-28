@@ -167,16 +167,16 @@ cond_stmt : IF '(' expression ')' stmt_block
 
 elif_stmt : ELIF '(' expression ')' stmt_block | elif_stmt ELIF '(' expression ')' stmt_block;
 
-/* stmt_list: stmt_list stmt | stmt ;   */
-/* stmt_block: '{' stmt_list '}' | '{' '}'; */
+stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
+stmt_loop_block: '{' stmt_loop_list '}' | '{' '}';
 
 /* Loops */
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt_loop '}' ;
+for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' stmt_loop_block ;
 
-while_loop : WHILE '(' expression ')' '{' stmt_loop '}' ;
+while_loop : WHILE '(' expression ')' stmt_loop_block ;
 
 %%
 

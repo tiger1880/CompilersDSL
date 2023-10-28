@@ -85,14 +85,15 @@ int yylex();
  
  check_arr: '[' INTEGERS  ']' | '[' ']' | ;
   
- num:  INTEGERS | FLOATS ; 
 
- point : '(' num ','  num ',' STRING_TOKEN ')' 
-              |  '(' num ','  num  ')'
+ point : '(' expression ','  expression ',' STRING_TOKEN ')' 
+              |  '(' expression ','  expression  ')'
               ; 
 
- angle : '<' ID ID ID ',' BOOLEAN '>' 
-              | '<' ID ID ID '>' 
+ vertex: ID | point ;
+
+ angle : '<' vertex vertex vertex ',' BOOLEAN '>' 
+              | '<' vertex vertex vertex '>' 
               ;
 
  arr_assign : '{' mult_elements '}' | '{''}';      
@@ -103,7 +104,7 @@ int yylex();
 
  param_list:  decl_token ',' param_list | decl_token ;
  
-// need to take care of arrays, unary
+// need to take care of arrays
 // test: norms, member access
  expression:  expression '+' expression 
             | expression '-' expression 
@@ -126,7 +127,7 @@ int yylex();
             | expression CMP_OP expression
             | expression EQ_CMP_OP expression
             | id_list
-            /* | id_list '.' func_call */
+            /* | ID '.' func_call */
             | FLOATS 
             | INTEGERS 
             | STRING_TOKEN 

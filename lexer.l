@@ -186,7 +186,7 @@ or {
 
 "<"|">" {
     fprintf(fout_token, "CMP_OP/BRACKET: %s\n", yytext);
-    return *yytext
+    return *yytext;
 }
 
 "=="|"!=" {

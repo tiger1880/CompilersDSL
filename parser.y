@@ -126,7 +126,7 @@ int yydebug = 1;
             | expression AND expression
             | expression OR expression
             | id_list EQUAL expression
-            | expression ASSIGN_OP expression
+            | id_list ASSIGN_OP expression
             | expression CMP_OP expression
             | expression '<' expression
             | expression '>' expression

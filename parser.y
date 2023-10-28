@@ -157,23 +157,25 @@ int yydebug = 1;
  func_call: id_list '(' param_list ')' | id_list '(' ')' ;
 
 
+empty_space: empty_space ENDLINE | ;
+
 stmt_list: stmt_list stmt | stmt ;  
 stmt_block: '{' stmt_list '}' | '{' '}' ;
 
 /* Conditional */
-cond_stmt : IF '(' expression ')'   stmt_block
-            | IF '(' expression ')' stmt_block  ELSE  stmt_block 
-            | IF '(' expression ')'  stmt_block elif_stmt ELSE stmt_block
-            | IF '(' expression ')' stmt_block  elif_stmt 
-            ;
 
-elif_stmt : ELIF '(' expression ')' stmt_block | elif_stmt  ELIF '(' expression ')' stmt_block;
+cond_stmt : IF '(' expression ')' empty_space stmt_block
+        |   IF '(' expression ')' empty_space stmt_block ELSE empty_space stmt_block 
+        |   IF '(' expression ')' empty_space stmt_block elif_stmt ELSE empty_space stmt_block
+        |   IF '(' expression ')' empty_space stmt_block elif_stmt 
+        ;
+
+elif_stmt : ELIF '(' expression ')' empty_space stmt_block | elif_stmt ELIF '(' expression ')' empty_space stmt_block;
 
 stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
 stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
 
 /* Loops */
-empty_space: empty_space ENDLINE | ;
 
 loop : for_loop | while_loop ;
 

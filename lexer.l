@@ -17,7 +17,7 @@ constructor "Circle"|"Tri"|"RegPoly"|"Para"
 std_token "INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"
 boolean  "true"|"false"
 line_op "->"|"<->"
-cmp_op ">"|"<"|">="|"<="
+cmp_op ">="|"<="
 datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
 assign "+:="|"-:="|"^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
@@ -101,6 +101,14 @@ $.*     { fprintf(fout_token, "line comment: %s\n", yytext);}
     return *yytext;
 }
 
+"scale" {
+    fprintf(fout_token, "KEYWORD: %s\n", yytext);
+}
+
+"center" {
+    fprintf(fout_token, "KEYWORD: %s\n", yytext);
+}
+
 "stop" {
     fprintf(fout_token, "STOP: %s\n", yytext);
     return BREAK;
@@ -164,6 +172,11 @@ or {
 {cmp_op} {
     fprintf(fout_token, "CMP_OP: %s\n", yytext);
     return CMP_OP;
+}
+
+"<"|">" {
+    fprintf(fout_token, "CMP_OP/BRACKET: %s\n", yytext);
+    return *yytext
 }
 
 "=="|"!=" {

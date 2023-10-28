@@ -43,7 +43,7 @@ int yylex();
 %left OR 
 %left AND
 %left EQ_CMP_OP
-%left CMP_OP 
+%left CMP_OP '<' '>'
 %left '+' '-' LINE_OP
 %left '*' '/' '%'
 %left '^'
@@ -127,6 +127,8 @@ int yylex();
             | expression EQUAL expression
             | expression ASSIGN_OP expression
             | expression CMP_OP expression
+            | expression '<' expression
+            | expression '>' expression
             | expression EQ_CMP_OP expression
             | id_list
             /* | ID '.' func_call */

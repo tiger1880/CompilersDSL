@@ -17,7 +17,6 @@ int yylex();
 %token VOID
 %token CONTINUE
 %token BREAK
-%token LOGICAL_OP REL_OP// remove
 %token PARALLEL
 %token PERPENDICULAR
 %token BOOLEAN
@@ -39,7 +38,8 @@ int yylex();
 // precedence
 
 %right EQUAL ASSIGN_OP
-%left PARALLEL PERPENDICULAR
+%left PERPENDICULAR
+%left PARALLEL 
 %left OR 
 %left AND
 %left EQ_CMP_OP
@@ -52,7 +52,7 @@ int yylex();
 
 %%
 
- program: func program | fig program | stmt program | ; // favour left recursion since it leads to smaller stack
+ program: program func | program fig | program stmt | ; 
  
  /*Function Defination */
  func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
@@ -68,8 +68,8 @@ int yylex();
  fig_body : fig_body stmt | ;
 
  /* Statements */
- stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt ;
- stmt2 : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt ;
+ stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | ENDLINE;
+ stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
  assign_stmt : expression ENDLINE;
@@ -154,11 +154,9 @@ elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt2 '}' ;
+for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt_loop '}' ;
 
-while_loop : WHILE '(' expression ')' '{' stmt2 '}' ;
-
-
+while_loop : WHILE '(' expression ')' '{' stmt_loop '}' ;
 
 %%
 

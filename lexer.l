@@ -208,7 +208,7 @@ or {
 }
 
 . {
-    printf("Invalid token: %s\n", yytext);
+    fprintf(stderr, "Invalid token: %s\n", yytext);
 }
 
 %%

@@ -55,7 +55,9 @@ int yylex();
  program: program func | program fig | program stmt | ; 
  
  /*Function Defination */
- func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' ;
+ func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' 
+    |  FUNC VOID ID '(' arg_list ')' '{' func_body '}' 
+    ;
  arg_list : list1 | ;
  list1: list1 ',' argument  | argument ; // arglist with atleast 1 argument
  argument : DATATYPE ID ;
@@ -75,7 +77,7 @@ int yylex();
  assign_stmt : expression ENDLINE;
  
  return_stmt : RETURN ret_var ENDLINE;
- ret_var : decl_token | VOID ; 
+ ret_var : decl_token | ; 
  
  decl_stmt : DATATYPE ID_LIST ENDLINE;
  ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
@@ -170,10 +172,9 @@ void yyerror(char * s)
   
 int main(int argc, char*argv[])
 {    
-    FILE *fp,*fout_parse ;
+    FILE *fp;
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
-    fout_parse = fopen("parse.txt","w");
     yyin = fp;
     int x = yyparse();
 

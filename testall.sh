@@ -4,6 +4,8 @@
 
 globalerror=0
 
+## Add this later 
+## Add comments above functions, top of this file
 Usage() {
     echo "Usage: testall.sh [options] [.mc files]"
     echo "-k    Keep intermediate files"

@@ -105,7 +105,7 @@ int yydebug = 1;
                 
  construct :  CONSTRUCTOR '(' param_list ')'; 
 
- param_list:  decl_token ',' param_list | decl_token ;
+ param_list: param_list ',' decl_token | decl_token ;
  
 // need to take care of arrays
 // test: norms, member access
@@ -142,11 +142,11 @@ int yydebug = 1;
             | '(' expression ')'
             ; 
 
- id_list: id_list '.' ID  // will ensure left to right associativity
-        | ID
+ id_list: id_list '.' ID  arr_access // will ensure left to right associativity
         | ID arr_access
         ;  
- arr_access: arr_access '[' expression ']' | '[' expression ']' ;
+
+ arr_access: arr_access '[' expression ']' |  ;
 
  func_call: id_list '(' param_list ')' | id_list '(' ')' ;
 

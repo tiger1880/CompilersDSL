@@ -111,14 +111,6 @@ $.*     { fprintf(fout_token, "line comment: %s\n", yytext);}
     return *yytext;
 }
 
-"scale" {
-    fprintf(fout_token, "KEYWORD: %s\n", yytext);
-}
-
-"center" {
-    fprintf(fout_token, "KEYWORD: %s\n", yytext);
-}
-
 "stop" {
     fprintf(fout_token, "STOP: %s\n", yytext);
     return BREAK;

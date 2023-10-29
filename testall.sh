@@ -47,10 +47,20 @@ Check() {
     ./parser $1
     EXIT_STATUS=$?
 
+    if [ $EXIT_STATUS -eq 0 ]
+    then
+        echo Parsed without error
+    fi
+
     generatedfile="seq_token.txt"
 
     Compare $generatedfile $outfile
     DIFF_STATUS=$?
+
+    if [ $DIFF_STATUS -eq 0 ]
+    then 
+        echo seq_token.txt matched correctly
+    fi
 
     if [[ $EXIT_STATUS -eq 0 &&  $DIFF_STATUS -eq 0 ]]
     then 

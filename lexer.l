@@ -68,8 +68,8 @@ center {
 
 "."  {fprintf(fout_token, "MEMEBER ACCESS: .\n"); return *yytext;}
 
-$.*     { fprintf(fout_token, "line comment: %s\n", yytext);}
-"$$"([^$]|$[^$])*"$$" { fprintf(fout_token, "block comment: %s\n", yytext);}
+$.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
+"$$"([^$]|$[^$])*"$$" { fprintf(fout_token, "BLOCK COMMENT: %s\n", yytext);}
 
 "if" {
     fprintf(fout_token, "IF: %s\n", yytext);

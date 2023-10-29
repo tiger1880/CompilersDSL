@@ -164,7 +164,7 @@ stmt_block: '{' stmt_list '}' | '{' '}' ;
 
 /* Conditional */
 
-cond_stmt : IF '(' expression ')' empty_space stmt_block
+cond_stmt : IF '(' expression ')' empty_space stmt_block 
         |   IF '(' expression ')' empty_space stmt_block ELSE empty_space stmt_block 
         |   IF '(' expression ')' empty_space stmt_block elif_stmt ELSE empty_space stmt_block
         |   IF '(' expression ')' empty_space stmt_block elif_stmt 

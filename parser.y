@@ -56,8 +56,8 @@ int yydebug = 1;
  program: program func | program fig | program stmt | ; 
  
  /*Function Defination */
- func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}' 
-    |  FUNC VOID ID '(' arg_list ')' '{' func_body '}' 
+ func: FUNC DATATYPE ID '(' arg_list ')' empty_space '{' func_body '}' 
+    |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
  arg_list : list1 | ;
  list1: list1 ',' argument  | argument ; // arglist with atleast 1 argument

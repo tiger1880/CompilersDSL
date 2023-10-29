@@ -68,6 +68,9 @@ Check() {
     else
         echo "###### FAILED"
     fi
+
+    echo 
+    echo
     
     # rm $generatedfiles ## Add this test diff 
 }

@@ -1,0 +1,6 @@
+BLOCK COMMENT: $$ this is also a comment 
+$$
+LINE COMMENT: $$ hello $$
+IDENTIFIER: bye
+LINE COMMENT: $$
+LINE COMMENT: $ line comment

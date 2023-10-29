@@ -55,7 +55,7 @@ int yydebug = 1;
 
  program: program func | program fig | program stmt | ; 
  
- /*Function Defination */
+ /* Function Defination */
  func: FUNC DATATYPE ID '(' arg_list ')' empty_space '{' func_body '}' 
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;

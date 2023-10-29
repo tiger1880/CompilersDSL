@@ -13,6 +13,9 @@ func void _ola9(int a, line b, regPoly p) {
     return 
 }
 
+func void l (){}
+
+
 func label fullName(label firstName, label lastName) {
 
     label c := firstName + " " + lastName

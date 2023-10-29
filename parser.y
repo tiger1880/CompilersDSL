@@ -177,8 +177,9 @@ stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
 
 loop : for_loop | while_loop ;
 
-for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' stmt_loop_block ;
+for_loop_decl : DATATYPE ID EQUAL decl_token | ;
+optional_arg: expression | ;
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block ;
 
 while_loop : WHILE '(' expression ')' stmt_loop_block ;
 

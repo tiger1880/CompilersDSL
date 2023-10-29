@@ -112,8 +112,6 @@ int yydebug = 1;
               | '<' vertex vertex vertex '>' 
               ;
 
-// need to take care of arrays
-// test: norms, member access
 // cannot have constructors in expressions
  expression:  expression '+' expression 
             | expression '-' expression 

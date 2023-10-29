@@ -1,0 +1,41 @@
+func int fact(int n){
+
+    if (n == 1 or n == 0){
+        return 1
+    } else {
+        return (fact(n-1)*n)
+    }
+}
+
+$ Figure to display the circumcircle of a triangle
+fig figure_1 (1,(0,0)){
+    point a := (1,2)
+    point b := (2,7)
+    point c := (7,1)
+    tri t := Tri(a,b,c)
+    point o := t.CIRCUMCENTRE()
+    real r := || a-o ||
+    circle c := (o,r)
+}
+
+$ Figure to display a parallelogram and its diagonals and print its area
+fig figure_2 (1,(2,0)){
+    para p := Para(3,60,8)
+    real area := p.AREA()
+    print(area)
+}
+
+$ Figure to display adjacent circles with radius equal to sequence of factorials
+fig figure_3(scale := 2, center := (0,0)){
+    point p := (0,0)
+    int n := 3
+    repeat(int i := 1 | i <= n | i++ ){
+        Circle(p,fact(i))
+        p.x := p.x + 1
+    }
+}
+
+$ Syntax to display figures$
+figure_1()
+figure_2()
+figure_3()

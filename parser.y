@@ -65,7 +65,7 @@ int yydebug = 1;
  func_body : func_body stmt | ;
  
  /* Figure Defination */
- fig: FIG ID '(' params ')' '{' fig_body '}' ;
+ fig: FIG ID '(' params ')' empty_space '{' fig_body '}' ;
  params : expression ',' expression 
         | SCALE EQUAL expression ',' CENTER EQUAL expression ;
  fig_body : fig_body stmt | ;

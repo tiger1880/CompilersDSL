@@ -157,23 +157,25 @@ int yydebug = 1;
 
 empty_space: empty_space ENDLINE | ;
 
-stmt_list: stmt_list stmt | stmt ;  
-stmt_block: '{' stmt_list '}' | '{' '}' ;
-
 /* Conditional */
 
-cond_stmt : IF '(' expression ')' empty_space stmt_block 
-        |   IF '(' expression ')' empty_space stmt_block ELSE empty_space stmt_block 
-        |   IF '(' expression ')' empty_space stmt_block elif_stmt ELSE empty_space stmt_block
-        |   IF '(' expression ')' empty_space stmt_block elif_stmt 
+stmt_list: stmt_list stmt | stmt ;  
+stmt_block: empty_space '{' stmt_list '}' ENDLINE | empty_space '{' '}' ENDLINE;
+
+cond_stmt : IF '(' expression ')' stmt_block 
+        |   IF '(' expression ')' stmt_block ELSE stmt_block 
+        |   IF '(' expression ')' stmt_block elif_stmt ENDLINE ELSE stmt_block
+        |   IF '(' expression ')' stmt_block elif_stmt ENDLINE
         ;
 
-elif_stmt : ELIF '(' expression ')' empty_space stmt_block | elif_stmt ELIF '(' expression ')' empty_space stmt_block;
+elif_stmt : ELIF '(' expression ')' stmt_block 
+          | elif_stmt ELIF '(' expression ')' stmt_block
+          ;
+
+/* Loops */
 
 stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
 stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
-
-/* Loops */
 
 loop : for_loop | while_loop ;
 

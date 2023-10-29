@@ -1,0 +1,31 @@
+
+    $ Test example for conditionals
+    real a := 4, b := 8.2
+    if(a > 2 and a < 10)
+    {   
+        if( a != 5){
+            point p,q
+            p :=(a,b)
+            a +:= a+b
+            b  /:= a
+            q := (a,b)
+            p := MIDPOINT(p,q)
+        }
+    }
+    elif ( not (b >10 or b == 0 ))
+    {   
+        real temp
+        temp :=a
+        a := b
+        b := temp
+        a := b + a/4 
+        line p := LINE_AT_ANGLE(40,(a,a),(b,b))
+        line q := LINE_AT_ANGLE(40,(a,a),(b,a))
+        print(p |- q)
+
+    }
+    else
+    {
+        a := a * b-(a*2)
+        print(a)
+    }

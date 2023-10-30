@@ -1,5 +1,5 @@
 
-    $ Test example for conditionals
+    $ Test example for conditionals without 
     real a := 4, b := 8.2
     if(a > 2 and a < 10)
     {   
@@ -10,6 +10,18 @@
             b  /:= a
             q := (a,b)
             p := MIDPOINT(p,q)
+        }
+
+        if( a != 5){
+            point p,q
+            p :=(a,b)
+            a +:= a+b
+            b  /:= a
+            q := (a,b)
+            p := MIDPOINT(p,q)
+        }
+        else {
+            a := a + b
         }
     }
     elif ( not (b >10 or b == 0 ))
@@ -29,3 +41,4 @@
         a := a * b-(a*2)
         print(a)
     }
+    

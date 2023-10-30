@@ -163,9 +163,9 @@ stmt_list: stmt_list stmt | stmt ;
 stmt_block: empty_space '{' stmt_list '}' ENDLINE | empty_space '{' '}' ENDLINE;
 
 cond_stmt : IF '(' expression ')' stmt_block 
-        |   IF '(' expression ')' stmt_block ELSE stmt_block 
-        |   IF '(' expression ')' stmt_block elif_stmt ENDLINE ELSE stmt_block
-        |   IF '(' expression ')' stmt_block elif_stmt ENDLINE
+        |   IF '(' expression ')' stmt_block  ELSE stmt_block 
+        |   IF '(' expression ')' stmt_block elif_stmt ELSE stmt_block
+        |   IF '(' expression ')' stmt_block elif_stmt 
         ;
 
 elif_stmt : ELIF '(' expression ')' stmt_block 

@@ -1,0 +1,55 @@
+$ Loops
+
+
+$ while loop
+int x := 100
+
+until (x > 0)
+{
+    until(x < 0)
+    {
+        a := "hello"
+    }
+    a := "bye"
+}
+
+until (x > 0)
+
+
+{
+
+}
+
+until (i < 1){
+    
+    "hello from the outside"
+    stop
+}
+
+$ for loop
+
+repeat(int i := 0| i < n |i++){
+    Tri(a, b, c)
+    a == (1, 0) 
+    advance
+
+}
+
+$ optional args
+
+i := 1000
+repeat(| i != n |i--)
+
+{
+    
+
+}
+
+repeat(int i := 0| |){
+    
+    i++
+    i < 10
+    stop
+}
+
+

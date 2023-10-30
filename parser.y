@@ -1,13 +1,10 @@
 %{
-    #include <stdio.h>
-    
-    void yyerror(const char *s);
-    int yylex();
-
-    extern FILE *fp,*fout_token,*fout_parse ;
-    extern int yylineno;
-    extern char* yytext;
-
+#include <stdio.h>
+extern FILE *yyin; // input file
+FILE* fout_token;
+void yyerror(char *s);
+int yylex();
+int yydebug = 1;
 %}
 
 %token INTEGERS
@@ -21,7 +18,6 @@
 %token VOID
 %token CONTINUE
 %token BREAK
-%token LOGICAL_OP REL_OP// remove
 %token PARALLEL
 %token PERPENDICULAR
 %token BOOLEAN
@@ -38,16 +34,17 @@
 %token FLOATS
 %token CONSTRUCTOR
 %token NOT AND OR 
-%token OPERATORS
+%token SCALE CENTER
 
 // precedence
 
 %right EQUAL ASSIGN_OP
-%left PARALLEL PERPENDICULAR
+%left PERPENDICULAR
+%left PARALLEL 
 %left OR 
 %left AND
 %left EQ_CMP_OP
-%left CMP_OP 
+%left CMP_OP '<' '>'
 %left '+' '-' LINE_OP
 %left '*' '/' '%'
 %left '^'
@@ -56,59 +53,66 @@
 
 %%
 
- program: func program | fig program | stmt program | ; // favour left recursion since it leads to smaller stack
+ program: program func | program fig | program stmt | ; 
  
- /*Function Defination */
- func: FUNC DATATYPE ID '(' arg_list ')' '{' func_body '}';
+ /* Function Defination */
+ func: FUNC DATATYPE ID '(' arg_list ')' empty_space '{' func_body '}' 
+    |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
+    ;
  arg_list : list1 | ;
  list1: list1 ',' argument  | argument ; // arglist with atleast 1 argument
  argument : DATATYPE ID ;
  func_body : func_body stmt | ;
  
  /* Figure Defination */
- fig: FIG ID '(' params ')' '{' fig_body '}' ; 
- params : decl_token ',' decl_token ;
-        /*| 'scale' EQUAL decl_token ',' 'center' EQUAL decl_token ; */
+ fig: FIG ID '(' params ')' empty_space '{' fig_body '}' ;
+ params : expression ',' expression 
+        | SCALE EQUAL expression ',' CENTER EQUAL expression ;
  fig_body : fig_body stmt | ;
 
  /* Statements */
- stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt ;
- stmt2 : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt ;
+ stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | ENDLINE;
+ stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
  break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
- assign_stmt : expression ENDLINE;
+ assign_stmt : expression ENDLINE | construct ENDLINE;
  
  return_stmt : RETURN ret_var ENDLINE;
- ret_var : decl_token | VOID ; 
+ ret_var : construct | expression | ; 
  
  decl_stmt : DATATYPE ID_LIST ENDLINE;
- ID_LIST : ID check_arr decl_assign ',' ID_LIST  | ID check_arr decl_assign;
+
+ ID_LIST: ID_LIST  ',' ID check_arr decl_assign   
+        | ID check_arr decl_assign
+        ;
+
  decl_assign : EQUAL decl_token | ;
- decl_token :  assignment | expression;
- assignment :  arr_assign | construct ;
+ decl_token :  arr_assign | construct | expression ;
  
- check_arr: '[' INTEGERS ']' | '['']'   | ;
+ dim : '[' expression  ']' | '[' ']' ;
+ check_arr:  check_arr dim | ;
   
- num:  INTEGERS | FLOATS ; 
+ arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}';
+ comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
+ arr1d_in_list: mult_elements | ;
+ mult_elements : mult_elements ',' expression  | expression ; 
+                
+ construct :  CONSTRUCTOR '(' param_list ')' | CONSTRUCTOR '(' ')' ; 
 
- point : '(' num ',' num ',' STRING_TOKEN ')'  
-              |  '(' num ','  num ')'  
-              ; 
+ valid_arg: construct | expression ;
+ param_list: param_list ',' valid_arg | valid_arg ;
+ 
+ point : '(' expression ','  expression ',' STRING_TOKEN ')' 
+        |  '(' expression ','  expression  ')'
+        ; 
 
- angle : '<' ID ID ID ',' BOOLEAN '>' 
-              | '<' ID ID ID '>' 
+ vertex: ID | point ;
+
+ angle : '<' vertex vertex vertex ',' BOOLEAN '>' 
+              | '<' vertex vertex vertex '>' 
               ;
 
- arr_assign : '{' mult_elements'}' | '{' '}' ;      
-
- mult_elements : DATATYPE ',' mult_elements | DATATYPE ; 
-                
- construct :  CONSTRUCTOR '(' param_list ')'; 
-
- param_list:  decl_token ',' param_list | decl_token ;
- 
-// need to take care of arrays, unary
-// test: norms, member access
+// cannot have constructors in expressions
  expression:  expression '+' expression 
             | expression '-' expression 
             | expression '*' expression 
@@ -125,12 +129,13 @@
             | NOT expression 
             | expression AND expression
             | expression OR expression
-            | expression EQUAL expression
-            | expression ASSIGN_OP expression
+            | id_list EQUAL expression
+            | id_list ASSIGN_OP expression
             | expression CMP_OP expression
+            | expression '<' expression
+            | expression '>' expression
             | expression EQ_CMP_OP expression
             | id_list
-            /* | id_list '.' func_call */
             | FLOATS 
             | INTEGERS 
             | STRING_TOKEN 
@@ -141,26 +146,44 @@
             | '(' expression ')'  
             ; 
 
- id_list: id_list '.' ID  // will ensure left to right associativity
-        | ID
-        ;   
+ id_list: id_list '.' ID  arr_access // will ensure left to right associativity
+        | ID arr_access
+        ;  
 
- func_call: ID '(' param_list ')' ;
+ arr_access: arr_access '[' expression ']' |  ;
+
+ func_call: id_list '(' param_list ')' | id_list '(' ')' ;
+
+
+empty_space: empty_space ENDLINE | ;
 
 /* Conditional */
-cond_stmt : IF '(' expression ')' '{' stmt '}'  
-            | IF '(' expression ')' '{' stmt '}'   ELSE '{' stmt '}'   
-            | IF '(' expression ')' '{' stmt '}' elif_stmt ELSE '{' stmt '}';
 
-elif_stmt : ELIF '(' expression ')' '{' stmt '}' | elif_stmt ELIF '(' expression ')' '{' stmt '}' ;
+stmt_list: stmt_list stmt | stmt ;  
+stmt_block: empty_space '{' stmt_list '}' ENDLINE | empty_space '{' '}' ENDLINE;
+
+cond_stmt : IF '(' expression ')' stmt_block 
+        |   IF '(' expression ')' stmt_block  ELSE stmt_block 
+        |   IF '(' expression ')' stmt_block elif_stmt ELSE stmt_block
+        |   IF '(' expression ')' stmt_block elif_stmt 
+        ;
+
+elif_stmt : ELIF '(' expression ')' stmt_block 
+          | elif_stmt ELIF '(' expression ')' stmt_block
+          ;
 
 /* Loops */
+
+stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
+stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
+
 loop : for_loop | while_loop ;
 
-for_loop_decl : DATATYPE ID EQUAL decl_token ;
-for_loop : FOR '(' for_loop_decl '|' expression '|' expression ')' '{' stmt2 '}'  ;
+for_loop_decl : DATATYPE ID EQUAL decl_token | ;
+optional_arg: expression | ;
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block ;
 
-while_loop : WHILE '(' expression ')' '{' stmt2 '}'  ;
+while_loop : WHILE '(' expression ')' stmt_loop_block ;
 
 %%
 
@@ -172,15 +195,15 @@ void yyerror(const char * s)
   
 int main(int argc, char*argv[])
 {    
-    extern FILE *yyin; 
+    FILE *fp;
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
-    fout_parse = fopen("parse.txt","w");
     yyin = fp;
     int x = yyparse();
 
     if (x != 0){
         fprintf(stderr, "Error in parsing\n");
+        return 1;
     }
 
     return 0;

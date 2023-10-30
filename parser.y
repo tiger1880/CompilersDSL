@@ -2,8 +2,10 @@
 #include <stdio.h>
 extern FILE *yyin; // input file
 FILE* fout_token;
-void yyerror(char *s);
+void yyerror(const char *s);
 int yylex();
+extern int yylineno;
+extern char* yytext;
 int yydebug = 1;
 %}
 
@@ -199,12 +201,6 @@ int main(int argc, char*argv[])
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
     yyin = fp;
-    int x = yyparse();
 
-    if (x != 0){
-        fprintf(stderr, "Error in parsing\n");
-        return 1;
-    }
-
-    return 0;
+    return yyparse();
 } 

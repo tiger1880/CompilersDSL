@@ -27,7 +27,7 @@ lex.yy.c: lexer.l
 
 # Clean target: remove the target executable
 clean:
-	rm -f $(TARGET) lex.yy.c y.tab.c y.tab.h
+	rm -f $(TARGET) lex.yy.c y.tab.c y.tab.h error.txt seq_token.txt
 
 # Run target: build and run the target executable
 run: $(TARGET)

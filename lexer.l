@@ -230,8 +230,8 @@ or {
 }
 
 . {
-    fprintf(stderr, "Invalid token: %s\n", yytext);
-    exit(1)
+    fprintf(stderr, "Error: Invalid token: %s at line %d\n", yytext, yylineno);
+    exit(1);
 }
 
 %%

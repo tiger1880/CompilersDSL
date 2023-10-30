@@ -34,7 +34,6 @@ Compare() {
 
 Check() {
 
-
     fullpathname=$1
 
     outfile=$(echo "$1" | sed 's/\.gl$/.out/')
@@ -72,21 +71,59 @@ Check() {
     echo 
     echo
     
-    # rm $generatedfiles ## Add this test diff 
 }
 
-# if [ $# -ge 1 ]
-# then
-#     files=$@ 
-# else
-    files="tests/Phase-2/test-*.gl"
-# fi
+CheckError() {
+    fullpathname=$1
+    outfile=$(echo "$1" | sed 's/\.gl$/.err/')
+    
+    base=`basename $fullpathname`
+    
+    echo "###### Testing $base"
+
+    make parser > /dev/null
+
+    generatedfile="error.txt"
+
+    ./parser $1 2> $generatedfile
+    EXIT_STATUS=$?
+
+    if [ $EXIT_STATUS -eq 1 ]
+    then
+        echo Error Generated
+    fi
+
+
+    Compare $generatedfile $outfile
+    DIFF_STATUS=$?
+
+    if [ $DIFF_STATUS -eq 0 ]
+    then 
+        echo Error matched correctly
+    fi
+
+    if [[ $EXIT_STATUS -eq 1 &&  $DIFF_STATUS -eq 0 ]]
+    then 
+        echo "###### SUCCESS"
+    else
+        echo "###### FAILED"
+    fi
+
+    echo 
+    echo
+
+}
+
+files="tests/Phase-2/test-*.gl tests/Phase-2/err-*.gl"
 
 for file in $files
-do
+do  
     case $file in
 	*test-*)
 	    Check $file 
+	    ;;
+    *err-*)
+	    CheckError $file 
 	    ;;
 	*)
 	    echo "unknown file type $file"

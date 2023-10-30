@@ -17,8 +17,7 @@ To run the parser:
 ## Testing
 Testing the lexer and parser:
 
-1. Ensure the `testall.sh` script has executable permissions (`chmod +x testall.sh`).
-2. Use the command `make test` to execute the tests for the lexer and parser.
+1. Use the command `make test` to execute the tests for the lexer and parser.
 
 
 ## make Commands

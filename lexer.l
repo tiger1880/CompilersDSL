@@ -9,7 +9,7 @@ extern FILE *fout_token;
 %}
 
 integers [1-9][0-9]*|0
-floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)
+floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)  
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
 constructor "Circle"|"Tri"|"RegPoly"|"Para"
@@ -24,7 +24,7 @@ string_literal (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
-{floats} {
+{floats} { // .05 1.
     fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
 }

@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-extern FILE *yyin; // input file
+extern FILE *yyin; 
 FILE* fout_token;
 void yyerror(const char *s);
 int yylex();
@@ -62,7 +62,7 @@ int yydebug = 1;
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
  arg_list : list1 | ;
- list1: list1 ',' argument  | argument ; // arglist with atleast 1 argument
+ list1: list1 ',' argument  | argument ; 
  argument : DATATYPE ID ;
  func_body : func_body stmt | ;
  
@@ -94,7 +94,7 @@ int yydebug = 1;
  dim : '[' expression  ']' | '[' ']' ;
  check_arr:  check_arr dim | ;
   
- arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}';
+ arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}'; // { {1,, 2}, {2, 3}}
  comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
  arr1d_in_list: mult_elements | ;
  mult_elements : mult_elements ',' expression  | expression ; 
@@ -114,18 +114,17 @@ int yydebug = 1;
               | '<' vertex vertex vertex '>' 
               ;
 
-// cannot have constructors in expressions
  expression:  expression '+' expression 
             | expression '-' expression 
             | expression '*' expression 
             | expression '/' expression
             | expression '%' expression 
             | expression '^' expression 
-            | expression LINE_OP expression
+            | expression LINE_OP expression // <-> ->
             | expression PARALLEL expression
             | expression PERPENDICULAR expression
             | PARALLEL expression PARALLEL
-            | '-' expression //check precedence => create test case 
+            | '-' expression 
             | UNARY expression 
             | expression UNARY 
             | NOT expression 
@@ -148,7 +147,7 @@ int yydebug = 1;
             | '(' expression ')'  
             ; 
 
- id_list: id_list '.' ID  arr_access // will ensure left to right associativity
+ id_list: id_list '.' ID  arr_access 
         | ID arr_access
         ;  
 
@@ -181,7 +180,7 @@ stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
 
 loop : for_loop | while_loop ;
 
-for_loop_decl : DATATYPE ID EQUAL decl_token | ;
+for_loop_decl : DATATYPE ID EQUAL expression | ID EQUAL expression | ;
 optional_arg: expression | ;
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block ;
 

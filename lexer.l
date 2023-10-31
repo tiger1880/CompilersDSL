@@ -5,18 +5,14 @@
 #include <stdio.h>
 #include "y.tab.h"
 extern FILE *fout_token;
-int line = 0; // what is yylineno for then ?
-extern int error_flag; // ?? 
 
 %}
 
-digit [0-9]
 integers [1-9][0-9]*|0
 floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
 constructor "Circle"|"Tri"|"RegPoly"|"Para"
- // std_token "INTERSECTION"|"MIDPOINT"|"SHORTEST_DISTANCE"|"ANGLE_BISECTOR"|"LINE_AT_ANGLE"|"TANGENT"|"COMMON_TANGENT"|"EXCENTRE"|"INCENTRE"|"CENTROID"|"CIRCUMCENTRE"|"ORTHOCENTRE"|"ALTITUDE"|"MEDIAN"|"DIAGONAL"|"AREA"|"PERIMETER"
 boolean  "true"|"false"
 line_op "->"|"<->"
 cmp_op ">="|"<="
@@ -219,13 +215,6 @@ or {
 }
 
 \n  {
-    // line++; 
-    // if(error_flag!=0) 
-    // {
-    //     // fprintf(parsed," : invalid statement");
-    //     exit(1);
-    // }
-    // fprintf(parsed,"%s",yytext); 
     return ENDLINE;
 }
 

@@ -24,11 +24,9 @@ int symTabSize = 0;
 
 
 
-void addFunctionToSymbolTable(const char* name, const char* returnType, const char* paramList, const char* varList) {
+void addFuncToSymTab(const char* name, const char* returnType, const char* paramList, const char* varList) {
     
 }
-
-
 
 %token INTEGERS
 %token LINE_OP  

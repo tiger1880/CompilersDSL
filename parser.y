@@ -30,7 +30,8 @@ typedef struct FuncSym {
     char name[64];
     char type[64];
     ParamFunc paramList[64];
-    char* varList;
+    VarFunc varList[64];
+    int numParams;
 } FuncSym;
 
 FuncSym symbolTable[100];
@@ -38,7 +39,7 @@ int symTabSize = 0;
 
 
 
-void addFuncToSymTab(const char* name, const char* returnType, ParamFunc* paramList, const char* varList) {
+void addFuncToSymTab(const char* name, const char* type, ParamFunc* paramList, VarFunc* varList,int numParams, int) {
     
 }
 

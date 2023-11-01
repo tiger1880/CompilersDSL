@@ -10,38 +10,6 @@ int yydebug = 1;
 %}
 
 
-//parameter of function
-typedef struct ParamFunc{
-    char name[64];
-    char type[64];
-} ParamFunc;
-
-
-//varList of function
-typedef struct VarFunc{
-    char name[64];
-    char type[64];
-    int levelFunc;
-} VarFunc;
-
-
-//function symbol table 
-typedef struct FuncSym {
-    char name[64];
-    char type[64];
-    ParamFunc paramList[64];
-    VarFunc varList[64];
-    int numParams;
-} FuncSym;
-
-FuncSym symbolTable[100];
-int symTabSize = 0;
-
-
-
-void addFuncToSymTab(const char* name, const char* type, ParamFunc* paramList, VarFunc* varList,int numParams, int) {
-    
-}
 
 %token INTEGERS
 %token LINE_OP  

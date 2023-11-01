@@ -17,6 +17,13 @@ typedef struct ParamFunc{
 } ParamFunc;
 
 
+//varList of function
+typedef struct VarFunc{
+    char name[64];
+    char type[64];
+    int levelFunc;
+} VarFunc;
+
 
 //function symbol table 
 typedef struct FuncSym {

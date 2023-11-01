@@ -10,12 +10,19 @@ int yydebug = 1;
 %}
 
 
+//parameter of function
+typedef struct ParamFunc{
+    char name[64];
+    char type[64];
+} ParamFunc;
+
+
 
 //function symbol table 
 typedef struct FuncSym {
     char name[64];
     char returnType[64];
-    char* paramList;
+    ParamFunc paramList[64];
     char* varList;
 } FuncSym;
 
@@ -24,7 +31,7 @@ int symTabSize = 0;
 
 
 
-void addFuncToSymTab(const char* name, const char* returnType, const char* paramList, const char* varList) {
+void addFuncToSymTab(const char* name, const char* returnType, ParamFunc* paramList, const char* varList) {
     
 }
 

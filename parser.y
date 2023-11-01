@@ -28,7 +28,7 @@ typedef struct VarFunc{
 //function symbol table 
 typedef struct FuncSym {
     char name[64];
-    char returnType[64];
+    char type[64];
     ParamFunc paramList[64];
     char* varList;
 } FuncSym;

@@ -9,6 +9,17 @@ extern char* yytext;
 int yydebug = 1;
 %}
 
+
+
+//function symbol table 
+typedef struct FuncSym {
+    char name[64];
+    char resultType[64];
+    char* parameList;
+    char* varList;
+} FuncSym;
+
+
 %token INTEGERS
 %token LINE_OP  
 %token IF
@@ -55,66 +66,72 @@ int yydebug = 1;
 
 %%
 
- program: program func | program fig | program stmt | ; 
+program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
- func: FUNC DATATYPE ID '(' arg_list ')' empty_space '{' func_body '}' 
+func: FUNC DATATYPE ID '(' arg_list ')' empty_space '{' func_body '}' 
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
- arg_list : list1 | ;
- list1: list1 ',' argument  | argument ; 
- argument : DATATYPE ID ;
- func_body : func_body stmt | ;
+
+arg_list : list1 | ;
+
+list1: list1 ',' argument  | argument ; 
+
+argument : DATATYPE ID ;
+
+func_body : func_body stmt | ;
  
- /* Figure Defination */
- fig: FIG ID '(' params ')' empty_space '{' fig_body '}' ;
- params : expression ',' expression 
-        | SCALE EQUAL expression ',' CENTER EQUAL expression ;
- fig_body : fig_body stmt | ;
+/* Figure Defination */
+fig: FIG ID '(' params ')' empty_space '{' fig_body '}' ;
+params : expression ',' expression 
+       | SCALE EQUAL expression ',' CENTER EQUAL expression ;
+fig_body : fig_body stmt | ;
 
  /* Statements */
- stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | ENDLINE;
- stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
- break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
+stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | ENDLINE;
+stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
+break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
- assign_stmt : expression ENDLINE | construct ENDLINE;
+assign_stmt : expression ENDLINE | construct ENDLINE;
  
- return_stmt : RETURN ret_var ENDLINE;
- ret_var : construct | expression | ; 
- 
- decl_stmt : DATATYPE ID_LIST ENDLINE;
+return_stmt : RETURN ret_var ENDLINE;
 
- ID_LIST: ID_LIST  ',' ID check_arr decl_assign   
-        | ID check_arr decl_assign
-        ;
-
- decl_assign : EQUAL decl_token | ;
- decl_token :  arr_assign | construct | expression ;
+ret_var : construct | expression | ; 
  
- dim : '[' expression  ']' | '[' ']' ;
- check_arr:  check_arr dim | ;
+decl_stmt : DATATYPE ID_LIST ENDLINE;
+
+ID_LIST: ID_LIST  ',' ID check_arr decl_assign   
+       | ID check_arr decl_assign
+       ;
+
+decl_assign : EQUAL decl_token | ;
+decl_token :  arr_assign | construct | expression ;
+ 
+dim : '[' expression  ']' | '[' ']' ;
+check_arr:  check_arr dim | ;
   
- arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}'; // { {1,, 2}, {2, 3}}
- comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
- arr1d_in_list: mult_elements | ;
- mult_elements : mult_elements ',' expression  | expression ; 
+arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}'; // { {1,, 2}, {2, 3}}
+comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
+arr1d_in_list: mult_elements | ;
+mult_elements : mult_elements ',' expression  | expression ; 
                 
- construct :  CONSTRUCTOR '(' param_list ')' | CONSTRUCTOR '(' ')' ; 
+construct :  CONSTRUCTOR '(' param_list ')' | CONSTRUCTOR '(' ')' ; 
 
- valid_arg: construct | expression ;
- param_list: param_list ',' valid_arg | valid_arg ;
+valid_arg: construct | expression ;
+
+param_list: param_list ',' valid_arg | valid_arg ;
  
- point : '(' expression ','  expression ',' STRING_TOKEN ')' 
-        |  '(' expression ','  expression  ')'
-        ; 
+point : '(' expression ','  expression ',' STRING_TOKEN ')' 
+       |  '(' expression ','  expression  ')'
+       ; 
 
- vertex: ID | point ;
+vertex: ID | point ;
 
- angle : '<' vertex vertex vertex ',' BOOLEAN '>' 
-              | '<' vertex vertex vertex '>' 
-              ;
+angle : '<' vertex vertex vertex ',' BOOLEAN '>' 
+       | '<' vertex vertex vertex '>' 
+       ;
 
- expression:  expression '+' expression 
+expression:  expression '+' expression 
             | expression '-' expression 
             | expression '*' expression 
             | expression '/' expression
@@ -147,13 +164,13 @@ int yydebug = 1;
             | '(' expression ')'  
             ; 
 
- id_list: id_list '.' ID  arr_access 
-        | ID arr_access
-        ;  
+id_list: id_list '.' ID  arr_access 
+       | ID arr_access
+       ;  
 
- arr_access: arr_access '[' expression ']' |  ;
+arr_access: arr_access '[' expression ']' |  ;
 
- func_call: id_list '(' param_list ')' | id_list '(' ')' ;
+func_call: id_list '(' param_list ')' | id_list '(' ')' ;
 
 
 empty_space: empty_space ENDLINE | ;

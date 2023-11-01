@@ -14,8 +14,8 @@ int yydebug = 1;
 //function symbol table 
 typedef struct FuncSym {
     char name[64];
-    char resultType[64];
-    char* parameList;
+    char returnType[64];
+    char* paramList;
     char* varList;
 } FuncSym;
 
@@ -24,6 +24,9 @@ int symTabSize = 0;
 
 
 
+void addFunctionToSymbolTable(const char* name, const char* returnType, const char* paramList, const char* varList) {
+    
+}
 
 
 

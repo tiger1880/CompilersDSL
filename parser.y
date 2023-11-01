@@ -19,6 +19,13 @@ typedef struct FuncSym {
     char* varList;
 } FuncSym;
 
+FuncSym symbolTable[100];
+int symTabSize = 0;
+
+
+
+
+
 
 %token INTEGERS
 %token LINE_OP  

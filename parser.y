@@ -34,8 +34,8 @@ typedef struct STentry {
        enum type{array,func,fig,var}; //array,func,fig,var
        enum eletype{int,real,point,label,bool,angle}; //int,float,...
        vector<ParamList> paramList;
-       
-
+       vector<int> DimList;
+       struct STentry *STptr;
 } STentry;        
 
 

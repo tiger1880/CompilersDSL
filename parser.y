@@ -39,9 +39,8 @@ typedef struct STentry {
 } STentry;        
 
 
-
+map<string,STentry> SymTab;
 // struct FuncSym funcTable[64];
-
 
 %}
 

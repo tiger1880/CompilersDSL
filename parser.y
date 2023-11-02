@@ -13,6 +13,10 @@ extern int yylineno;
 extern char* yytext;
 int yydebug = 1;
 
+using namespace std;
+
+
+
 //parameter of function
 // typedef struct ParamFunc{
 //        char name[64];
@@ -26,16 +30,38 @@ int yydebug = 1;
 //        int levelFunc;
 // } VarFunc;
 
+enum type {
+       Array,
+       Func,
+       Fig,
+       Var
+}; //array,func,fig,var
+
+enum eletype {
+       Void,
+       INT,
+       REAL,
+       POINT,
+       LABEL,
+       BOOL,
+       ANGLE,
+       LINE,
+       CIRCLE,
+       TRI,
+       PARA,
+       REGPOLY
+}; //int,float,...
+
 typedef struct ParamList{
-       enum type{array,func,fig,var}; //array,func,fig,var
+       enum type Type;
        string name;
        vector<int> dim;
 } ParamList;
 
 // //function entry
 typedef struct STentry {
-       enum type{array,func,fig,var}; //array,func,fig,var
-       enum eletype{void,int,real,point,label,bool,angle,line,circle,tri,para,regPoly}; //int,float,...
+       enum type Type;
+       enum eletype Eletype;
        vector<ParamList> paramList;
        vector<int> DimList;
        struct STentry *STptr;

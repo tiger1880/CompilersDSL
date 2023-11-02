@@ -100,7 +100,6 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 }
 
 "void" {
-    yylval.eleType = yytext;
     fprintf(fout_token, "VOID: %s\n", yytext);
     return VOID;
 }
@@ -146,13 +145,13 @@ or {
 }
 
 "func" {
-    yylval.type = yytext;
+    //yylval.type = yytext;
     fprintf(fout_token, "FUNC: %s\n", yytext);
     return FUNC;
 }
 
 "fig" {
-    yylval.type = yytext;
+    //yylval.type = yytext;
     fprintf(fout_token, "FIG: %s\n", yytext);
     return FIG;
 }
@@ -168,7 +167,6 @@ or {
 }
 
 {datatype} {
-    yylval.eleType = yytext;
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
     return DATATYPE;
 }
@@ -209,6 +207,7 @@ or {
 }
 
 {id} { 
+    //yylval.name = yytext;
     fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
     return ID;
 }

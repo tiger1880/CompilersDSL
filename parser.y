@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
+#include <vector>
+#include <map>
 extern FILE *yyin; 
 FILE* fout_token;
 void yyerror(const char *s);

@@ -32,7 +32,7 @@ typedef struct ParamList{
 // //function entry
 typedef struct STentry {
        enum type{array,func,fig,var}; //array,func,fig,var
-       enum eletype{int,real,point,label,bool,angle,line,circle,tri,para,regPoly}; //int,float,...
+       enum eletype{void,int,real,point,label,bool,angle,line,circle,tri,para,regPoly}; //int,float,...
        vector<ParamList> paramList;
        vector<int> DimList;
        struct STentry *STptr;

@@ -1,5 +1,7 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string>
 extern FILE *yyin; 
 FILE* fout_token;
 void yyerror(const char *s);
@@ -7,7 +9,43 @@ int yylex();
 extern int yylineno;
 extern char* yytext;
 int yydebug = 1;
+
+//parameter of function
+// typedef struct ParamFunc{
+//        char name[64];
+//        char type[64];
+// } ParamFunc;
+
+// //varList of function
+// typedef struct VarFunc{
+//        char name[64];
+//        char type[64];
+//        int levelFunc;
+// } VarFunc;
+
+typedef struct ParamList{
+       enum type{array,func,fig,var}; //array,func,fig,var
+       string name;
+       vector<int> dim;
+} ParamList;
+
+// //function entry
+typedef struct STentry {
+       enum type{array,func,fig,var}; //array,func,fig,var
+       enum eletype{int,real,point,label,bool,angle}; //int,float,...
+       vector<ParamList> paramList;
+       
+
+} STentry;        
+
+
+
+// struct FuncSym funcTable[64];
+
+
 %}
+
+
 
 
 

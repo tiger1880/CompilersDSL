@@ -35,7 +35,7 @@ using namespace std;
 %token FOR
 %token WHILE
 %token RETURN
-%token VOID
+%token <Eletype> VOID
 %token CONTINUE
 %token BREAK
 %token PARALLEL
@@ -44,13 +44,13 @@ using namespace std;
 %token FUNC
 %token FIG
 %token UNARY
-%token DATATYPE
+%token <Eletype> DATATYPE
 %token CMP_OP EQ_CMP_OP
 %token ASSIGN_OP
 %token EQUAL
 %token STRING_TOKEN
 %token ENDLINE
-%token ID
+%token <name> ID
 %token FLOATS
 %token CONSTRUCTOR
 %token NOT AND OR 
@@ -71,8 +71,8 @@ using namespace std;
 %nonassoc UNARY
 %right NOT
 
-%type<Eletype> DATATYPE 
-%type<name> ID
+/* %type<Eletype> DATATYPE   // Used in non-terminals mostly hence went back to token .
+%type<name> ID */
 
 
 %%
@@ -80,7 +80,7 @@ using namespace std;
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID {SymTab[$3].Type=$2;} '(' arg_list ')' empty_space '{' func_body '}' 
+func: FUNC DATATYPE  ID {SymTab[$3].Eletype = $2;} '(' arg_list ')' empty_space '{' func_body '}' 
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
 

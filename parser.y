@@ -34,6 +34,12 @@ using namespace std;
 
 %}
 
+%union {
+    char* name; 
+    enum eletype Eletype;  
+}
+
+
 
 %token INTEGERS
 %token LINE_OP  
@@ -79,10 +85,6 @@ using namespace std;
 %nonassoc UNARY
 %right NOT
 
-%union {
-    char* name; 
-    enum eletype Eletype;  
-}
 
 %%
 

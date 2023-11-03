@@ -17,21 +17,6 @@ int yydebug = 1;
 
 using namespace std;
 
-
-
-//parameter of function
-// typedef struct ParamFunc{
-//        char name[64];
-//        char type[64];
-// } ParamFunc;
-
-// //varList of function
-// typedef struct VarFunc{
-//        char name[64];
-//        char type[64];
-//        int levelFunc;
-// } VarFunc;
-
 %}
 
 

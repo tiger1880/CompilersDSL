@@ -40,7 +40,6 @@ using namespace std;
 }
 
 
-
 %token INTEGERS
 %token LINE_OP  
 %token IF

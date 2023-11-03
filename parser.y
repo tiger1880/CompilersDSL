@@ -1,10 +1,12 @@
 %{
+#include "symbol_table.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <iostream>
 #include <vector>
 #include <map>
+
 extern FILE *yyin; 
 FILE* fout_token;
 void yyerror(const char *s);
@@ -30,51 +32,7 @@ using namespace std;
 //        int levelFunc;
 // } VarFunc;
 
-enum type {
-       Array,
-       Func,
-       Fig,
-       Var
-}; //array,func,fig,var
-
-enum eletype {
-       Void,
-       INT,
-       REAL,
-       POINT,
-       LABEL,
-       BOOL,
-       ANGLE,
-       LINE,
-       CIRCLE,
-       TRI,
-       PARA,
-       REGPOLY
-}; //int,float,...
-
-typedef struct ParamList{
-       enum type Type;
-       string name;
-       vector<int> dim;
-} ParamList;
-
-// //function entry
-typedef struct STentry {
-       enum type Type;
-       enum eletype Eletype;
-       vector<ParamList> paramList;
-       vector<int> DimList;
-       struct STentry *STptr;
-} STentry;        
-
-
-map<string,STentry> SymTab;
-// struct FuncSym funcTable[64];
-
 %}
-
-
-
 
 
 %token INTEGERS
@@ -85,7 +43,7 @@ map<string,STentry> SymTab;
 %token FOR
 %token WHILE
 %token RETURN
-%token VOID
+%token <Eletype> VOID
 %token CONTINUE
 %token BREAK
 %token PARALLEL
@@ -94,7 +52,7 @@ map<string,STentry> SymTab;
 %token FUNC
 %token FIG
 %token UNARY
-%token DATATYPE
+%token <Eletype> DATATYPE
 %token CMP_OP EQ_CMP_OP
 %token ASSIGN_OP
 %token EQUAL
@@ -122,7 +80,8 @@ map<string,STentry> SymTab;
 %right NOT
 
 %union {
-    char* name;   
+    char* name; 
+    enum eletype Eletype;  
 }
 
 %%

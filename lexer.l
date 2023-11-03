@@ -2,9 +2,11 @@
 
 %{
 
+#include "symbol_table.hpp"
 #include <stdio.h>
-#include<string>
+#include<string.h>
 #include "y.tab.h"
+
 extern FILE *fout_token;
 
 %}
@@ -101,6 +103,9 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 }
 
 "void" {
+    if (strcmp(yytext, "void") == 0) {
+        yylval.Eletype = Void;
+    } 
     fprintf(fout_token, "VOID: %s\n", yytext);
     return VOID;
 }
@@ -146,13 +151,11 @@ or {
 }
 
 "func" {
-    //yylval.type = yytext;
     fprintf(fout_token, "FUNC: %s\n", yytext);
     return FUNC;
 }
 
 "fig" {
-    //yylval.type = yytext;
     fprintf(fout_token, "FIG: %s\n", yytext);
     return FIG;
 }
@@ -168,6 +171,40 @@ or {
 }
 
 {datatype} {
+    if (strcmp(yytext, "int") == 0) {
+        yylval.Eletype = INT;
+    } 
+    else if (strcmp(yytext, "real") == 0) {
+        yylval.Eletype = REAL;
+    } 
+    else if (strcmp(yytext, "bool") == 0) {
+        yylval.Eletype = BOOL;
+    } 
+    else if (strcmp(yytext, "label") == 0) {
+        yylval.Eletype = LABEL;
+    } 
+    else if (strcmp(yytext, "tri") == 0) {
+        yylval.Eletype = TRI;
+    } 
+    else if (strcmp(yytext, "circle") == 0) {
+        yylval.Eletype = CIRCLE;
+    } 
+    else if (strcmp(yytext, "para") == 0) {
+        yylval.Eletype = PARA;
+    } 
+    else if (strcmp(yytext, "regPoly") == 0) {
+        yylval.Eletype = REGPOLY;
+    } 
+    else if (strcmp(yytext, "point") == 0) {
+        yylval.Eletype = POINT;
+    } 
+    else if (strcmp(yytext, "line") == 0) {
+        yylval.Eletype = LINE;
+    } 
+    else if (strcmp(yytext, "angle") == 0) {
+        yylval.Eletype = ANGLE;
+    } 
+    
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
     return DATATYPE;
 }

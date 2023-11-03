@@ -100,7 +100,7 @@ map<string,STentry> SymTab;
 %token EQUAL
 %token STRING_TOKEN
 %token ENDLINE
-%token ID
+%token<name> ID
 %token FLOATS
 %token CONSTRUCTOR
 %token NOT AND OR 
@@ -120,6 +120,10 @@ map<string,STentry> SymTab;
 %left '^'
 %nonassoc UNARY
 %right NOT
+
+%union {
+    char* name;   
+}
 
 %%
 

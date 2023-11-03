@@ -3,6 +3,7 @@
 %{
 
 #include <stdio.h>
+#include<string>
 #include "y.tab.h"
 extern FILE *fout_token;
 
@@ -207,7 +208,7 @@ or {
 }
 
 {id} { 
-    //yylval.name = yytext;
+    yylval.name = yytext;
     fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
     return ID;
 }

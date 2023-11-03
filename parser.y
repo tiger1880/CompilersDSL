@@ -88,7 +88,7 @@ arg_list : list1 | ;
 
 list1: list1 ',' argument  | argument ; 
 
-argument : DATATYPE ID ;
+argument : DATATYPE ID check_arr;
 
 func_body : func_body stmt | ;
  

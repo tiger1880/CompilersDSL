@@ -53,6 +53,11 @@ void addDimList(char* name, vector<int>& dim) {
     }
 }
 
+void addSymTabPtr(char* name) {
+    map<string, STentry> newSymTab;
+    SymTab[name].Symtab = &newSymTab;
+}
+
 
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;

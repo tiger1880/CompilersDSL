@@ -80,7 +80,7 @@ using namespace std;
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}'  {insertType($3, Func, $2);}
+func: FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}'  {insertType($3, Func, $2);  printSymbolTable();}
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
 
@@ -228,7 +228,7 @@ int main(int argc, char*argv[])
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
     yyin = fp;
-    printSymbolTable();
+
 
     return yyparse();
 } 

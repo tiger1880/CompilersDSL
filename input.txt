@@ -1,0 +1,14 @@
+func real sin(real x) {
+    
+    real result := 0.0
+    real term := x
+    int sign := 1
+    
+    repeat (int i := 1| i <= 10| i +:= 2) {
+        result +:= sign * term
+        sign *:= -1
+        term *:= (x * x) / (i * (i + 1))
+    }
+
+    return result
+}

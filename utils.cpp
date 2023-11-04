@@ -15,4 +15,101 @@ void insertType(char* name, enum type t,enum eletype etype) {
 }
 
 
+void printSymbolTable() {
+    cout << "Symbol Table:" << endl;
+    for (const auto& entry : SymTab) {
+        const STentry& stEntry = entry.second;
+        cout << "Name: " << entry.first << endl;
+        cout << "Type: ";
+        switch (stEntry.Type) {
+            case Array:
+                cout << "Array";
+                break;
+            case Func:
+                cout << "Function";
+                break;
+            case Fig:
+                cout << "Figure";
+                break;
+            case Var:
+                cout << "Variable";
+                break;
+        }
+        cout << endl;
+        cout << "Element Type: ";
+        switch (stEntry.Eletype) {
+            case Void:
+                cout << "Void";
+                break;
+            case INT:
+                cout << "INT";
+                break;
+            case REAL:
+                cout << "REAL";
+                break;
+            case POINT:
+                cout << "POINT";
+                break;
+            case LABEL:
+                cout << "LABEL";
+                break;
+            case BOOL:
+                cout << "BOOL";
+                break;
+            case ANGLE:
+                cout << "ANGLE";
+                break;
+            case LINE:
+                cout << "LINE";
+                break;
+            case CIRCLE:
+                cout << "CIRCLE";
+                break;
+            case TRI:
+                cout << "TRI";
+                break;
+            case PARA:
+                cout << "PARA";
+                break;
+            case REGPOLY:
+                cout << "REGPOLY";
+                break;
+        }
+        cout << endl;
+        
+        cout << "Parameter List:" << endl;
+        for (const ParamList& param : stEntry.paramList) {
+            cout << "  Parameter Type: ";
+            switch (param.Type) {
+                case Array:
+                    cout << "Array";
+                    break;
+                case Func:
+                    cout << "Function";
+                    break;
+                case Fig:
+                    cout << "Figure";
+                    break;
+                case Var:
+                    cout << "Variable";
+                    break;
+            }
+            cout << ", Name: " << param.name << ", Dimensions: ";
+            for (int dim : param.dim) {
+                cout << dim << " ";
+            }
+            cout << endl;
+        }
+
+        cout << "Dimension List:" << endl;
+        for (int dim : stEntry.DimList) {
+            cout << dim << " ";
+        }
+        cout << endl;
+
+        cout << "-------------------------" << endl;
+    }
+}
+
+
 

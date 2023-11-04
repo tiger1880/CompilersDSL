@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <iostream>
 #include <map>
 
 using namespace std;
@@ -52,6 +53,7 @@ typedef struct STentry {
 
 extern map<string,STentry> SymTab;
 extern void insertType(char* name,enum type t, enum eletype etype);
+extern void printSymbolTable();
 
 #endif // UTILS_HPP
 

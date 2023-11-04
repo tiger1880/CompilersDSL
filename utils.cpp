@@ -9,9 +9,14 @@ map<string, STentry> SymTab;
 
 // Define functions here
 void insertType(char* name, enum type t,enum eletype etype) {
-    cout<<"insertType: "<<endl;
-    SymTab[name].Type = t;
-    SymTab[name].Eletype = etype;
+    if(SymTab.count(name)>0) {
+        cerr << "Error: " << "Redeclaration of " << name << endl;
+    }
+    else {
+        SymTab[name].Type = t;
+        SymTab[name].Eletype = etype;
+    }
+    
 }
 
 
@@ -29,13 +34,13 @@ void addParamList(char* name, ParamList& param) {
    if (SymTab.find(name) != SymTab.end()) {
         SymTab[name].paramList.push_back(param);
     } else {
-        std::cerr << "Error: " << name << " not found in SymTab." << std::endl;
+        cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
 
 int sizeParamList(char* name) {
     if (SymTab.find(name) == SymTab.end()) {
-        std::cerr << "Error: " << name << " not found in SymTab." << std::endl;
+        cerr << "Error: " << name << " not found in SymTab." << endl;
     }
     return SymTab[name].paramList.size();
 }
@@ -44,7 +49,7 @@ void addDimList(char* name, vector<int>& dim) {
      if (SymTab.find(name) != SymTab.end()) {
         SymTab[name].DimList = dim;
     } else {
-        std::cerr << "Error: " << name << " not found in SymTab." << std::endl;
+        cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
 

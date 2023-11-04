@@ -51,6 +51,7 @@ typedef struct STentry {
 
 
 extern map<string,STentry> SymTab;
+extern void insertType(char* name,enum type t, enum eletype etype);
 
 #endif // UTILS_HPP
 

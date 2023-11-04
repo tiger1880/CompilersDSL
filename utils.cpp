@@ -9,8 +9,8 @@ map<string, STentry> SymTab;
 
 // Define functions here
 void insertType(char* name, enum type t,enum eletype etype) {
-    SymTab[name].Type = t;
     cout<<"insertType: "<<name<<endl;
+    SymTab[name].Type = t;
     SymTab[name].Eletype = etype;
 }
 

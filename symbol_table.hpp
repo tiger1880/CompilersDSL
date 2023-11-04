@@ -47,7 +47,7 @@ typedef struct STentry {
        enum eletype Eletype;
        vector<ParamList> paramList;
        vector<int> DimList;
-       struct STentry *STptr;
+       map<string,STentry> *Symtab;
 } STentry;        
 
 

@@ -19,9 +19,11 @@ int checkType(char* name) {
     return SymTab[name].Type;
 }
 
+//check return type
 int checkEletype(char* name) {
     return SymTab[name].Eletype;
 }
+
 
 
 

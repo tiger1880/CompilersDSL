@@ -80,7 +80,7 @@ using namespace std;
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' 
+func: FUNC DATATYPE  ID {insertType($3,Func,$2);} '(' arg_list ')' empty_space '{' func_body '}' 
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
 

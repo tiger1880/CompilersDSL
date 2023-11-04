@@ -57,8 +57,7 @@ extern void insertType(char* name,enum type t, enum eletype etype);
 extern void printSymbolTable();
 extern int checkType(char* name);
 extern int checkEletype(char* name);
-extern void addParameterList(char* name, ParamList param);
-extern int sizeParamList(char* name);
+
 
 
 #endif // UTILS_HPP

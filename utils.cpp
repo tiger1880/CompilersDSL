@@ -23,22 +23,6 @@ int checkEletype(char* name) {
     return SymTab[name].Eletype;
 }
 
-
-
-
-//add parameter list
-//check this once
-void addParameterList(char* name, ParamList param) {
-    for(int i = 0 ;i < param.size() ;i++) {
-        Symtab[name].paramList.push_back(param[i]);
-    }
-}
-
-//size of parameter list
-int sizeParamList(char* name) {
-    return Symtab[name].paramList.size();
-}
-
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
     for (const auto& entry : SymTab) {

@@ -15,6 +15,17 @@ void insertType(char* name, enum type t,enum eletype etype) {
 }
 
 
+int checkType(char* name) {
+    return SymTab[name].Type;
+}
+
+int checkEletype(char* name) {
+    return SymTab[name].Eletype;
+}
+
+
+
+
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
     for (const auto& entry : SymTab) {

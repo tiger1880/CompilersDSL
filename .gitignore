@@ -5,3 +5,4 @@
 /y.tab.h
 /parser
 /lex.yy.c
+/seq_token.txt

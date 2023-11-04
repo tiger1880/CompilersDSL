@@ -53,6 +53,7 @@ typedef struct STentry {
 
 extern map<string,STentry> SymTab;
 
+
 extern void insertType(char* name,enum type t, enum eletype etype);
 extern void printSymbolTable();
 extern int checkType(char* name);

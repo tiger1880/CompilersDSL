@@ -1,10 +1,11 @@
 #include "symbol_table.hpp"
-#include<map>
-#include<deque>
-#include<string>
+#include <map>
+#include <deque>
+#include <string>
 #include <iostream> 
-#include<bits/stdc++.h> 
-#include<vector>
+#include <bits/stdc++.h> 
+#include <algorithm> 
+#include <vector>
 
 using namespace std;
 
@@ -66,19 +67,23 @@ int checkEletype(char* name) {
     }  
 }
 
-
 void addParamList(char* name, ParamList& param) {
-    if(SymTab.empty()){
-        SymTab.push_back(map<string,STentry>());
+    if (SymTab.empty()) {
+        SymTab.push_back(map<string, STentry>());
     }
-    
-    if (SymTab.back().find(name) != SymTab.back().end()) {
-        SymTab.back()[name].paramList.push_back(param);
-    } 
-    else {
+
+    if (SymTab.back().find(name) != SymTab.back().end()){
+        if (std::find(SymTab.back()[name].paramList.begin(), SymTab.back()[name].paramList.end(), param) != SymTab.back()[name].paramList.end()) {
+            cerr << "Error: Parameter " << param.name << " is already declared in " << name << "." << endl;
+        } else {
+            SymTab.back()[name].paramList.push_back(param);
+        }
+    } else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
+
+
 
 int sizeParamList(char* name) {
     if(SymTab.empty()){

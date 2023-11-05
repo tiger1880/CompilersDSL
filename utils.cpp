@@ -66,18 +66,20 @@ int checkEletype(char* name) {
         return -1;
     }  
 }
-
-void addParamList(char* name, ParamList& param) {
+void addParamList(char* name, vector<ParamList>& param) {
     if (SymTab.empty()) {
         SymTab.push_back(map<string, STentry>());
     }
 
-    if (SymTab.back().find(name) != SymTab.back().end()){
-        if (std::find(SymTab.back()[name].paramList.begin(), SymTab.back()[name].paramList.end(), param) != SymTab.back()[name].paramList.end()) {
-            cerr << "Error: Parameter " << param.name << " is already declared in " << name << "." << endl;
-        } else {
-            SymTab.back()[name].paramList.push_back(param);
+    if (SymTab.back().find(name) != SymTab.back().end()) {
+        for (const ParamList& newParam : param) {
+            if (std::count(param.begin(), param.end(), newParam) > 1) {
+                cerr << "Error: Duplicate parameter entry in " << name << "." << endl;
+                return;
+            }
         }
+
+        SymTab.back()[name].paramList.insert(SymTab.back()[name].paramList.end(), param.begin(), param.end());
     } else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }

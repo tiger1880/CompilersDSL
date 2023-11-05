@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <deque>
 #include <iostream>
 #include <map>
 
@@ -47,11 +48,10 @@ typedef struct STentry {
        enum eletype Eletype;
        vector<ParamList> paramList;
        vector<int> DimList;
-       map<string,STentry> *Symtab;
 } STentry;        
 
 
-extern map<string,STentry> SymTab;
+extern deque<map<string,STentry>> SymTab;
 
 
 extern void insertType(char* name,enum type t, enum eletype etype);

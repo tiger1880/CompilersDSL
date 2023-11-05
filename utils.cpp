@@ -1,11 +1,12 @@
 #include "symbol_table.hpp"
 #include<map>
+#include<deque>
 #include<string>
 #include<vector>
 
 using namespace std;
 
-map<string, STentry> SymTab;
+deque<map<string, STentry>> SymTab;
 
 // Define functions here
 void insertType(char* name, enum type t ,enum eletype etype = Void) {

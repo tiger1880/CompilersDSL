@@ -6,3 +6,4 @@
 /parser
 /lex.yy.c
 /seq_token.txt
+/utils

@@ -51,8 +51,7 @@ typedef struct STentry {
 } STentry;        
 
 
-extern deque<map<string,STentry>> SymTab;
-
+extern deque<map<string,STentry> > SymTab;
 
 extern void insertType(char* name,enum type t, enum eletype etype);
 extern void printSymbolTable();
@@ -61,7 +60,8 @@ extern int checkEletype(char* name);
 extern void addParamList(char* name, ParamList param);
 extern int sizeParamList(char* name);
 extern void addDimList(char* name, vector<int> dim);
-extern void addSymTabPtr(char* name);
+extern void addSymTabPtr();
+extern void delSymTabPtr();
 
 
 

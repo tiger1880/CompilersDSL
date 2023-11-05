@@ -2,62 +2,75 @@
 #include<map>
 #include<deque>
 #include<string>
+#include <iostream> 
+#include<bits/stdc++.h> 
 #include<vector>
 
 using namespace std;
 
 deque<map<string, STentry>> SymTab;
 
+
+
+
 // Define functions here
-void insertType(char* name, enum type t ,enum eletype etype = Void) {
-    if(SymTab.count(name)>0) {
+void insertType(char* name, enum type t ,enum eletype etype) {
+    cout<<"inserting "<<name<<endl;
+
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+        
+    if(SymTab.back().find(name) != SymTab.back().end()) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
-    }
-    else {
-        SymTab[name].Type = t;
-        SymTab[name].Eletype = etype;
-       
-    }
+    }else{
+        SymTab.back()[name].Type = t;
+        SymTab.back()[name].Eletype = etype;      
+    }  
     
 }
 
 int checkType(char* name) {
-    if(SymTab.find(name) != SymTab.end())
-        return SymTab[name].Type;
-    else
+    if(SymTab.back().find(name) != SymTab.back().end())
+        return SymTab.back()[name].Type;
+    else{
         cerr << "Error: " << name << " not found in SymTab." << endl;
+        return -1;
+    }
 }
 
 //check return type
 int checkEletype(char* name) {
-    if(SymTab.find(name) != SymTab.end())
-        return SymTab[name].Eletype;
-    else
+    if(SymTab.back().find(name) != SymTab.back().end())
+        return SymTab.back()[name].Eletype;
+    else{
         cerr << "Error: " << name << " not found in SymTab." << endl;
-    
+        return -1;
+    }  
 }
 
 
 
 void addParamList(char* name, ParamList& param) {
-    if (SymTab.find(name) != SymTab.end()) {
-        SymTab[name].paramList.push_back(param);
+    if (SymTab.back().find(name) != SymTab.back().end()) {
+        SymTab.back()[name].paramList.push_back(param);
     } else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
 
 int sizeParamList(char* name) {
-    if (SymTab.find(name) != SymTab.end()) {
-        return SymTab[name].paramList.size();
+    if (SymTab.back().find(name) != SymTab.back().end()) {
+        return SymTab.back()[name].paramList.size();
     }
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
+        return -1;
     }    
 }
 
 void addDimList(char* name, vector<int>& dim) {
-     if (SymTab.find(name) != SymTab.end()) {
+     if (SymTab.back().find(name) != SymTab.back().end()) {
         
         for(int i=0;i<dim.size();i++){
             if(dim[i]<0)
@@ -65,28 +78,24 @@ void addDimList(char* name, vector<int>& dim) {
                 return;
             }
         }
-        SymTab[name].DimList = dim;
+        SymTab.back()[name].DimList = dim;
     } else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
 
-void addSymTabPtr(char* name) {
-    map<string, STentry> newSymTab;
-    if (SymTab.find(name) != SymTab.end())
-    {   SymTab[name].Symtab = &newSymTab;
-    }
-    else{
-        cerr << "Error: " << name << " not found in SymTab." << endl;
-    }
-    
-    
+void addSymTabPtr() {
+    SymTab.push_back(map<string,STentry>());
+}
+
+void delSymTabPtr() {
+    SymTab.pop_back(map<string,STentry>());
 }
 
 
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
-    for (const auto& entry : SymTab) {
+    for (const auto& entry : SymTab.back()) {
         const STentry& stEntry = entry.second;
         cout << "Name: " << entry.first << endl;
         cout << "Type: ";

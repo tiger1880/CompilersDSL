@@ -17,7 +17,10 @@ int yydebug = 1;
 
 using namespace std;
 
+
+
 %}
+
 
 
 %union {
@@ -80,7 +83,7 @@ using namespace std;
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID   {insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}'
+func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}'
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
 
@@ -224,6 +227,7 @@ void yyerror(const char * s)
   
 int main(int argc, char*argv[])
 {    
+
     FILE *fp;
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");

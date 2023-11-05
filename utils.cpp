@@ -10,20 +10,16 @@ using namespace std;
 
 deque<map<string, STentry>> SymTab;
 
-
-
-
 // Define functions here
 void insertType(char* name, enum type t ,enum eletype etype) {
-    cout<<"inserting "<<name<<endl;
-
     if(SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
         
     if(SymTab.back().find(name) != SymTab.back().end()) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
-    }else{
+    }
+    else{
         SymTab.back()[name].Type = t;
         SymTab.back()[name].Eletype = etype;      
     }  
@@ -31,6 +27,10 @@ void insertType(char* name, enum type t ,enum eletype etype) {
 }
 
 int checkType(char* name) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
     if(SymTab.back().find(name) != SymTab.back().end())
         return SymTab.back()[name].Type;
     else{
@@ -41,6 +41,10 @@ int checkType(char* name) {
 
 //check return type
 int checkEletype(char* name) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
     if(SymTab.back().find(name) != SymTab.back().end())
         return SymTab.back()[name].Eletype;
     else{
@@ -52,14 +56,23 @@ int checkEletype(char* name) {
 
 
 void addParamList(char* name, ParamList& param) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
     if (SymTab.back().find(name) != SymTab.back().end()) {
         SymTab.back()[name].paramList.push_back(param);
-    } else {
+    } 
+    else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
 
 int sizeParamList(char* name) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
     if (SymTab.back().find(name) != SymTab.back().end()) {
         return SymTab.back()[name].paramList.size();
     }
@@ -70,7 +83,11 @@ int sizeParamList(char* name) {
 }
 
 void addDimList(char* name, vector<int>& dim) {
-     if (SymTab.back().find(name) != SymTab.back().end()) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
+    if (SymTab.back().find(name) != SymTab.back().end()) {
         
         for(int i=0;i<dim.size();i++){
             if(dim[i]<0)
@@ -79,7 +96,8 @@ void addDimList(char* name, vector<int>& dim) {
             }
         }
         SymTab.back()[name].DimList = dim;
-    } else {
+    } 
+    else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
@@ -89,7 +107,10 @@ void addSymTabPtr() {
 }
 
 void delSymTabPtr() {
-    SymTab.pop_back(map<string,STentry>());
+    if(!SymTab.empty()){
+        SymTab.pop_back();
+    }
+    
 }
 
 

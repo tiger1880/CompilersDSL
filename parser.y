@@ -12,11 +12,11 @@ FILE* fout_token;
 void yyerror(const char *s);
 int yylex();
 extern int yylineno;
-extern char* yytext; 
+extern char* yytext;
 
 using namespace std;
 
-
+enum eletype sumTypeCheck(enum eletype E1, enum eletype E2);
 enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
 enum eletype pointCheck (enum eletype x, enum eletype y);
 bool arithCompatible(enum eletype e);
@@ -153,28 +153,28 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = REAL;}
        | '<' vertex vertex vertex '>' {$$ = REAL;}
        ;
 
-expression:  expression '+' expression {$$ = arithTypeCheck($1, $3); cout << $$ << "\n";}
-            | expression '-' expression 
-            | expression '*' expression 
-            | expression '/' expression
-            | expression '%' expression 
-            | expression '^' expression 
-            | expression LINE_OP expression // <-> ->
-            | expression PARALLEL expression
-            | expression PERPENDICULAR expression
-            | PARALLEL expression PARALLEL
-            | '-' expression 
-            | UNARY expression 
-            | expression UNARY 
+expression:  expression '+' expression {$$ = sumTypeCheck($1, $3); cout << $$ << "\n";}
+            | expression '-' expression  {if($1 == LABEL ||$3 == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
+            | expression '*' expression {$$ = arithTypeCheck($1, $3) ;}
+            | expression '/' expression {$$ = arithTypeCheck($1, $3) ;}
+            | expression '%' expression {$$ = arithTypeCheck($1, $3) ;}
+            | expression '^' expression {$$ = arithTypeCheck($1, $3) ;}
+            | expression LINE_OP expression {if($1 == POINT && $3 == POINT) $$ = LINE ; else  semanticError("Error: Semantic error incompatible datatype") ;  }  // <-> ->
+            | expression PARALLEL expression {if($1 == LINE && $3 == LINE) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ;  }
+            | expression PERPENDICULAR expression  {if($1 == LINE && $3 == LINE) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ; }
+            | PARALLEL expression PARALLEL  {if ($2 != POINT) semanticError("Error: Semantic error incompatible datatype") ; $$ = REAL; }
+            | '-' expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; } 
+            | UNARY expression {if(!($2 == INT && $2 == BOOL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }
+            | expression UNARY {if(!($1 == INT && $1 == BOOL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;  }
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
-            | expression AND expression
-            | expression OR expression
-            | id_list EQUAL expression
+            | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
+            | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
+            | id_list EQUAL expression 
             | id_list ASSIGN_OP expression
-            | expression CMP_OP expression
+            | expression CMP_OP expression 
             | expression '<' expression
-            | expression '>' expression
-            | expression EQ_CMP_OP expression
+            | expression '>' expression  
+            | expression EQ_CMP_OP expression 
             | id_list
             | FLOATS {$$ = $1;}
             | INTEGERS {$$ = $1;}
@@ -183,7 +183,7 @@ expression:  expression '+' expression {$$ = arithTypeCheck($1, $3); cout << $$ 
             | func_call 
             | point {$$ = $1;}
             | angle {$$ = $1;}
-            | '(' expression ')'  
+            | '(' expression ')' {$$ = $2;}
             ; 
 
 id_list: id_list '.' ID  arr_access 
@@ -239,12 +239,23 @@ void semanticError(const char* s)
        exit(1);
 }
   
-enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
+enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
        if(E1 == LABEL && E2 == LABEL)
               return LABEL;
        else if(E1 == POINT && E2 == POINT)
               return POINT;
        else if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1);
+       }
+}
+
+enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
+       
+       if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
               return max(E1, E2);
        }
        else {
@@ -259,7 +270,6 @@ bool arithCompatible(enum eletype e){
               return true;
        return false;
 }
-
 enum eletype pointCheck (enum eletype x, enum eletype y){
        if (arithCompatible(x) && arithCompatible(y))
               return POINT;

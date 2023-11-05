@@ -26,13 +26,25 @@ void insertType(char* name, enum type t ,enum eletype etype) {
     
 }
 
+STentry lookup(char *name) {
+    for(int i = SymTab.size();i>=0;i--) {
+        if(SymTab[i].find(name) != SymTab[i].end()) {
+            return SymTab[i][name];
+        }
+    }
+    STentry stentry;
+    stentry.Type = Invalid;
+    return stentry;
+}
+
 int checkType(char* name) {
     if(SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
     
-    if(SymTab.back().find(name) != SymTab.back().end())
-        return SymTab.back()[name].Type;
+    if (lookup(name).Type!=Invalid) {
+        return lookup(name).Type;
+    }
     else{
         cerr << "Error: " << name << " not found in SymTab." << endl;
         return -1;
@@ -45,14 +57,14 @@ int checkEletype(char* name) {
         SymTab.push_back(map<string,STentry>());
     }
     
-    if(SymTab.back().find(name) != SymTab.back().end())
-        return SymTab.back()[name].Eletype;
+    if (lookup(name).Type!=Invalid) {
+        return lookup(name).Eletype;
+    }
     else{
         cerr << "Error: " << name << " not found in SymTab." << endl;
         return -1;
     }  
 }
-
 
 
 void addParamList(char* name, ParamList& param) {
@@ -73,8 +85,8 @@ int sizeParamList(char* name) {
         SymTab.push_back(map<string,STentry>());
     }
     
-    if (SymTab.back().find(name) != SymTab.back().end()) {
-        return SymTab.back()[name].paramList.size();
+    if (lookup(name).Type!=Invalid) {
+        return lookup(name).paramList.size();
     }
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
@@ -111,6 +123,13 @@ void delSymTabPtr() {
         SymTab.pop_back();
     }
     
+}
+
+bool funcParamSizeCheck(char *name, vector<ParamList> param) {
+    if(sizeParamList(name)==param.size()){
+        return true;
+    }
+    return false;
 }
 
 

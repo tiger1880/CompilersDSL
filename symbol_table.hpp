@@ -18,7 +18,8 @@ enum type {
        Array,
        Func,
        Fig,
-       Var
+       Var,
+       Invalid
 }; //array,func,fig,var
 
 enum eletype {
@@ -62,6 +63,8 @@ extern int sizeParamList(char* name);
 extern void addDimList(char* name, vector<int> dim);
 extern void addSymTabPtr();
 extern void delSymTabPtr();
+extern STentry lookup(char* name);
+extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
 
 
 

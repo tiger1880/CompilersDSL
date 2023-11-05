@@ -1,2 +1,9 @@
 /test.c
 /test.cpp
+/.vscode
+/y.tab.c
+/y.tab.h
+/parser
+/lex.yy.c
+/seq_token.txt
+/utils

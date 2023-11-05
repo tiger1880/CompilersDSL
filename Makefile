@@ -1,5 +1,5 @@
 #Flags and variables
-CC = gcc
+CC = g++
 YACC = yacc
 LEX = lex
 LIBS = -lfl # for flex
@@ -14,8 +14,8 @@ TEST = testall.sh
 all: $(TARGET)
 
 # Rule to build the target executable
-parser: y.tab.c lex.yy.c
-	$(CC) -o $(TARGET) y.tab.c lex.yy.c $(LIBS)
+parser: y.tab.c lex.yy.c utils
+	$(CC) -o $(TARGET) utils y.tab.c lex.yy.c $(LIBS)
 
 # Build the yacc file
 y.tab.c: parser.y
@@ -25,9 +25,13 @@ y.tab.c: parser.y
 lex.yy.c: lexer.l
 	$(LEX) lexer.l
 
+#Build the utils file
+utils: utils.cpp
+	$(CC) -c utils.cpp -o utils
+
 # Clean target: remove the target executable
 clean:
-	rm -f $(TARGET) lex.yy.c y.tab.c y.tab.h error.txt seq_token.txt
+	rm -f $(TARGET) lex.yy.c y.tab.c y.tab.h error.txt seq_token.txt utils
 
 # Run target: build and run the target executable
 run: $(TARGET)

@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <deque>
+#include <iostream>
 #include <map>
 
 using namespace std;
@@ -16,7 +18,8 @@ enum type {
        Array,
        Func,
        Fig,
-       Var
+       Var,
+       Invalid
 }; //array,func,fig,var
 
 enum eletype {
@@ -46,11 +49,24 @@ typedef struct STentry {
        enum eletype Eletype;
        vector<ParamList> paramList;
        vector<int> DimList;
-       struct STentry *STptr;
 } STentry;        
 
 
-extern map<string,STentry> SymTab;
+extern deque<map<string,STentry> > SymTab;
+
+extern void insertType(char* name,enum type t, enum eletype etype);
+extern void printSymbolTable();
+extern int checkType(char* name);
+extern int checkEletype(char* name);
+extern void addParamList(char* name, ParamList param);
+extern int sizeParamList(char* name);
+extern void addDimList(char* name, vector<int> dim);
+extern void addSymTabPtr();
+extern void delSymTabPtr();
+extern STentry lookup(char* name);
+extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
+
+
 
 #endif // UTILS_HPP
 

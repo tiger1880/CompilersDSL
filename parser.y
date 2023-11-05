@@ -19,20 +19,15 @@ using namespace std;
 
 
 
-//parameter of function
-// typedef struct ParamFunc{
-//        char name[64];
-//        char type[64];
-// } ParamFunc;
-
-// //varList of function
-// typedef struct VarFunc{
-//        char name[64];
-//        char type[64];
-//        int levelFunc;
-// } VarFunc;
-
 %}
+
+
+
+%union {
+    char* name; 
+    enum eletype Eletype;  
+}
+
 
 
 %token INTEGERS
@@ -58,7 +53,7 @@ using namespace std;
 %token EQUAL
 %token STRING_TOKEN
 %token ENDLINE
-%token<name> ID
+%token <name> ID
 %token FLOATS
 %token CONSTRUCTOR
 %token NOT AND OR 
@@ -79,17 +74,16 @@ using namespace std;
 %nonassoc UNARY
 %right NOT
 
-%union {
-    char* name; 
-    enum eletype Eletype;  
-}
+/* %type<Eletype> DATATYPE   // Used in non-terminals mostly hence went back to token .
+%type<name> ID */
+
 
 %%
 
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE ID '(' arg_list ')' empty_space '{' func_body '}' 
+func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}'
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
 
@@ -233,10 +227,12 @@ void yyerror(const char * s)
   
 int main(int argc, char*argv[])
 {    
+
     FILE *fp;
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
     yyin = fp;
+
 
     return yyparse();
 } 

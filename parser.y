@@ -12,12 +12,15 @@ FILE* fout_token;
 void yyerror(const char *s);
 int yylex();
 extern int yylineno;
-extern char* yytext;
-int yydebug = 1;
+extern char* yytext; 
 
 using namespace std;
 
 
+enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
+enum eletype pointCheck (enum eletype x, enum eletype y);
+bool arithCompatible(enum eletype e);
+void semanticError(const char* s);
 
 %}
 
@@ -25,12 +28,12 @@ using namespace std;
 
 %union {
     char* name; 
-    enum eletype Eletype;  
+    enum eletype eletype;  
 }
 
 
 
-%token INTEGERS
+%token <eletype> INTEGERS
 %token LINE_OP  
 %token IF
 %token ELIF
@@ -38,26 +41,31 @@ using namespace std;
 %token FOR
 %token WHILE
 %token RETURN
-%token <Eletype> VOID
+%token <eletype> VOID
 %token CONTINUE
 %token BREAK
 %token PARALLEL
 %token PERPENDICULAR
-%token BOOLEAN
+%token <eletype> BOOLEAN
 %token FUNC
 %token FIG
 %token UNARY
-%token <Eletype> DATATYPE
+%token <eletype> DATATYPE
 %token CMP_OP EQ_CMP_OP
 %token ASSIGN_OP
 %token EQUAL
-%token STRING_TOKEN
+%token <eletype> STRING_TOKEN
 %token ENDLINE
 %token <name> ID
-%token FLOATS
+%token <eletype> FLOATS
 %token CONSTRUCTOR
 %token NOT AND OR 
 %token SCALE CENTER
+
+
+// non-terminals
+%type <eletype> expression
+%type <eletype> point angle
 
 // precedence
 
@@ -135,17 +143,17 @@ valid_arg: construct | expression ;
 
 param_list: param_list ',' valid_arg | valid_arg ;
  
-point : '(' expression ','  expression ',' STRING_TOKEN ')' 
-       |  '(' expression ','  expression  ')'
+point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$ = pointCheck($2, $4); }
+       |  '(' expression ','  expression  ')'  {  $$ = pointCheck($2, $4); }
        ; 
 
 vertex: ID | point ;
 
-angle : '<' vertex vertex vertex ',' BOOLEAN '>' 
-       | '<' vertex vertex vertex '>' 
+angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = REAL;}
+       | '<' vertex vertex vertex '>' {$$ = REAL;}
        ;
 
-expression:  expression '+' expression 
+expression:  expression '+' expression {$$ = arithTypeCheck($1, $3); cout << $$ << "\n";}
             | expression '-' expression 
             | expression '*' expression 
             | expression '/' expression
@@ -158,7 +166,7 @@ expression:  expression '+' expression
             | '-' expression 
             | UNARY expression 
             | expression UNARY 
-            | NOT expression 
+            | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
             | expression AND expression
             | expression OR expression
             | id_list EQUAL expression
@@ -168,13 +176,13 @@ expression:  expression '+' expression
             | expression '>' expression
             | expression EQ_CMP_OP expression
             | id_list
-            | FLOATS 
-            | INTEGERS 
-            | STRING_TOKEN 
-            | BOOLEAN 
+            | FLOATS {$$ = $1;}
+            | INTEGERS {$$ = $1;}
+            | STRING_TOKEN {$$ = $1;}
+            | BOOLEAN {$$ = $1;}
             | func_call 
-            | point
-            | angle
+            | point {$$ = $1;}
+            | angle {$$ = $1;}
             | '(' expression ')'  
             ; 
 
@@ -224,7 +232,44 @@ void yyerror(const char * s)
 {   
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
+
+void semanticError(const char* s)
+{
+       cerr << s << "\n";
+       exit(1);
+}
   
+enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
+       if(E1 == LABEL && E2 == LABEL)
+              return LABEL;
+       else if(E1 == POINT && E2 == POINT)
+              return POINT;
+       else if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1);
+       }
+}
+
+bool arithCompatible(enum eletype e){
+
+       if (e == REAL || e == BOOL || e == INT)
+              return true;
+       return false;
+}
+
+enum eletype pointCheck (enum eletype x, enum eletype y){
+       if (arithCompatible(x) && arithCompatible(y))
+              return POINT;
+       else {
+              cerr << "Error: Semantic error invalid point \n";
+              exit(1);
+       }
+}
+
+
 int main(int argc, char*argv[])
 {    
 

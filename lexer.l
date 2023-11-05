@@ -28,6 +28,7 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 {floats} { // .05 1.
+    yylval.eletype = REAL;
     fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
 }
@@ -58,6 +59,7 @@ center {
 }
 
 {integers} {
+    yylval.eletype = INT;
     fprintf(fout_token, "INTEGERS: %s\n", yytext);
     return INTEGERS;
 }
@@ -104,7 +106,7 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 
 "void" {
     if (strcmp(yytext, "void") == 0) {
-        yylval.Eletype = Void;
+        yylval.eletype = Void;
     } 
     fprintf(fout_token, "VOID: %s\n", yytext);
     return VOID;
@@ -146,6 +148,7 @@ or {
 }
 
 {boolean} {
+    yylval.eletype = BOOL;
     fprintf(fout_token, "BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }
@@ -172,37 +175,37 @@ or {
 
 {datatype} {
     if (strcmp(yytext, "int") == 0) {
-        yylval.Eletype = INT;
+        yylval.eletype = INT;
     } 
     else if (strcmp(yytext, "real") == 0) {
-        yylval.Eletype = REAL;
+        yylval.eletype = REAL;
     } 
     else if (strcmp(yytext, "bool") == 0) {
-        yylval.Eletype = BOOL;
+        yylval.eletype = BOOL;
     } 
     else if (strcmp(yytext, "label") == 0) {
-        yylval.Eletype = LABEL;
+        yylval.eletype = LABEL;
     } 
     else if (strcmp(yytext, "tri") == 0) {
-        yylval.Eletype = TRI;
+        yylval.eletype = TRI;
     } 
     else if (strcmp(yytext, "circle") == 0) {
-        yylval.Eletype = CIRCLE;
+        yylval.eletype = CIRCLE;
     } 
     else if (strcmp(yytext, "para") == 0) {
-        yylval.Eletype = PARA;
+        yylval.eletype = PARA;
     } 
     else if (strcmp(yytext, "regPoly") == 0) {
-        yylval.Eletype = REGPOLY;
+        yylval.eletype = REGPOLY;
     } 
     else if (strcmp(yytext, "point") == 0) {
-        yylval.Eletype = POINT;
+        yylval.eletype = POINT;
     } 
     else if (strcmp(yytext, "line") == 0) {
-        yylval.Eletype = LINE;
+        yylval.eletype = LINE;
     } 
     else if (strcmp(yytext, "angle") == 0) {
-        yylval.Eletype = ANGLE;
+        yylval.eletype = ANGLE;
     } 
     
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
@@ -241,6 +244,7 @@ or {
 
 {string_literal}  {
     fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
+    yylval.eletype = LABEL;
     return STRING_TOKEN;
 }
 

@@ -8,3 +8,5 @@
 /lex.yy.c
 /seq_token.txt
 /utils
+/test.cpp
+/input.txt

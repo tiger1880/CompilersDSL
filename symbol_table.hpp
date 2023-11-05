@@ -23,13 +23,13 @@ enum type {
 }; //array,func,fig,var
 
 enum eletype {
-       Void,
+       BOOL,
        INT,
        REAL,
        POINT,
        LABEL,
-       BOOL,
        ANGLE,
+       Void,
        LINE,
        CIRCLE,
        TRI,

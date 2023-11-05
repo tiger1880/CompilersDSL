@@ -8,30 +8,38 @@ using namespace std;
 map<string, STentry> SymTab;
 
 // Define functions here
-void insertType(char* name, enum type t,enum eletype etype) {
+void insertType(char* name, enum type t ,enum eletype etype = Void) {
     if(SymTab.count(name)>0) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
     }
     else {
         SymTab[name].Type = t;
         SymTab[name].Eletype = etype;
+       
     }
     
 }
 
-
 int checkType(char* name) {
-    return SymTab[name].Type;
+    if(SymTab.find(name) != SymTab.end())
+        return SymTab[name].Type;
+    else
+        cerr << "Error: " << name << " not found in SymTab." << endl;
 }
 
 //check return type
 int checkEletype(char* name) {
-    return SymTab[name].Eletype;
+    if(SymTab.find(name) != SymTab.end())
+        return SymTab[name].Eletype;
+    else
+        cerr << "Error: " << name << " not found in SymTab." << endl;
+    
 }
 
 
+
 void addParamList(char* name, ParamList& param) {
-   if (SymTab.find(name) != SymTab.end()) {
+    if (SymTab.find(name) != SymTab.end()) {
         SymTab[name].paramList.push_back(param);
     } else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
@@ -39,14 +47,23 @@ void addParamList(char* name, ParamList& param) {
 }
 
 int sizeParamList(char* name) {
-    if (SymTab.find(name) == SymTab.end()) {
-        cerr << "Error: " << name << " not found in SymTab." << endl;
+    if (SymTab.find(name) != SymTab.end()) {
+        return SymTab[name].paramList.size();
     }
-    return SymTab[name].paramList.size();
+    else {
+        cerr << "Error: " << name << " not found in SymTab." << endl;
+    }    
 }
 
 void addDimList(char* name, vector<int>& dim) {
      if (SymTab.find(name) != SymTab.end()) {
+        
+        for(int i=0;i<dim.size();i++){
+            if(dim[i]<0)
+            {   cerr<<"Array index cannot be negative";
+                return;
+            }
+        }
         SymTab[name].DimList = dim;
     } else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
@@ -55,7 +72,14 @@ void addDimList(char* name, vector<int>& dim) {
 
 void addSymTabPtr(char* name) {
     map<string, STentry> newSymTab;
-    SymTab[name].Symtab = &newSymTab;
+    if (SymTab.find(name) != SymTab.end())
+    {   SymTab[name].Symtab = &newSymTab;
+    }
+    else{
+        cerr << "Error: " << name << " not found in SymTab." << endl;
+    }
+    
+    
 }
 
 
@@ -78,7 +102,7 @@ void printSymbolTable() {
             case Var:
                 cout << "Variable";
                 break;
-        }
+        }    
         cout << endl;
         cout << "Element Type: ";
         switch (stEntry.Eletype) {

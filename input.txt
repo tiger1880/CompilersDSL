@@ -12,7 +12,3 @@ func real sin(real x) {
 
     return result
 }
-
-func int sin(real y) {
-    
-}

@@ -6,7 +6,7 @@ int main(){
     if (-0.0)
         cout << "hello" << "\n";
     int x=2;
-    if("kkk" < "kk")
+    if(x=4 < 5)
         cout<<"ff";
    return 0;
 }

@@ -65,7 +65,7 @@ void semanticError(const char* s);
 
 // non-terminals
 %type <eletype> expression
-%type <eletype> point angle
+%type <eletype> point angle id_list
 
 // precedence
 
@@ -153,7 +153,7 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = REAL;}
        | '<' vertex vertex vertex '>' {$$ = REAL;}
        ;
 
-expression:  expression '+' expression {$$ = sumTypeCheck($1, $3); cout << $$ << "\n";}
+expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | expression '-' expression  {if($1 == LABEL ||$3 == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
             | expression '*' expression {$$ = arithTypeCheck($1, $3) ;}
             | expression '/' expression {$$ = arithTypeCheck($1, $3) ;}
@@ -169,14 +169,14 @@ expression:  expression '+' expression {$$ = sumTypeCheck($1, $3); cout << $$ <<
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | id_list EQUAL expression 
+            | id_list EQUAL expression {$1 = $3; $$ = $3; }
             | id_list ASSIGN_OP expression
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  } 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression EQ_CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | id_list
-            | FLOATS {$$ = $1;}
+            | id_list {$$ = $1;}
+            | FLOATS {$$ = $1;} 
             | INTEGERS {$$ = $1;}
             | STRING_TOKEN {$$ = $1;  cout<< $$;}
             | BOOLEAN {$$ = $1;}

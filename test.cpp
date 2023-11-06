@@ -7,8 +7,8 @@ int main(){
         cout << "hello" << "\n";
     
     cout << "world" << "\n";
-    bool x= -true;
-    x=-false;
+    bool x=2.3;
+    x++;
    cout<<x;
    return 0;
 }

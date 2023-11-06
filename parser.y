@@ -91,7 +91,7 @@ void semanticError(const char* s);
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')'{addParamList($2,$5);} empty_space '{' func_body '}'
+func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}'
     |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
     ;
 

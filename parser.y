@@ -225,7 +225,7 @@ for_loop_decl : DATATYPE ID EQUAL expression | ID EQUAL expression | ;
 optional_arg: expression {$$ = $1;} | {$$ = BOOL;} ;
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
 
-while_loop : WHILE '(' expression ')' stmt_loop_block  
+while_loop : WHILE '(' expression ')' stmt_loop_block {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
 
 
 %%

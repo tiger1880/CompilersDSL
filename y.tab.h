@@ -70,20 +70,22 @@ extern int yydebug;
     CMP_OP = 276,
     EQ_CMP_OP = 277,
     ASSIGN_OP = 278,
-    EQUAL = 279,
-    STRING_TOKEN = 280,
-    ENDLINE = 281,
-    ID = 282,
-    FLOATS = 283,
-    TRICONSTRUCT = 284,
-    CIRCLECONSTRUCT = 285,
-    PARACONSTRUCT = 286,
-    REGPOLYCONSTRUCT = 287,
-    NOT = 288,
-    AND = 289,
-    OR = 290,
-    SCALE = 291,
-    CENTER = 292
+    SUM_ASSIGN_OP = 279,
+    SUB_ASSIGN_OP = 280,
+    EQUAL = 281,
+    STRING_TOKEN = 282,
+    ENDLINE = 283,
+    ID = 284,
+    FLOATS = 285,
+    TRICONSTRUCT = 286,
+    CIRCLECONSTRUCT = 287,
+    PARACONSTRUCT = 288,
+    REGPOLYCONSTRUCT = 289,
+    NOT = 290,
+    AND = 291,
+    OR = 292,
+    SCALE = 293,
+    CENTER = 294
   };
 #endif
 /* Tokens.  */
@@ -108,20 +110,22 @@ extern int yydebug;
 #define CMP_OP 276
 #define EQ_CMP_OP 277
 #define ASSIGN_OP 278
-#define EQUAL 279
-#define STRING_TOKEN 280
-#define ENDLINE 281
-#define ID 282
-#define FLOATS 283
-#define TRICONSTRUCT 284
-#define CIRCLECONSTRUCT 285
-#define PARACONSTRUCT 286
-#define REGPOLYCONSTRUCT 287
-#define NOT 288
-#define AND 289
-#define OR 290
-#define SCALE 291
-#define CENTER 292
+#define SUM_ASSIGN_OP 279
+#define SUB_ASSIGN_OP 280
+#define EQUAL 281
+#define STRING_TOKEN 282
+#define ENDLINE 283
+#define ID 284
+#define FLOATS 285
+#define TRICONSTRUCT 286
+#define CIRCLECONSTRUCT 287
+#define PARACONSTRUCT 288
+#define REGPOLYCONSTRUCT 289
+#define NOT 290
+#define AND 291
+#define OR 292
+#define SCALE 293
+#define CENTER 294
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -132,7 +136,7 @@ union YYSTYPE
     char* name; 
     enum eletype eletype;  
 
-#line 136 "y.tab.h"
+#line 140 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

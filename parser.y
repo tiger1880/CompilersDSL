@@ -66,6 +66,7 @@ void semanticError(const char* s);
 // non-terminals
 %type <eletype> expression
 %type <eletype> point angle id_list
+%type <eletype> cond_stmt
 
 // precedence
 
@@ -170,7 +171,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | id_list EQUAL expression {$1 = $3; $$ = $3; }
-            | id_list ASSIGN_OP expression
+            | id_list ASSIGN_OP expression 
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  } 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
@@ -201,10 +202,10 @@ empty_space: empty_space ENDLINE | ;
 stmt_list: stmt_list stmt | stmt ;  
 stmt_block: empty_space '{' stmt_list '}' ENDLINE | empty_space '{' '}' ENDLINE;
 
-cond_stmt : IF '(' expression ')' stmt_block 
-        |   IF '(' expression ')' stmt_block  ELSE stmt_block 
-        |   IF '(' expression ')' stmt_block elif_stmt ELSE stmt_block
-        |   IF '(' expression ')' stmt_block elif_stmt 
+cond_stmt : IF '(' expression ')' stmt_block {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' stmt_block  ELSE stmt_block {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' stmt_block elif_stmt ELSE stmt_block {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' stmt_block elif_stmt {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         ;
 
 elif_stmt : ELIF '(' expression ')' stmt_block 

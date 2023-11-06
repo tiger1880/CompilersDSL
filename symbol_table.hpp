@@ -34,7 +34,8 @@ enum eletype {
        CIRCLE,
        TRI,
        PARA,
-       REGPOLY
+       REGPOLY,
+       UNDEF // make sure doesn't cause prob
 }; //int,float,...
 
 typedef struct ParamList{
@@ -65,6 +66,7 @@ extern void addSymTabPtr();
 extern void delSymTabPtr();
 extern STentry lookup(char* name);
 extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
+extern void updateType(char* name, enum eletype etype);
 
 
 

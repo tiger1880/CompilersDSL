@@ -18,9 +18,26 @@ void insertType(char* name, enum type t ,enum eletype etype) {
         
     if(SymTab.back().find(name) != SymTab.back().end()) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
+        exit(1); // error recovery later
     }
     else{
         SymTab.back()[name].Type = t;
+        SymTab.back()[name].Eletype = etype;      
+    }  
+    
+}
+
+void updateType(char* name, enum eletype etype) {
+    
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    } //remove
+        
+    if(SymTab.back().find(name) == SymTab.back().end()) {
+        cerr << "Error: " << "Not declared " << name << endl;
+        exit(1); // error recovery later
+    }
+    else{
         SymTab.back()[name].Eletype = etype;      
     }  
     

@@ -21,6 +21,8 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
 enum eletype pointCheck (enum eletype x, enum eletype y);
 bool arithCompatible(enum eletype e);
 void semanticError(const char* s);
+void typeUpdate(vector<char*>* v, enum eletype t);
+void insert(char* name, vector<int>* dim, enum eletype t);
 
 %}
 
@@ -29,6 +31,8 @@ void semanticError(const char* s);
 %union {
     char* name; 
     enum eletype eletype;  
+    vector<char*>* nameList;
+    vector<int>* dimList;
 }
 
 
@@ -69,10 +73,12 @@ void semanticError(const char* s);
 
 
 // non-terminals
-%type <eletype> expression
+%type <nameList> ID_LIST
+%type <eletype> expression decl_token decl_assign
 %type <eletype> point angle id_list
 %type <eletype> cond_stmt
 %type <eletype> optional_arg assign_stmt construct constructor
+%type <dimList> check_arr dim
 // precedence
 
 %right EQUAL ASSIGN_OP
@@ -82,9 +88,9 @@ void semanticError(const char* s);
 %left AND
 %left EQ_CMP_OP
 %left CMP_OP '<' '>'
-%left '+' '-' LINE_OP
+%left '+' '-' LINE_OP // change the precedence of unary NEG 
 %left '*' '/' '%'
-%left '^'
+%right '^'
 %nonassoc UNARY
 %right NOT
 
@@ -127,17 +133,32 @@ return_stmt : RETURN ret_var ENDLINE;
 
 ret_var : construct | expression | ; 
  
-decl_stmt : DATATYPE ID_LIST ENDLINE;
+decl_stmt : DATATYPE ID_LIST ENDLINE {typeUpdate($2, $1);};
 
-ID_LIST: ID_LIST  ',' ID check_arr decl_assign   
-       | ID check_arr decl_assign
+ID_LIST: ID_LIST ',' ID check_arr decl_assign {$$ = $1;$$->push_back($3);insert($3, $4, $5);}
+       | ID check_arr decl_assign {$$ = new vector<char*>;$$->push_back($1);insert($1, $2, $3);}
        ;
 
-decl_assign : EQUAL decl_token | ;
-decl_token :  arr_assign | construct | expression ;
- 
-dim : '[' expression  ']' | '[' ']' ;
-check_arr:  check_arr dim | ;
+decl_assign : EQUAL decl_token {$$ = $2;}
+       | /* empty */  {$$ = UNDEF;}
+       ; 
+
+decl_token :  
+         arr_assign {$$ = UNDEF;}
+       | construct  {$$ = UNDEF;}
+       | expression {$$ = $1;}
+       ;
+
+ // change after adding expression values
+dim : dim '[' expression ']' {$$ = $1;}
+    | '[' expression ']' {$$ = new vector<int>; $$->push_back(1);}
+    ;
+
+check_arr: dim {$$ = $1;}
+         | '['']' 
+         | '['']' dim 
+         | /* empty */ {$$ = new vector<int>;}
+         ;
   
 arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}'; // { {1,, 2}, {2, 3}}
 comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
@@ -197,7 +218,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             ; 
 
 id_list: id_list '.' ID  arr_access 
-       | ID arr_access
+       | ID arr_access 
        ;  
 
 arr_access: arr_access '[' expression ']' |  ;
@@ -282,6 +303,7 @@ bool arithCompatible(enum eletype e){
               return true;
        return false;
 }
+
 enum eletype pointCheck (enum eletype x, enum eletype y){
        if ((x == INT || x == REAL) && (y == INT || y == REAL ))
               return POINT;
@@ -290,6 +312,44 @@ enum eletype pointCheck (enum eletype x, enum eletype y){
               exit(1);
        }
 }
+
+void typeUpdate(vector<char*>* v, enum eletype t){
+
+       for (int i = 0;i < v->size();i++){
+
+              int prevType = checkEletype(v->at(i));
+              
+              if (prevType == UNDEF)
+              {
+                     updateType(v->at(i), t);
+              }
+              else if (prevType != t)
+              {
+                     cerr << "Error: " << "types don't match in declaration and initialisation\n";
+                     exit(1);
+                     // error recovery
+              }
+              
+              free(v->at(i));
+       }
+
+       delete v;
+
+       printSymbolTable();
+
+       return;
+}
+
+void insert(char* name, vector<int>* dim, enum eletype t){
+
+       if (dim->size() == 0)
+              insertType(name, Var, t);
+       else
+              insertType(name, Array, t);
+}
+
+
+
 
 
 int main(int argc, char*argv[])

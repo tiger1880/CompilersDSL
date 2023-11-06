@@ -4,10 +4,12 @@
 
 #include "symbol_table.hpp"
 #include <stdio.h>
-#include<string.h>
+#include <string.h>
 #include "y.tab.h"
 
 extern FILE *fout_token;
+
+char* dupString(char* src);
 
 %}
 
@@ -30,7 +32,7 @@ string_literal (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
-{floats} { // .05 1.
+{floats} {
     yylval.eletype = REAL;
     fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
@@ -279,7 +281,9 @@ or {
 }
 
 {id} { 
-    yylval.name = yytext;
+
+    yylval.name = dupString(yytext); // have to free !
+
     fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
     return ID;
 }
@@ -302,4 +306,12 @@ or {
 
 int  yywrap(){
     return 1;
+}
+
+char* dupString(char* src){
+
+    char* cpy = (char*)malloc(sizeof(char)*(yyleng+1));
+    strcpy(cpy, src);
+    return cpy;
+
 }

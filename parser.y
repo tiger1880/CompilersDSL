@@ -167,8 +167,8 @@ expression:  expression '+' expression {$$ = sumTypeCheck($1, $3); cout << $$ <<
             | UNARY expression {if(!($2 == INT && $2 == BOOL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }
             | expression UNARY {if(!($1 == INT && $1 == BOOL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;  }
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
-            | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
+            | expression AND expression 
+            | expression OR expression
             | id_list EQUAL expression 
             | id_list ASSIGN_OP expression
             | expression CMP_OP expression 

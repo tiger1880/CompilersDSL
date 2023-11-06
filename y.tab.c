@@ -595,20 +595,20 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    92,    92,    92,    92,    92,    95,    95,    96,    99,
-      99,   101,   101,   103,   105,   105,   108,   109,   110,   111,
-     111,   114,   114,   114,   114,   114,   114,   115,   115,   115,
-     115,   115,   115,   115,   116,   116,   118,   118,   120,   122,
-     122,   122,   124,   126,   127,   130,   130,   131,   131,   131,
-     133,   133,   134,   134,   136,   136,   137,   137,   138,   138,
-     139,   139,   141,   141,   143,   143,   145,   145,   147,   148,
-     151,   151,   153,   154,   157,   158,   159,   160,   161,   162,
-     163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
-     173,   174,   175,   176,   177,   178,   179,   180,   181,   182,
-     183,   184,   185,   186,   186,   189,   190,   193,   193,   195,
-     195,   198,   198,   202,   202,   203,   203,   205,   206,   207,
-     208,   211,   212,   217,   217,   218,   218,   220,   220,   222,
-     222,   222,   223,   223,   224,   226
+       0,    93,    93,    93,    93,    93,    96,    96,    97,   100,
+     100,   102,   102,   104,   106,   106,   109,   110,   111,   112,
+     112,   115,   115,   115,   115,   115,   115,   116,   116,   116,
+     116,   116,   116,   116,   117,   117,   119,   119,   121,   123,
+     123,   123,   125,   127,   128,   131,   131,   132,   132,   132,
+     134,   134,   135,   135,   137,   137,   138,   138,   139,   139,
+     140,   140,   142,   142,   144,   144,   146,   146,   148,   149,
+     152,   152,   154,   155,   158,   159,   160,   161,   162,   163,
+     164,   165,   166,   167,   168,   169,   170,   171,   172,   173,
+     174,   175,   176,   177,   178,   179,   180,   181,   182,   183,
+     184,   185,   186,   187,   188,   191,   192,   195,   195,   197,
+     197,   200,   200,   204,   204,   205,   205,   207,   208,   209,
+     210,   213,   214,   219,   219,   220,   220,   222,   222,   224,
+     224,   224,   225,   225,   226,   228
 };
 #endif
 
@@ -1755,247 +1755,271 @@ yyreduce:
   switch (yyn)
     {
   case 6:
-#line 95 "parser.y"
+#line 96 "parser.y"
                           { insertType((yyvsp[0].name), Func, (yyvsp[-1].eletype));  printSymbolTable();}
 #line 1761 "y.tab.c"
     break;
 
   case 68:
-#line 147 "parser.y"
+#line 148 "parser.y"
                                                             {  (yyval.eletype) = pointCheck((yyvsp[-5].eletype), (yyvsp[-3].eletype)); }
 #line 1767 "y.tab.c"
     break;
 
   case 69:
-#line 148 "parser.y"
+#line 149 "parser.y"
                                                {  (yyval.eletype) = pointCheck((yyvsp[-3].eletype), (yyvsp[-1].eletype)); }
 #line 1773 "y.tab.c"
     break;
 
   case 72:
-#line 153 "parser.y"
+#line 154 "parser.y"
                                                   {(yyval.eletype) = REAL;}
 #line 1779 "y.tab.c"
     break;
 
   case 73:
-#line 154 "parser.y"
+#line 155 "parser.y"
                                       {(yyval.eletype) = REAL;}
 #line 1785 "y.tab.c"
     break;
 
   case 74:
-#line 157 "parser.y"
+#line 158 "parser.y"
                                         {(yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)); }
 #line 1791 "y.tab.c"
     break;
 
   case 75:
-#line 158 "parser.y"
+#line 159 "parser.y"
                                         {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1797 "y.tab.c"
     break;
 
   case 76:
-#line 159 "parser.y"
+#line 160 "parser.y"
                                         {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1803 "y.tab.c"
     break;
 
   case 77:
-#line 160 "parser.y"
+#line 161 "parser.y"
                                         {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1809 "y.tab.c"
     break;
 
   case 78:
-#line 161 "parser.y"
+#line 162 "parser.y"
                                         {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1815 "y.tab.c"
     break;
 
   case 79:
-#line 162 "parser.y"
+#line 163 "parser.y"
                                         {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1821 "y.tab.c"
     break;
 
   case 80:
-#line 163 "parser.y"
+#line 164 "parser.y"
                                             {if((yyvsp[-2].eletype) == POINT && (yyvsp[0].eletype) == POINT) (yyval.eletype) = LINE ; else  semanticError("Error: Semantic error incompatible datatype") ;  }
 #line 1827 "y.tab.c"
     break;
 
   case 81:
-#line 164 "parser.y"
+#line 165 "parser.y"
                                              {if((yyvsp[-2].eletype) == LINE && (yyvsp[0].eletype) == LINE) (yyval.eletype) = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ;  }
 #line 1833 "y.tab.c"
     break;
 
   case 82:
-#line 165 "parser.y"
+#line 166 "parser.y"
                                                    {if((yyvsp[-2].eletype) == LINE && (yyvsp[0].eletype) == LINE) (yyval.eletype) = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ; }
 #line 1839 "y.tab.c"
     break;
 
   case 83:
-#line 166 "parser.y"
+#line 167 "parser.y"
                                             {if ((yyvsp[-1].eletype) != POINT) semanticError("Error: Semantic error incompatible datatype") ; (yyval.eletype) = REAL; }
 #line 1845 "y.tab.c"
     break;
 
   case 84:
-#line 167 "parser.y"
+#line 168 "parser.y"
                              {if (!arithCompatible((yyvsp[0].eletype))) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = (yyvsp[0].eletype); }
 #line 1851 "y.tab.c"
     break;
 
   case 85:
-#line 168 "parser.y"
+#line 169 "parser.y"
                                {if(!((yyvsp[0].eletype) == INT || (yyvsp[0].eletype) == REAL)) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = (yyvsp[0].eletype);  }
 #line 1857 "y.tab.c"
     break;
 
   case 86:
-#line 169 "parser.y"
+#line 170 "parser.y"
                                {if(!((yyvsp[-1].eletype) == INT || (yyvsp[-1].eletype) == REAL)) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = (yyvsp[-1].eletype);  }
 #line 1863 "y.tab.c"
     break;
 
   case 87:
-#line 170 "parser.y"
+#line 171 "parser.y"
                              {if (!arithCompatible((yyvsp[0].eletype))) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = (yyvsp[0].eletype);}
 #line 1869 "y.tab.c"
     break;
 
   case 88:
-#line 171 "parser.y"
+#line 172 "parser.y"
                                         {if(!(arithCompatible((yyvsp[-2].eletype)) && arithCompatible((yyvsp[0].eletype)))) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = BOOL;  }
 #line 1875 "y.tab.c"
     break;
 
   case 89:
-#line 172 "parser.y"
+#line 173 "parser.y"
                                        {if(!(arithCompatible((yyvsp[-2].eletype)) && arithCompatible((yyvsp[0].eletype)))) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = BOOL;  }
 #line 1881 "y.tab.c"
     break;
 
   case 90:
-#line 173 "parser.y"
+#line 174 "parser.y"
                                        {(yyvsp[-2].eletype) = (yyvsp[0].eletype); (yyval.eletype) = (yyvsp[0].eletype); }
 #line 1887 "y.tab.c"
     break;
 
   case 92:
-#line 175 "parser.y"
+#line 176 "parser.y"
                                            {if(!(arithCompatible((yyvsp[-2].eletype)) && arithCompatible((yyvsp[0].eletype))) && ((yyvsp[-2].eletype)!=LABEL || (yyvsp[0].eletype) != LABEL)) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = BOOL;  }
 #line 1893 "y.tab.c"
     break;
 
   case 93:
-#line 176 "parser.y"
+#line 177 "parser.y"
                                         {if(!(arithCompatible((yyvsp[-2].eletype)) && arithCompatible((yyvsp[0].eletype))) && ((yyvsp[-2].eletype)!=LABEL || (yyvsp[0].eletype) != LABEL)) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = BOOL;  }
 #line 1899 "y.tab.c"
     break;
 
   case 94:
-#line 177 "parser.y"
+#line 178 "parser.y"
                                          {if(!(arithCompatible((yyvsp[-2].eletype)) && arithCompatible((yyvsp[0].eletype))) && ((yyvsp[-2].eletype)!=LABEL || (yyvsp[0].eletype) != LABEL)) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = BOOL;  }
 #line 1905 "y.tab.c"
     break;
 
   case 95:
-#line 178 "parser.y"
+#line 179 "parser.y"
                                               {if(!(arithCompatible((yyvsp[-2].eletype)) && arithCompatible((yyvsp[0].eletype))) && ((yyvsp[-2].eletype)!=LABEL || (yyvsp[0].eletype) != LABEL)) semanticError("Error: Semantic error incompatible datatype"); (yyval.eletype) = BOOL;  }
 #line 1911 "y.tab.c"
     break;
 
   case 96:
-#line 179 "parser.y"
+#line 180 "parser.y"
                       {(yyval.eletype) = (yyvsp[0].eletype);}
 #line 1917 "y.tab.c"
     break;
 
   case 97:
-#line 180 "parser.y"
+#line 181 "parser.y"
                      {(yyval.eletype) = (yyvsp[0].eletype);}
 #line 1923 "y.tab.c"
     break;
 
   case 98:
-#line 181 "parser.y"
+#line 182 "parser.y"
                        {(yyval.eletype) = (yyvsp[0].eletype);}
 #line 1929 "y.tab.c"
     break;
 
   case 99:
-#line 182 "parser.y"
+#line 183 "parser.y"
                            {(yyval.eletype) = (yyvsp[0].eletype);  cout<< (yyval.eletype);}
 #line 1935 "y.tab.c"
     break;
 
   case 100:
-#line 183 "parser.y"
+#line 184 "parser.y"
                       {(yyval.eletype) = (yyvsp[0].eletype);}
 #line 1941 "y.tab.c"
     break;
 
   case 102:
-#line 185 "parser.y"
+#line 186 "parser.y"
                     {(yyval.eletype) = (yyvsp[0].eletype);}
 #line 1947 "y.tab.c"
     break;
 
   case 103:
-#line 186 "parser.y"
+#line 187 "parser.y"
                     {(yyval.eletype) = (yyvsp[0].eletype);}
 #line 1953 "y.tab.c"
     break;
 
   case 104:
-#line 186 "parser.y"
-                                                               {(yyval.eletype) = (yyvsp[-1].eletype);}
+#line 188 "parser.y"
+                                 {(yyval.eletype) = (yyvsp[-1].eletype);}
 #line 1959 "y.tab.c"
     break;
 
   case 117:
-#line 205 "parser.y"
+#line 207 "parser.y"
                                              {if(!(arithCompatible((yyvsp[-2].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
 #line 1965 "y.tab.c"
     break;
 
   case 118:
-#line 206 "parser.y"
+#line 208 "parser.y"
                                                               {if(!(arithCompatible((yyvsp[-4].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
 #line 1971 "y.tab.c"
     break;
 
   case 119:
-#line 207 "parser.y"
+#line 209 "parser.y"
                                                                        {if(!(arithCompatible((yyvsp[-5].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
 #line 1977 "y.tab.c"
     break;
 
   case 120:
-#line 208 "parser.y"
+#line 210 "parser.y"
                                                        {if(!(arithCompatible((yyvsp[-3].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
 #line 1983 "y.tab.c"
     break;
 
   case 121:
-#line 211 "parser.y"
+#line 213 "parser.y"
                                                 {if(!(arithCompatible((yyvsp[-2].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
 #line 1989 "y.tab.c"
     break;
 
   case 122:
-#line 212 "parser.y"
+#line 214 "parser.y"
                                                          {if(!(arithCompatible((yyvsp[-2].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
 #line 1995 "y.tab.c"
     break;
 
+  case 132:
+#line 225 "parser.y"
+                         {(yyval.eletype) = (yyvsp[0].eletype);}
+#line 2001 "y.tab.c"
+    break;
 
-#line 1999 "y.tab.c"
+  case 133:
+#line 225 "parser.y"
+                                      {(yyval.eletype) = BOOL;}
+#line 2007 "y.tab.c"
+    break;
+
+  case 134:
+#line 226 "parser.y"
+                                                                                       {if(!(arithCompatible((yyvsp[-4].eletype)))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
+#line 2013 "y.tab.c"
+    break;
+
+  case 135:
+#line 228 "parser.y"
+                                                       {if(!(arithCompatible((yyvsp[-2].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
+#line 2019 "y.tab.c"
+    break;
+
+
+#line 2023 "y.tab.c"
 
       default: break;
     }
@@ -2227,7 +2251,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 228 "parser.y"
+#line 231 "parser.y"
 
 
 /* yacc error handler */
@@ -2274,7 +2298,7 @@ bool arithCompatible(enum eletype e){
        return false;
 }
 enum eletype pointCheck (enum eletype x, enum eletype y){
-       if (arithCompatible(x) && arithCompatible(y))
+       if ((x == INT || x == REAL) && (y == INT || y == REAL ))
               return POINT;
        else {
               cerr << "Error: Semantic error invalid point \n";

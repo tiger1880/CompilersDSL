@@ -67,7 +67,7 @@ void semanticError(const char* s);
 %type <eletype> expression
 %type <eletype> point angle id_list
 %type <eletype> cond_stmt
-
+%type <eletype> optional_arg
 // precedence
 
 %right EQUAL ASSIGN_OP
@@ -89,6 +89,7 @@ void semanticError(const char* s);
 
 %%
 
+//Also make sure you handle 8++
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
@@ -183,7 +184,8 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | BOOLEAN {$$ = $1;}
             | func_call 
             | point {$$ = $1;}
-            | angle {$$ = $1;}            | '(' expression ')' {$$ = $2;}
+            | angle {$$ = $1;}            
+            | '(' expression ')' {$$ = $2;}
             ; 
 
 id_list: id_list '.' ID  arr_access 
@@ -220,10 +222,11 @@ stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
 loop : for_loop | while_loop ;
 
 for_loop_decl : DATATYPE ID EQUAL expression | ID EQUAL expression | ;
-optional_arg: expression | ;
-for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block ;
+optional_arg: expression {$$ = $1;} | {$$ = BOOL;} ;
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
 
-while_loop : WHILE '(' expression ')' stmt_loop_block ;
+while_loop : WHILE '(' expression ')' stmt_loop_block  
+
 
 %%
 
@@ -271,7 +274,7 @@ bool arithCompatible(enum eletype e){
        return false;
 }
 enum eletype pointCheck (enum eletype x, enum eletype y){
-       if (arithCompatible(x) && arithCompatible(y))
+       if ((x == INT || x == REAL) && (y == INT || y == REAL ))
               return POINT;
        else {
               cerr << "Error: Semantic error invalid point \n";
@@ -287,7 +290,5 @@ int main(int argc, char*argv[])
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");
     yyin = fp;
-
-
     return yyparse();
 } 

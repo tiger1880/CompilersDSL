@@ -23,7 +23,7 @@ y.tab.c: parser.y
 
 # Build the lex file 
 lex.yy.c: lexer.l
-	$(LEX) lexer.l
+	$(LEX) lexer.lz
 
 #Build the utils file
 utils: utils.cpp

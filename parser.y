@@ -53,12 +53,17 @@ void semanticError(const char* s);
 %token <eletype> DATATYPE
 %token CMP_OP EQ_CMP_OP
 %token ASSIGN_OP
+%token SUM_ASSIGN_OP
+%token SUB_ASSIGN_OP
 %token EQUAL
 %token <eletype> STRING_TOKEN
 %token ENDLINE
 %token <name> ID
 %token <eletype> FLOATS
-%token CONSTRUCTOR
+%token <eletype> TRICONSTRUCT
+%token <eletype> CIRCLECONSTRUCT
+%token <eletype> PARACONSTRUCT
+%token <eletype> REGPOLYCONSTRUCT
 %token NOT AND OR 
 %token SCALE CENTER
 
@@ -116,7 +121,7 @@ stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | ENDLINE;
 stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
 break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
-assign_stmt : expression ENDLINE | construct ENDLINE;
+assign_stmt : expression ENDLINE | construct ENDLINE {$$ = $1;};
  
 return_stmt : RETURN ret_var ENDLINE;
 
@@ -139,7 +144,8 @@ comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;
 arr1d_in_list: mult_elements | ;
 mult_elements : mult_elements ',' expression  | expression ; 
                 
-construct :  CONSTRUCTOR '(' param_list ')' | CONSTRUCTOR '(' ')' ; 
+construct :  constructor '(' param_list ')' { $$ = $1;} | constructor '(' ')' { $$ = $1;} ; 
+constructor : TRICONSTRUCT { $$ = $1;} | CIRCLECONSTRUCT { $$ = $1;} | PARACONSTRUCT { $$ = $1;} | REGPOLYCONSTRUCT { $$ = $1;};
 
 valid_arg: construct | expression ;
 
@@ -171,12 +177,14 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | id_list EQUAL expression {$1 = $3; $$ = $3; }
-            | id_list ASSIGN_OP expression 
+            | id_list EQUAL expression 
+            | id_list ASSIGN_OP expression  
+            | id_list SUM_ASSIGN_OP expression 
+            | id_list SUB_ASSIGN_OP expression 
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  } 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | expression EQ_CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
+            | expression EQ_CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1 == $3)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | id_list {$$ = $1;}
             | FLOATS {$$ = $1;} 
             | INTEGERS {$$ = $1;}
@@ -225,7 +233,7 @@ for_loop_decl : DATATYPE ID EQUAL expression | ID EQUAL expression | ;
 optional_arg: expression {$$ = $1;} | {$$ = BOOL;} ;
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
 
-while_loop : WHILE '(' expression ')' stmt_loop_block {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+while_loop : WHILE '(' expression ')' stmt_loop_block 
 
 
 %%

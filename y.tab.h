@@ -75,12 +75,15 @@ extern int yydebug;
     ENDLINE = 281,
     ID = 282,
     FLOATS = 283,
-    CONSTRUCTOR = 284,
-    NOT = 285,
-    AND = 286,
-    OR = 287,
-    SCALE = 288,
-    CENTER = 289
+    TRICONSTRUCT = 284,
+    CIRCLECONSTRUCT = 285,
+    PARACONSTRUCT = 286,
+    REGPOLYCONSTRUCT = 287,
+    NOT = 288,
+    AND = 289,
+    OR = 290,
+    SCALE = 291,
+    CENTER = 292
   };
 #endif
 /* Tokens.  */
@@ -110,12 +113,15 @@ extern int yydebug;
 #define ENDLINE 281
 #define ID 282
 #define FLOATS 283
-#define CONSTRUCTOR 284
-#define NOT 285
-#define AND 286
-#define OR 287
-#define SCALE 288
-#define CENTER 289
+#define TRICONSTRUCT 284
+#define CIRCLECONSTRUCT 285
+#define PARACONSTRUCT 286
+#define REGPOLYCONSTRUCT 287
+#define NOT 288
+#define AND 289
+#define OR 290
+#define SCALE 291
+#define CENTER 292
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -126,7 +132,7 @@ union YYSTYPE
     char* name; 
     enum eletype eletype;  
 
-#line 130 "y.tab.h"
+#line 136 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

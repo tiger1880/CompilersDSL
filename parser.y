@@ -155,11 +155,11 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = REAL;}
        ;
 
 expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
-            | expression '-' expression  {if($1 == LABEL ||$3 == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
-            | expression '*' expression {$$ = arithTypeCheck($1, $3) ;}
-            | expression '/' expression {$$ = arithTypeCheck($1, $3) ;}
-            | expression '%' expression {$$ = arithTypeCheck($1, $3) ;}
-            | expression '^' expression {$$ = arithTypeCheck($1, $3) ;}
+            | expression '-' expression {if($1 == LABEL ||$3 == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
+            | expression '*' expression {if($1 == LABEL ||$3 == LABEL||$1 == POINT || $3 == POINT) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
+            | expression '/' expression {if($1 == LABEL ||$3 == LABEL||$1 == POINT || $3 == POINT) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
+            | expression '%' expression {if($1 == LABEL ||$3 == LABEL||$1 == POINT || $3 == POINT) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
+            | expression '^' expression {if($1 == LABEL ||$3 == LABEL||$1 == POINT || $3 == POINT) semanticError("Error: Semantic error incompatible datatype") ;  $$ = sumTypeCheck($1, $3) ;}
             | expression LINE_OP expression {if($1 == POINT && $3 == POINT) $$ = LINE ; else  semanticError("Error: Semantic error incompatible datatype") ;  }  // <-> ->
             | expression PARALLEL expression {if($1 == LINE && $3 == LINE) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ;  }
             | expression PERPENDICULAR expression  {if($1 == LINE && $3 == LINE) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ; }
@@ -208,8 +208,8 @@ cond_stmt : IF '(' expression ')' stmt_block {if(!(arithCompatible($3))) semanti
         |   IF '(' expression ')' stmt_block elif_stmt {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         ;
 
-elif_stmt : ELIF '(' expression ')' stmt_block 
-          | elif_stmt ELIF '(' expression ')' stmt_block
+elif_stmt : ELIF '(' expression ')' stmt_block  {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+          | elif_stmt ELIF '(' expression ')' stmt_block {if(!(arithCompatible($4))) semanticError("Error: Semantic error incompatible datatype");}
           ;
 
 /* Loops */

@@ -1792,31 +1792,31 @@ yyreduce:
 
   case 75:
 #line 158 "parser.y"
-                                         {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
+                                        {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1797 "y.tab.c"
     break;
 
   case 76:
 #line 159 "parser.y"
-                                        {(yyval.eletype) = arithTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
+                                        {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1803 "y.tab.c"
     break;
 
   case 77:
 #line 160 "parser.y"
-                                        {(yyval.eletype) = arithTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
+                                        {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1809 "y.tab.c"
     break;
 
   case 78:
 #line 161 "parser.y"
-                                        {(yyval.eletype) = arithTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
+                                        {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1815 "y.tab.c"
     break;
 
   case 79:
 #line 162 "parser.y"
-                                        {(yyval.eletype) = arithTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
+                                        {if((yyvsp[-2].eletype) == LABEL ||(yyvsp[0].eletype) == LABEL||(yyvsp[-2].eletype) == POINT || (yyvsp[0].eletype) == POINT) semanticError("Error: Semantic error incompatible datatype") ;  (yyval.eletype) = sumTypeCheck((yyvsp[-2].eletype), (yyvsp[0].eletype)) ;}
 #line 1821 "y.tab.c"
     break;
 
@@ -1982,8 +1982,20 @@ yyreduce:
 #line 1983 "y.tab.c"
     break;
 
+  case 121:
+#line 211 "parser.y"
+                                                {if(!(arithCompatible((yyvsp[-2].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
+#line 1989 "y.tab.c"
+    break;
 
-#line 1987 "y.tab.c"
+  case 122:
+#line 212 "parser.y"
+                                                         {if(!(arithCompatible((yyvsp[-2].eletype)))) semanticError("Error: Semantic error incompatible datatype");}
+#line 1995 "y.tab.c"
+    break;
+
+
+#line 1999 "y.tab.c"
 
       default: break;
     }

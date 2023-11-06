@@ -251,6 +251,7 @@ void semanticError(const char* s)
 }
   
 enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
+       
        if(E1 == LABEL && E2 == LABEL)
               return LABEL;
        else if(E1 == POINT && E2 == POINT)

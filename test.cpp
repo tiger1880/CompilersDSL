@@ -5,11 +5,9 @@ int main(){
 
     if (-0.0)
         cout << "hello" << "\n";
-    
-    cout << "world" << "\n";
-    bool x=2.3;
-    x++;
-   cout<<x;
+    int x=2;
+    if("kkk" < "kk")
+        cout<<"ff";
    return 0;
 }
 

@@ -171,19 +171,18 @@ expression:  expression '+' expression {$$ = sumTypeCheck($1, $3); cout << $$ <<
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | id_list EQUAL expression 
             | id_list ASSIGN_OP expression
-            | expression CMP_OP expression 
-            | expression '<' expression
-            | expression '>' expression  
-            | expression EQ_CMP_OP expression 
+            | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  } 
+            | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
+            | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
+            | expression EQ_CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | id_list
             | FLOATS {$$ = $1;}
             | INTEGERS {$$ = $1;}
-            | STRING_TOKEN {$$ = $1;}
+            | STRING_TOKEN {$$ = $1;  cout<< $$;}
             | BOOLEAN {$$ = $1;}
             | func_call 
             | point {$$ = $1;}
-            | angle {$$ = $1;}
-            | '(' expression ')' {$$ = $2;}
+            | angle {$$ = $1;}            | '(' expression ')' {$$ = $2;}
             ; 
 
 id_list: id_list '.' ID  arr_access 

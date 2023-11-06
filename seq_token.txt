@@ -1,3 +1,0 @@
-IDENTIFIER: x
-ASSIGN_OP: +:=
-STRING_LITERAL: "hello"

@@ -15,12 +15,15 @@ integers [1-9][0-9]*|0
 floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)  
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
-constructor "Circle"|"Tri"|"RegPoly"|"Para"
+triConstruct "Tri"
+circleConstruct "Circle"
+regPolyConstruct "RegPoly"
+paraConstruct "Para"
 boolean  "true"|"false"
 line_op "->"|"<->"
 cmp_op ">="|"<="
 datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
-assign "+:="|"-:="|"^:="|"/:="|"%:="|"*:="
+assign "^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
 operators "+"|"*"|"/"|"%"|"^"|"-"
 string_literal (\"([^"]|"\\\"")*\")
@@ -33,9 +36,28 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return FLOATS;
 }
 
-{constructor} {
+{triConstruct} {
+    yylval.eletype = TRI;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
-    return CONSTRUCTOR;
+    return TRICONSTRUCT;
+}
+
+{circleConstruct} {
+    yylval.eletype = CIRCLE;
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
+    return CIRCLECONSTRUCT;
+}
+
+{regPolyConstruct} {
+    yylval.eletype = REGPOLY;
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
+    return REGPOLYCONSTRUCT;
+}
+
+{paraConstruct} {
+    yylval.eletype = PARA;
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
+    return PARACONSTRUCT;
 }
 
 {parenthesis} {
@@ -232,16 +254,24 @@ or {
     return *yytext;
 }
 
-{assign} {
+"+:=" {
     fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
-    return ASSIGN_OP;
+    return SUM_ASSIGN_OP;
+
+}
+"-:=" {
+    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    return SUB_ASSIGN_OP;
 }
 
 ":=" {
     fprintf(fout_token, "EQUAL: %s\n", yytext);
     return EQUAL;
 }
-
+{assign} {
+    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    return ASSIGN_OP;
+}
 {string_literal}  {
     fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     yylval.eletype = LABEL;

@@ -9,6 +9,8 @@
 using namespace std;
 
 deque<map<string, STentry>> SymTab;
+vector<map<string,ConstructEntry> > ConstructTab;
+
 
 // Define functions here
 void insertType(char* name, enum type t ,enum eletype etype) {

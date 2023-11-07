@@ -313,6 +313,11 @@ enum eletype pointCheck (enum eletype x, enum eletype y){
        }
 }
 
+bool coercible(enum eletype t1, enum eletype t2){
+       
+
+}
+
 void typeUpdate(vector<char*>* v, enum eletype t){
 
        for (int i = 0;i < v->size();i++){
@@ -323,7 +328,7 @@ void typeUpdate(vector<char*>* v, enum eletype t){
               {
                      updateType(v->at(i), t);
               }
-              else if (prevType != t)
+              else if (!coercible(prevType, t))
               {
                      cerr << "Error: " << "types don't match in declaration and initialisation\n";
                      exit(1);
@@ -347,9 +352,6 @@ void insert(char* name, vector<int>* dim, enum eletype t){
        else
               insertType(name, Array, t);
 }
-
-
-
 
 
 int main(int argc, char*argv[])

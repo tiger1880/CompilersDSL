@@ -1150,6 +1150,7 @@ case 34:
 YY_RULE_SETUP
 #line 198 "lexer.l"
 {
+    
     if (strcmp(yytext, "int") == 0) {
         yylval.eletype = INT;
     } 
@@ -1190,7 +1191,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 237 "lexer.l"
+#line 238 "lexer.l"
 {
     fprintf(fout_token, "CMP_OP: %s\n", yytext);
     return CMP_OP;
@@ -1198,7 +1199,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 242 "lexer.l"
+#line 243 "lexer.l"
 {
     fprintf(fout_token, "CMP_OP/BRACKET: %s\n", yytext);
     return *yytext;
@@ -1206,7 +1207,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 247 "lexer.l"
+#line 248 "lexer.l"
 {
     fprintf(fout_token, "EQ_CMP_OP: %s\n", yytext);
     return EQ_CMP_OP;
@@ -1214,7 +1215,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 252 "lexer.l"
+#line 253 "lexer.l"
 {
     fprintf(fout_token, "SEPERATOR: %s\n", yytext);
     return *yytext;
@@ -1222,24 +1223,24 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 257 "lexer.l"
+#line 258 "lexer.l"
 {
-    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    fprintf(fout_token, "SUM_ASSIGN_OP: %s\n", yytext);
     return SUM_ASSIGN_OP;
 
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 262 "lexer.l"
+#line 263 "lexer.l"
 {
-    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    fprintf(fout_token, "SUB_ASSIGN_OP: %s\n", yytext);
     return SUB_ASSIGN_OP;
 }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 267 "lexer.l"
+#line 268 "lexer.l"
 {
     fprintf(fout_token, "EQUAL: %s\n", yytext);
     return EQUAL;
@@ -1247,7 +1248,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 271 "lexer.l"
+#line 272 "lexer.l"
 {
     fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
     return ASSIGN_OP;
@@ -1256,7 +1257,7 @@ YY_RULE_SETUP
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 275 "lexer.l"
+#line 276 "lexer.l"
 {
     fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     yylval.eletype = LABEL;
@@ -1265,7 +1266,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 281 "lexer.l"
+#line 282 "lexer.l"
 { 
     yylval.name = yytext;
     fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
@@ -1274,7 +1275,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 288 "lexer.l"
+#line 289 "lexer.l"
 {
 
 }
@@ -1282,14 +1283,14 @@ YY_RULE_SETUP
 case 46:
 /* rule 46 can match eol */
 YY_RULE_SETUP
-#line 292 "lexer.l"
+#line 293 "lexer.l"
 {
     return ENDLINE;
 }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 296 "lexer.l"
+#line 297 "lexer.l"
 {
     fprintf(stderr, "Error: Invalid token: %s at line %d\n", yytext, yylineno);
     exit(1);
@@ -1297,10 +1298,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 301 "lexer.l"
+#line 302 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 1304 "lex.yy.c"
+#line 1305 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2317,7 +2318,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 301 "lexer.l"
+#line 302 "lexer.l"
 
 
 int  yywrap(){

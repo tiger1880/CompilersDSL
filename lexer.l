@@ -196,6 +196,7 @@ or {
 }
 
 {datatype} {
+    
     if (strcmp(yytext, "int") == 0) {
         yylval.eletype = INT;
     } 
@@ -255,12 +256,12 @@ or {
 }
 
 "+:=" {
-    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    fprintf(fout_token, "SUM_ASSIGN_OP: %s\n", yytext);
     return SUM_ASSIGN_OP;
 
 }
 "-:=" {
-    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    fprintf(fout_token, "SUB_ASSIGN_OP: %s\n", yytext);
     return SUB_ASSIGN_OP;
 }
 

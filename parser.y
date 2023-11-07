@@ -69,13 +69,13 @@ void semanticError(const char* s);
 
 
 // non-terminals
-%type <eletype> expression
+%type <eletype> expression assign
 %type <eletype> point angle id_list
 %type <eletype> cond_stmt
 %type <eletype> optional_arg assign_stmt construct constructor
 // precedence
 
-%right EQUAL ASSIGN_OP
+%right EQUAL  SUM_ASSIGN_OP SUB_ASSIGN_OP ASSIGN_OP
 %left PERPENDICULAR
 %left PARALLEL 
 %left OR 
@@ -177,10 +177,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | id_list EQUAL expression 
-            | id_list ASSIGN_OP expression {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); }
-            | id_list SUM_ASSIGN_OP expression {if(!(arithCompatible($3) || $3 == LABEL || $3 == POINT)) semanticError("Error: Semantic error incompatible datatype"); }
-            | id_list SUB_ASSIGN_OP expression {if(!(arithCompatible($3) || $3 == POINT)) semanticError("Error: Semantic error incompatible datatype"); }
+            | id_list assign 
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  } 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
@@ -195,6 +192,11 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | angle {$$ = $1;}            
             | '(' expression ')' {$$ = $2;}
             ; 
+
+assign:  EQUAL expression 
+       | ASSIGN_OP  expression  {if(!(arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }  
+       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2) || $2 == LABEL || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }
+       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2) || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
 
 id_list: id_list '.' ID  arr_access 
        | ID arr_access
@@ -294,7 +296,6 @@ enum eletype pointCheck (enum eletype x, enum eletype y){
 
 int main(int argc, char*argv[])
 {    
-
     FILE *fp;
     fp = fopen(argv[1], "r");
     fout_token = fopen("seq_token.txt","w");

@@ -19,10 +19,11 @@ using namespace std;
 enum eletype sumTypeCheck(enum eletype E1, enum eletype E2);
 enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
 enum eletype pointCheck (enum eletype x, enum eletype y);
-bool arithCompatible(enum eletype e);
+bool arithCompatible(int e);
 void semanticError(const char* s);
 void typeUpdate(vector<char*>* v, enum eletype t);
 void insert(char* name, vector<int>* dim, enum eletype t);
+bool coercible(int t1, int t2);
 
 %}
 
@@ -267,8 +268,7 @@ void yyerror(const char * s)
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
 
-void semanticError(const char* s)
-{
+void semanticError(const char* s){
        cerr << s << "\n";
        exit(1);
 }
@@ -299,9 +299,10 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
        }
 }
 
-bool arithCompatible(enum eletype e){
+// check int change 
+bool arithCompatible(int e){
 
-       if (e == REAL || e == BOOL || e == INT)
+       if (e == REAL || e == BOOL || e == INT || e == ANGLE) 
               return true;
        return false;
 }
@@ -315,8 +316,25 @@ enum eletype pointCheck (enum eletype x, enum eletype y){
        }
 }
 
-bool coercible(enum eletype t1, enum eletype t2){
+bool coercible(int t1, int t2){
        
+       if (arithCompatible(t1) && arithCompatible(t2))
+              return true;
+
+       if (t1 == t2)
+              return true;
+
+       /* 
+              POINT
+              LABEL
+              LINE
+              CIRCLE
+              TRI
+              PARA
+              REGPOLY 
+       */
+
+       return false;      
 
 }
 
@@ -351,10 +369,11 @@ void insert(char* name, vector<int>* dim, enum eletype t){
 
        if (dim->size() == 0)
               insertType(name, Var, t);
-       else
+       else {
               insertType(name, Array, t);
+              addDimList(name, *dim); 
+       }
 }
-
 
 int main(int argc, char*argv[])
 {    

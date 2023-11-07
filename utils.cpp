@@ -124,7 +124,7 @@ void addDimList(char* name, vector<int>& dim) {
                 return;
             }
         }
-        SymTab.back()[name].DimList = dim;
+        SymTab.back()[name].DimList = dim; //ref destroy while removing
     } 
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;

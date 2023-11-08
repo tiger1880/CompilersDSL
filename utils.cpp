@@ -12,6 +12,7 @@ deque<map<string, STentry>> SymTab;
 vector<map<string,STentry> > ConstructTab;
 
 
+
 // Define functions here
 void insertType(char* name, enum type t ,enum eletype etype) {
     if(SymTab.empty()){

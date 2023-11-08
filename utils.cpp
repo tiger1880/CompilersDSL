@@ -253,4 +253,46 @@ void printSymbolTable() {
 }
 
 
+int main(){
+
+    /*POINT*/
+    ConstructTab[0]["x"]={Var,REAL,{},{}};
+    ConstructTab[0]["y"]={Var,REAL,{},{}};
+
+
+    /*Line*/
+    ConstructTab[1]["INTERSECTION"] = {Var,POINT,{{Var,POINT,"a",{}},{Var,POINT,"",{b}}},{}};
+    ConstructTab[1]["MIDPOINT_LINE"] = {Var,POINT,{{Var,LINE,"l",{}}},{}};
+    ConstructTab[1]["MIDPOINT_POINTS"] = {Var,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["SHORTEST_DISTNACE"] = {Var,REAL,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["ANGLE_BISECTOR"] = {Var,LINE,{{Var,LINE,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["LINE_AT_ANGLE"] = {Var,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"",{a}}},{}};
+
+    /*Circle*/
+    ConstructTab[2]["TANGENT"]={Var,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[2]["INTERSECTION"]={Array,POINT,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["COMMON_TANGENT"]={Array,LINE,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["AREA"]={Var,REAL,{},{}};
+    ConstructTab[2]["PERIMETER"]={Var,REAL,{},{}};
+
+    /*Triangle*/
+    ConstructTab[3]["CIRCUMCENTRE"]={Var,POINT,{},{}};
+    ConstructTab[3]["EXCENTRE"]={Var,POINT,{},{}};
+    ConstructTab[3]["INCENTRE"]={Var,POINT,{{Var,POINT,"a",{},{}}},{}};
+    ConstructTab[3]["ORTHOCENTRE"]={Var,POINT,{},{}};
+    ConstructTab[3]["ALTITUDE"]={Var,LINE,{{Var,POINT,"a",{},{}}},{}};
+    ConstructTab[3]["MEDIAN"]={Var,LINE,{{Var,POINT,"a",{},{}}},{}};
+    ConstructTab[3]["CENTROID"]={Var,POINT,{},{}};
+    ConstructTab[3]["AREA"]={Var,REAL,{},{}};
+    ConstructTab[3]["PERIMETER"]={Var,REAL,{},{}};
+
+    /*Parallelogram*/
+    ConstructTab[4]["DIAGONAL"]={Array,LINE,{},{}};
+
+    /*Regular Polygon*/
+    ConstructTab[5]["AREA"]={Var,REAL,{},{}};
+    ConstructTab[5]["PERIMETER"]={Var,REAL,{},{}};
+
+}
+
 

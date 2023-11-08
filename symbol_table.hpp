@@ -80,7 +80,7 @@ extern STentry lookup(char* name);
 extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
 extern void updateType(char* name, enum eletype etype);
 extern void insertConstructTab(char* name, char* memberFunc, vector<eletype> param);
-extern void circleMembers(char* memberFunc,vector<eletype> paramEletype)
+extern void circleMembers(char* memberFunc,vector<eletype> paramEletype);
 extern void lineMembers(char* memberFunc,vector<eletype> paramEletype);
 
 #endif // UTILS_HPP

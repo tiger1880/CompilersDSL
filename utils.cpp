@@ -152,8 +152,14 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 }
 
 /* insert into constructors table */
-/*example : c.TANGENT(q) , insertConstructTab(CIRCLE,tangent,{point,q,{}})*/
-void insertConstructTab(enum eletype t,char* memberFunc,vector<ParamList> param) {
+/*example : c.TANGENT(q) , insertConstructTab(c,tangent,{point,q,{}})*/
+void insertConstructTab(char* name,char* memberFunc,vector<ParamList> param) {
+    if(!lookup(name)){
+        cerr<<"Error: "<<name<<" not found in SymTab."<<endl;
+        exit(1);
+    }
+    enum type t = lookup(name).Type;
+
     if(t==POINT){
         pointMembers(memberFunc,param);
     }
@@ -178,6 +184,8 @@ void insertConstructTab(enum eletype t,char* memberFunc,vector<ParamList> param)
     }
     
 }
+
+
 
 //(TANGENT,{var,point,q,{}}) 
 void circleMembers(char* memberFunc,vector<ParamList> param){

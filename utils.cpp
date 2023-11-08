@@ -154,12 +154,12 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 /* insert into constructors table */
 /*example : c.TANGENT(q) , insertConstructTab(c,TANGENT,{POINT}) 
 :: take types from parser */
-void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {  
+void insertConstructTab(char* name,char* memberFunc,vector<eletype> paramEletype) {  
     enum eletype t;
 
     /* point p := MIDPOINT(l) , no name for line*/
     if(name==""){
-        t==LINE:
+        t = LINE:
     }else if(lookup(name).Type != Invalid){
         t = lookup(name).eletype;
     }else{
@@ -168,19 +168,19 @@ void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {
     }
 
     if(t==LINE){
-        lineMembers(memberFunc,param);
+        lineMembers(memberFunc,paramEletype);
     }
     else if(t==CIRCLE){
-        circleMembers(memberFunc,param);
+        circleMembers(memberFunc,paramEletype);
     }
     else if(t==TRI){
-        triMembers(memberFunc,param);
+        triMembers(memberFunc,paramEletype);
     }
     else if(t==PARA){
-        paraMembers(memberFunc,param);
+        paraMembers(memberFunc,paramEletype);
     }
     else if(t==REGPOLY){
-        regPolyMembers(memberFunc,param);
+        regPolyMembers(memberFunc,paramEletypes);
     }
     else{
         cerr<<"Error: Invalid type for constructTable"<<endl;
@@ -188,21 +188,132 @@ void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {
     } 
 }
 
+void lineMembers(char* memberFunc,vector<eletype> paramEletype){
+    if(memberFunc=="INTERSECTION"){
+        if(paramEletype.size()==2){
+            //lookup for lines of param
+            for(int i=0;i<2;i++){
+                if(param[i]!=LINE){
+                    cerr<<"Error: Parameter passed to INTERSECTION is not a LINE"<<endl;
+                    exit(1);
+                }
+            }
+            ConstructTab[0][memberFunc].entry.Eletype = POINT;
+            ConstructTab[0][memberFunc].entry.Type = Var;
+            for(int i=0;i<2;i++){
+                    ConstructTab[1][memberFunc].entry.paramList[i].Eletype.push_back(paramEletype[i]);
+            }
+        }else{
+            cerr<<"Error: More than 2 parameter passed to INTERSECTION of lines"<<endl;
+            exit(1);
+        }
+    }
+    else if(memberFunc=="MIDPOINT"){
+        if(paramEletype.size()==1){
+            /*point p := MIDPOINT(l)*/
+            if(param[0]==LINE){
+                //insert  STentry entry
+                ConstructTab[0][memberFunc].entry.Eletype = POINT;
+                ConstructTab[0][memberFunc].entry.Type = Var;
+                ConstructTab[0][memberFunc].entry.paramList[0].push_back(paramEletype[0]);
+            }else{
+                cerr<<"Error: Parameter passed to MIDPOINT(one parameter) is not a LINE"<<endl;
+                exit(1);        
+            }
+        }
+        else if(paramEletype.size()==2){
+            /*point p := MIDPOINT(l1,l2)*/
+            if(param[0]==POINT && param[1]==POINT){
+                //insert  STentry entry
+                ConstructTab[0][memberFunc].entry.Eletype = POINT;
+                ConstructTab[0][memberFunc].entry.Type = Var;
+                for(int i=0;i<2;i++){
+                    ConstructTab[0][memberFunc].entry.paramList[i].push_back(paramEletype[i]);
+                }
+            }else{
+                cerr<<"Error: Parameters passed to MIDPOINT(two parameter) are not points "<<endl;
+                exit(1);        
+            }
+        }
+        else{
+            cerr<<"Error: More than 2 parameter passed to MIDPOINT of LINE"<<endl;
+            exit(1);
+        }
+    }
+    else if(memberFunc=="SHORTEST_DISTANCE"){
+        if(paramEletype.size()==2){
+            /*real dist := SHORTEST_DISTANCE(a,b)*/
+            if(param[0]==POINT && param[1]==POINT){
+                //insert  STentry entry
+                ConstructTab[0][memberFunc].entry.Eletype = REAL;
+                ConstructTab[0][memberFunc].entry.Type = Var;
+                for(int i=0;i<2;i++){
+                    ConstructTab[0][memberFunc].entry.paramList[i].push_back(paramEletype[i]);
+                }
+            }else{
+                cerr<<"Error: Parameters passed to SHORTEST_DISTANCE are not points "<<endl;
+                exit(1);        
+            }
+        }else{
+            cerr<<"Error: More than 2 parameter passed to SHORTEST_DISTANCE between 2 points"<<endl;
+            exit(1);
+        }
+    }
+    else if(memberFunc=="ANGLE_BISECTOR"){
+        if(paramEletype.size()==2){
+            /* line p := ANGLE_BISECTOR(a,b) */
+            if(param[0]==LINE && param[1]==LINE){
+                //insert  STentry entry
+                ConstructTab[0][memberFunc].entry.Eletype = LINE;
+                ConstructTab[0][memberFunc].entry.Type = Var;
+                for(int i=0;i<2;i++){
+                    ConstructTab[0][memberFunc].entry.paramList[i].push_back(paramEletype[i]);
+                }
+            }else{
+                cerr<<"Error: Parameters passed to ANGLE_BISECTOR are not lines "<<endl;
+                exit(1);        
+            }
+        }else{
+            cerr<<"Error: More than 2 parameter passed to ANGLE_BISECTOR of lines"<<endl;
+            exit(1);
+        }
+    }
+    else if(memberFunc=="LINE_AT_ANGLE"){
+        if(paramEletype.size()==3){
+           /* line p := LINE_AT_ANGLE(40,a,q) */
+           if(param[0]==ANGLE && param[1]==LINE && param[2]==POINT){
+                ConstructTab[0][memberFunc].entry.Eletype = LINE;
+                ConstructTab[0][memberFunc].entry.Type = Var;
+                for(int i=0;i<3;i++){
+                    ConstructTab[0][memberFunc].entry.paramList[i].push_back(paramEletype[i]);
+                }
+           }else{
+                cerr<<"Error: Invlaid Parameters passed to LINE_AT_ANGLE , format(angle,line,point )"<<endl;
+                exit(1);        
+           }
+        }else{
+            cerr<<"Error: More than 3 parameter passed to LINE_AT_ANGLE"<<endl;
+            exit(1);
+        }
+    }else{
+        cerr<<"Error: Invalid member function of LINE"<<endl;
+        exit(1);
+    }
+}
 
-
-void circleMembers(char* memberFunc,vector<eletype> param){
+void circleMembers(char* memberFunc,vector<eletype> paramEletype){
         if(memberFunc=="TANGENT"){
             //c.tangent(q) is a line
             //(TANGENT,POINT) 
             //param: {eletype}= {POINT}
             //point p := c.tangent(q)
-            if(param.size()==1){
+            if(paramEletype.size()==1){
                 //lookup for point of param
                 if(param[0]==POINT){
                     //insert  STentry entry
                     ConstructTab[1][memberFunc].entry.Eletype = LINE;
                     ConstructTab[1][memberFunc].entry.Type = Var;
-                    ConstructTab[1][memberFunc].entry.paramList = param;
+                    ConstructTab[1][memberFunc].entry.paramList[0].push_back(paramEletype[0]);
                 }else{
                     cerr<<"Error: Parameter passed to TANGENT is not a POINT"<<endl;
                     exit(1);
@@ -217,7 +328,7 @@ void circleMembers(char* memberFunc,vector<eletype> param){
             //param:  {CIRCLE,CIRCLE}
             //point l[] := INTERSECTION(c1,c2)
             //eletype = point , type = array 
-            if(param.size()==2){
+            if(paramEletype.size()==2){
                 //lookup for circles of param
                 for(int i=0;i<2;i++){
                     if(param[i]!=CIRCLE){
@@ -227,7 +338,9 @@ void circleMembers(char* memberFunc,vector<eletype> param){
                 }
                 ConstructTab[1][memberFunc].entry.Eletype = POINT;
                 ConstructTab[1][memberFunc].entry.Type = Array;
-                ConstructTab[1][memberFunc].entry.paramList = param;
+                for(int i=0;i<2;i++){
+                    ConstructTab[1][memberFunc].entry.paramList[i].Eletype.push_back(paramEletype[i]);
+                }
             }else{
                 cerr<<"Error: More than 1 parameter passed to INTERSECTION"<<endl;
                 exit(1);
@@ -235,21 +348,27 @@ void circleMembers(char* memberFunc,vector<eletype> param){
         }else if(memberFunc=="COMMON_TANGENT"){
             //c.common_tangent(c1,c2) is a line array
             //param: {CIRCLE,CIRCLE}
-            if(param.size()==2){
+            if(paramEletype.size()==2){
                 //lookup for circles of param
                 for(int i=0;i<2;i++){
-                    if(param[i]!=CIRCLE){
+                    if(paramEletype[i]!=CIRCLE){
                         cerr<<"Error: Parameter passed to COMMON_TANGENT is not a CIRCLE"<<endl;
                         exit(1);
                     }
                 }
                 ConstructTab[1][memberFunc].entry.Eletype = LINE;
                 ConstructTab[1][memberFunc].entry.Type = Array;
-                ConstructTab[1][memberFunc].entry.paramList = param;
+                for(int i=0;i<2;i++){
+                    ConstructTab[1][memberFunc].entry.paramList[i].Eletype.push_back(paramEletype[i]);
+                }
             }else{
                 cerr<<"Error: More than 2 parameter passed to COMMON_TANGENT"<<endl;
                 exit(1);
             }
+        }
+        else{
+            cerr<<"Error: Invalid member function of CIRCLE"<<endl;
+            exit(1);
         }
 }
 

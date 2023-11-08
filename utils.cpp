@@ -154,13 +154,19 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 /* insert into constructors table */
 /*example : c.TANGENT(q) , insertConstructTab(c,TANGENT,{POINT}) 
 :: take types from parser */
-void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {
-    if(!lookup(name)){
+void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {  
+    enum eletype t;
+
+    /* point p := MIDPOINT(l) , no name for line*/
+    if(name==""){
+        t==LINE:
+    }else if(lookup(name).Type != Invalid){
+        t = lookup(name).eletype;
+    }else{
         cerr<<"Error: "<<name<<" not found in SymTab."<<endl;
         exit(1);
     }
-    enum eletype t = lookup(name).eletype;
- 
+
     if(t==LINE){
         lineMembers(memberFunc,param);
     }
@@ -179,9 +185,10 @@ void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {
     else{
         cerr<<"Error: Invalid type for constructTable"<<endl;
         exit(1);
-    }
-    
+    } 
 }
+
+
 
 void circleMembers(char* memberFunc,vector<eletype> param){
         if(memberFunc=="TANGENT"){

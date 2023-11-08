@@ -158,7 +158,7 @@ void insertConstructTab(char* name,char* memberFunc,vector<ParamList> param) {
         cerr<<"Error: "<<name<<" not found in SymTab."<<endl;
         exit(1);
     }
-    enum type t = lookup(name).Type;
+    enum eletype t = lookup(name).eletype;
 
     if(t==POINT){
         pointMembers(memberFunc,param);

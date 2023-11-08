@@ -110,17 +110,21 @@ int ret_fig_flag = 0;
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func:  FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}' {
+func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
+              insertType($3, Func, $2);  
+              printSymbolTable();
               if(ret_flag==0) {
                      cerr<<"Error: Sematic error no return statement"<<endl;
               }
-              // else if(checkEletype($3)!=$9) {
-              //       cerr<<"Error: Sematic error return type not matching"<<endl; 
-              // }
+              else if(checkEletype($3)!=$9) {
+                    cerr<<"Error: Sematic error return type not matching"<<endl; 
+              }
               ret_flag = 0;
        }
        |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
-              if($9!= UNDEF && checkEletype($3)!=$9) {
+              insertType($3, Func, $2);  
+              printSymbolTable();
+              if(checkEletype($3)!=$9) {
                     cerr<<"Error: Sematic error return type not matching"<<endl; 
               }
               ret_flag = 0; 

@@ -151,6 +151,96 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
     return false;
 }
 
+/* insert into constructors table */
+/*example : c.TANGENT(q) , insertConstructTab(CIRCLE,tangent,{point,q,{}})*/
+void insertConstructTab(enum eletype t,char* memberFunc,vector<ParamList> param) {
+    if(t==POINT){
+        pointMembers(memberFunc,param);
+    }
+    else if(t==line){
+        lineMembers(memberFunc,param);
+    }
+    else if(t==CIRCLE){
+        circleMembers(memberFunc,param);
+    }
+    else if(t==TRI){
+        triMembers(memberFunc,param);
+    }
+    else if(t==PARA){
+        paraMembers(memberFunc,param);
+    }
+    else if(t==REGPOLY){
+        regPolyMembers(memberFunc,param);
+    }
+    else{
+        cerr<<"Error: Invalid type"<<endl;
+        exit(1);
+    }
+    
+}
+
+//(TANGENT,{var,point,q,{}}) 
+void circleMembers(char* memberFunc,vector<ParamList> param){
+        if(memberFunc=="TANGENT"){
+            //c.tangent(q) is a line
+            //param: {type,eletype,name,vector<int>dim}= {var,POINT,q,{}}
+            //point p := c.tangent(q)
+            if(param.size()==1){
+                //lookup for point of param
+                if(lookup(param.name).Eletype==POINT){
+                    ConstructTab[2][memberFunc].entry.Eletype = LINE;
+                    ConstructTab[2][memberFunc].entry.Type = Var;
+                    ConstructTab[2][memberFunc].entry.paramList = param;
+                }else{
+                    cerr<<"Error: Parameter passed to TANGENT is not a POINT"<<endl;
+                    exit(1);
+                }
+            }else{
+                cerr<<"Error: More than 1 parameter passed to TANGENT"<<endl;
+                exit(1);
+            }
+        }
+        else if(memberFunc=="INTESECTION"){
+            //c.intersection(c1,c2) is a point array
+            //param: {type,eletype,name,vector<int>dim}= {{Var,CIRCLE,c1,{}},{Var,CIRCLE,c2,{}}}
+            //point l[] := INTERSECTION(c1,c2)
+            //eletype = point , type = array 
+            if(param.size()==2){
+                //lookup for circles of param
+                for(int i=0;i<2;i++){
+                    if(lookup(param[i].name).Eletype!=CIRCLE){
+                        cerr<<"Error: Parameter passed to INTERSECTION is not a CIRCLE"<<endl;
+                        exit(1);
+                    }
+                }
+                ConstructTab[2][memberFunc].entry.Eletype = POINT;
+                ConstructTab[2][memberFunc].entry.Type = Array;
+                ConstructTab[2][memberFunc].entry.paramList = param;
+            }else{
+                cerr<<"Error: More than 1 parameter passed to INTERSECTION"<<endl;
+                exit(1);
+            }
+        }else if(memberFunc=="COMMON_TANGENT"){
+            //c.common_tangent(c1,c2) is a line array
+            //param: {type,eletype,name,vector<int>dim}= {{Var,CIRCLE,c1,{}},{Var,CIRCLE,c2,{}}}
+            if(param.size()==2){
+                //lookup for circles of param
+                for(int i=0;i<2;i++){
+                    if(lookup(param[i].name).Eletype!=CIRCLE){
+                        cerr<<"Error: Parameter passed to COMMON_TANGENT is not a CIRCLE"<<endl;
+                        exit(1);
+                    }
+                }
+                ConstructTab[2][memberFunc].entry.Eletype = LINE;
+                ConstructTab[2][memberFunc].entry.Type = Array;
+                ConstructTab[2][memberFunc].entry.paramList = param;
+            }else{
+                cerr<<"Error: More than 2 parameter passed to COMMON_TANGENT"<<endl;
+                exit(1);
+            }
+        }
+}
+
 
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;

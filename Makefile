@@ -17,7 +17,7 @@ TEST = testall.sh
 all: $(TARGET)
 
 # Rule to build the target executable
-parser: $(FILENAME).tab.c lex.yy.c utils
+parser: $(TARGET).tab.c lex.yy.c utils
 	$(CC) -o $(TARGET) utils $(TARGET).tab.c lex.yy.c $(LIBS)
 
 # Build the yacc file
@@ -38,7 +38,7 @@ clean:
 
 # Clean target: remove the itarget files BISON version
 clean2: 
-	rm -f $(TARGET) lex.yy.c $(FILENAME).tab.c $(FILENAME).tab.h error.txt seq_token.txt utils
+	rm -f $(TARGET) lex.yy.c $(TARGET).tab.c $(TARGET).tab.h error.txt seq_token.txt utils
 
 # Run target: build and run the target executable
 run: $(TARGET)

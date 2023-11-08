@@ -26,6 +26,7 @@ void insert(char* name, vector<int>* dim, enum eletype t);
 bool coercible(int t1, int t2);
 
 int ret_flag = 0;
+int ret_fig_flag = 0;
 
 %}
 
@@ -80,7 +81,7 @@ int ret_flag = 0;
 %type <eletype> expression decl_token decl_assign assign
 %type <eletype> point angle id_list
 %type <eletype> cond_stmt ret_var return_stmt
-%type <eletype> func_body stmt stmt_loop
+%type <eletype> func_body stmt stmt_loop 
 %type <eletype> optional_arg assign_stmt construct constructor
 %type <dimList> check_arr dim
 // precedence
@@ -109,13 +110,13 @@ int ret_flag = 0;
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}' {
+func:  FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}' {
               if(ret_flag==0) {
                      cerr<<"Error: Sematic error no return statement"<<endl;
               }
-              else if(checkEletype($3)!=$9) {
-                    cerr<<"Error: Sematic error return type not matching"<<endl; 
-              }
+              // else if(checkEletype($3)!=$9) {
+              //       cerr<<"Error: Sematic error return type not matching"<<endl; 
+              // }
               ret_flag = 0;
        }
        |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
@@ -135,9 +136,9 @@ argument : DATATYPE ID check_arr;
 func_body : func_body stmt {$$ = $2;} | {$$ = UNDEF;};
  
 /* Figure Defination */
-fig: FIG ID '(' params ')' empty_space '{' fig_body '}' ;
-params : expression ',' expression 
-       | SCALE EQUAL expression ',' CENTER EQUAL expression ;
+fig: FIG ID '(' params ')' empty_space '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag =0; } 
+params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
+       | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!($3 == REAL && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 fig_body : fig_body stmt | ;
 
  /* Statements */
@@ -147,7 +148,7 @@ break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
 assign_stmt : expression ENDLINE | construct ENDLINE {$$ = $1;};
  
-return_stmt : RETURN ret_var ENDLINE {$$ = $2; ret_flag = 1;};
+return_stmt : RETURN ret_var ENDLINE {$$ = $2; ret_flag = 1; ret_fig_flag = 1;};
 
 ret_var : construct {$$ = $1;} | expression {$$ = $1;} | {$$ = Void;}; 
  
@@ -300,7 +301,7 @@ enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes\n";
+              cerr << "Error: Semantic error incompatible datatypes+\n";
               exit(1);
        }
 }

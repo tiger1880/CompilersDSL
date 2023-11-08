@@ -5,7 +5,8 @@
 #include "symbol_table.hpp"
 #include <stdio.h>
 #include <string.h>
-#include "y.tab.h"
+// #include "y.tab.h"
+#include "parser.tab.h" 
 
 extern FILE *fout_token;
 
@@ -276,8 +277,8 @@ or {
     return ASSIGN_OP;
 }
 {string_literal}  {
-    fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     yylval.eletype = LABEL;
+    fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     return STRING_TOKEN;
 }
 

@@ -152,9 +152,9 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 }
 
 /* insert into constructors table */
-/*example : c.TANGENT(q) , insertConstructTab(c,TANGENT,{ , ,q,{}}) 
-:: (leave type,eletype,dimlist as empty)*/
-void insertConstructTab(char* name,char* memberFunc,vector<ParamList> param) {
+/*example : c.TANGENT(q) , insertConstructTab(c,TANGENT,{POINT}) 
+:: take types from parser */
+void insertConstructTab(char* name,char* memberFunc,vector<eletype> param) {
     if(!lookup(name)){
         cerr<<"Error: "<<name<<" not found in SymTab."<<endl;
         exit(1);
@@ -182,15 +182,17 @@ void insertConstructTab(char* name,char* memberFunc,vector<ParamList> param) {
     }
     
 }
-//(TANGENT,{var,point,q,{}}) 
-void circleMembers(char* memberFunc,vector<ParamList> param){
+
+void circleMembers(char* memberFunc,vector<eletype> param){
         if(memberFunc=="TANGENT"){
             //c.tangent(q) is a line
-            //param: {type,eletype,name,vector<int>dim}= {var,POINT,q,{}}
+            //(TANGENT,POINT) 
+            //param: {eletype}= {POINT}
             //point p := c.tangent(q)
             if(param.size()==1){
                 //lookup for point of param
-                if(lookup(param.name).Eletype==POINT){
+                if(param[0]==POINT){
+                    //insert  STentry entry
                     ConstructTab[1][memberFunc].entry.Eletype = LINE;
                     ConstructTab[1][memberFunc].entry.Type = Var;
                     ConstructTab[1][memberFunc].entry.paramList = param;
@@ -205,13 +207,13 @@ void circleMembers(char* memberFunc,vector<ParamList> param){
         }
         else if(memberFunc=="INTESECTION"){
             //c.intersection(c1,c2) is a point array
-            //param: {type,eletype,name,vector<int>dim}= {{Var,CIRCLE,c1,{}},{Var,CIRCLE,c2,{}}}
+            //param:  {CIRCLE,CIRCLE}
             //point l[] := INTERSECTION(c1,c2)
             //eletype = point , type = array 
             if(param.size()==2){
                 //lookup for circles of param
                 for(int i=0;i<2;i++){
-                    if(lookup(param[i].name).Eletype!=CIRCLE){
+                    if(param[i]!=CIRCLE){
                         cerr<<"Error: Parameter passed to INTERSECTION is not a CIRCLE"<<endl;
                         exit(1);
                     }
@@ -225,11 +227,11 @@ void circleMembers(char* memberFunc,vector<ParamList> param){
             }
         }else if(memberFunc=="COMMON_TANGENT"){
             //c.common_tangent(c1,c2) is a line array
-            //param: {type,eletype,name,vector<int>dim}= {{Var,CIRCLE,c1,{}},{Var,CIRCLE,c2,{}}}
+            //param: {CIRCLE,CIRCLE}
             if(param.size()==2){
                 //lookup for circles of param
                 for(int i=0;i<2;i++){
-                    if(lookup(param[i].name).Eletype!=CIRCLE){
+                    if(param[i]!=CIRCLE){
                         cerr<<"Error: Parameter passed to COMMON_TANGENT is not a CIRCLE"<<endl;
                         exit(1);
                     }

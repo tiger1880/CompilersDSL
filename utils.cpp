@@ -152,18 +152,16 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 }
 
 /* insert into constructors table */
-/*example : c.TANGENT(q) , insertConstructTab(c,tangent,{point,q,{}})*/
+/*example : c.TANGENT(q) , insertConstructTab(c,TANGENT,{ , ,q,{}}) 
+:: (leave type,eletype,dimlist as empty)*/
 void insertConstructTab(char* name,char* memberFunc,vector<ParamList> param) {
     if(!lookup(name)){
         cerr<<"Error: "<<name<<" not found in SymTab."<<endl;
         exit(1);
     }
     enum eletype t = lookup(name).eletype;
-
-    if(t==POINT){
-        pointMembers(memberFunc,param);
-    }
-    else if(t==line){
+ 
+    if(t==LINE){
         lineMembers(memberFunc,param);
     }
     else if(t==CIRCLE){
@@ -179,14 +177,11 @@ void insertConstructTab(char* name,char* memberFunc,vector<ParamList> param) {
         regPolyMembers(memberFunc,param);
     }
     else{
-        cerr<<"Error: Invalid type"<<endl;
+        cerr<<"Error: Invalid type for constructTable"<<endl;
         exit(1);
     }
     
 }
-
-
-
 //(TANGENT,{var,point,q,{}}) 
 void circleMembers(char* memberFunc,vector<ParamList> param){
         if(memberFunc=="TANGENT"){
@@ -196,9 +191,9 @@ void circleMembers(char* memberFunc,vector<ParamList> param){
             if(param.size()==1){
                 //lookup for point of param
                 if(lookup(param.name).Eletype==POINT){
-                    ConstructTab[2][memberFunc].entry.Eletype = LINE;
-                    ConstructTab[2][memberFunc].entry.Type = Var;
-                    ConstructTab[2][memberFunc].entry.paramList = param;
+                    ConstructTab[1][memberFunc].entry.Eletype = LINE;
+                    ConstructTab[1][memberFunc].entry.Type = Var;
+                    ConstructTab[1][memberFunc].entry.paramList = param;
                 }else{
                     cerr<<"Error: Parameter passed to TANGENT is not a POINT"<<endl;
                     exit(1);
@@ -221,9 +216,9 @@ void circleMembers(char* memberFunc,vector<ParamList> param){
                         exit(1);
                     }
                 }
-                ConstructTab[2][memberFunc].entry.Eletype = POINT;
-                ConstructTab[2][memberFunc].entry.Type = Array;
-                ConstructTab[2][memberFunc].entry.paramList = param;
+                ConstructTab[1][memberFunc].entry.Eletype = POINT;
+                ConstructTab[1][memberFunc].entry.Type = Array;
+                ConstructTab[1][memberFunc].entry.paramList = param;
             }else{
                 cerr<<"Error: More than 1 parameter passed to INTERSECTION"<<endl;
                 exit(1);
@@ -239,9 +234,9 @@ void circleMembers(char* memberFunc,vector<ParamList> param){
                         exit(1);
                     }
                 }
-                ConstructTab[2][memberFunc].entry.Eletype = LINE;
-                ConstructTab[2][memberFunc].entry.Type = Array;
-                ConstructTab[2][memberFunc].entry.paramList = param;
+                ConstructTab[1][memberFunc].entry.Eletype = LINE;
+                ConstructTab[1][memberFunc].entry.Type = Array;
+                ConstructTab[1][memberFunc].entry.paramList = param;
             }else{
                 cerr<<"Error: More than 2 parameter passed to COMMON_TANGENT"<<endl;
                 exit(1);

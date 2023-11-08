@@ -25,6 +25,8 @@ void typeUpdate(vector<char*>* v, enum eletype t);
 void insert(char* name, vector<int>* dim, enum eletype t);
 bool coercible(int t1, int t2);
 
+int ret_flag = 0;
+
 %}
 
 
@@ -77,7 +79,8 @@ bool coercible(int t1, int t2);
 %type <nameList> ID_LIST
 %type <eletype> expression decl_token decl_assign assign
 %type <eletype> point angle id_list
-%type <eletype> cond_stmt
+%type <eletype> cond_stmt ret_var return_stmt
+%type <eletype> func_body stmt stmt_loop
 %type <eletype> optional_arg assign_stmt construct constructor
 %type <dimList> check_arr dim
 // precedence
@@ -105,9 +108,22 @@ bool coercible(int t1, int t2);
 program: program func | program fig | program stmt | ; 
  
  /* Function Defination */
-func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}'
-    |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' 
-    ;
+func: FUNC DATATYPE  ID   { insertType($3, Func, $2);  printSymbolTable();} '(' arg_list ')' empty_space '{' func_body '}' {
+              if(ret_flag==0) {
+                     cerr<<"Error: Sematic error no return statement"<<endl;
+              }
+              else if(checkEletype($3)!=$9) {
+                    cerr<<"Error: Sematic error return type not matching"<<endl; 
+              }
+              ret_flag = 0;
+       }
+       |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
+              if($9!= UNDEF && checkEletype($3)!=$9) {
+                    cerr<<"Error: Sematic error return type not matching"<<endl; 
+              }
+              ret_flag = 0; 
+       }   //Need to do testing
+       ;
 
 arg_list : list1 | ;
 
@@ -115,7 +131,7 @@ list1: list1 ',' argument  | argument ;
 
 argument : DATATYPE ID check_arr;
 
-func_body : func_body stmt | ;
+func_body : func_body stmt {$$ = $2;} | {$$ = UNDEF;};
  
 /* Figure Defination */
 fig: FIG ID '(' params ')' empty_space '{' fig_body '}' ;
@@ -124,15 +140,15 @@ params : expression ',' expression
 fig_body : fig_body stmt | ;
 
  /* Statements */
-stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | ENDLINE;
-stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;
+stmt : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt {$$ = $1;}| ENDLINE;
+stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;  //Add return type here
 break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
 
 assign_stmt : expression ENDLINE | construct ENDLINE {$$ = $1;};
  
-return_stmt : RETURN ret_var ENDLINE;
+return_stmt : RETURN ret_var ENDLINE {$$ = $2; ret_flag = 1;};
 
-ret_var : construct | expression | ; 
+ret_var : construct {$$ = $1;} | expression {$$ = $1;} | {$$ = Void;}; 
  
 decl_stmt : DATATYPE ID_LIST ENDLINE {typeUpdate($2, $1);};
 

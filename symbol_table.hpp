@@ -64,7 +64,7 @@ typedef struct ConstructEntry {
 
 extern deque<map<string,STentry> > SymTab;
 
-/* 0-Point 1-Line  2-Circle 3-Triangle 4-para 5-regPoly */
+/*  0-Line  1-Circle 2-Triangle 3-para 4-regPoly */
 extern vector<map<string,ConstructEntry> > ConstructTab;
 
 extern void insertType(char* name,enum type t, enum eletype etype);

@@ -40,6 +40,7 @@ enum eletype {
 
 typedef struct ParamList{
        enum type Type;
+       enum eletype Eletype; //added eletype
        string name;
        vector<int> dim;
 } ParamList;
@@ -55,14 +56,15 @@ typedef struct STentry {
 
 //structs for constructors
 typedef struct ConstructEntry {
-       char* name;
+       // char* name;
+       char* memberFunc;
        STentry entry;
 } ConstructEntry;
 
 
 extern deque<map<string,STentry> > SymTab;
 
-/* 0-Line 1-circle 2-Triangle 3-para 4-regPoly */
+/* 0-Point 1-Line  2-Circle 3-Triangle 4-para 5-regPoly */
 extern vector<map<string,ConstructEntry> > ConstructTab;
 
 extern void insertType(char* name,enum type t, enum eletype etype);

@@ -18,11 +18,11 @@ all: $(TARGET)
 
 # Rule to build the target executable
 parser: $(FILENAME).tab.c lex.yy.c utils
-	$(CC) -o $(TARGET) utils $(FILENAME).tab.c lex.yy.c $(LIBS)
+	$(CC) -o $(TARGET) utils $(TARGET).tab.c lex.yy.c $(LIBS)
 
 # Build the yacc file
-$(FILENAME).tab.c: $(FILENAME).y
-	$(YACC) -d $(FILENAME).y
+$(TARGET).tab.c: $(TARGET).y
+	$(YACC) -d $(TARGET).y
 
 # Build the lex file 
 lex.yy.c: lexer.l

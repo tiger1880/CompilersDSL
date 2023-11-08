@@ -31,6 +31,7 @@ enum eletype {
        ANGLE,
        Void,
        LINE,
+       LINEARR,
        CIRCLE,
        TRI,
        PARA,

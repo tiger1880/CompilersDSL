@@ -200,6 +200,9 @@ void printSymbolTable() {
             case LINE:
                 cout << "LINE";
                 break;
+            case LINEARR:
+                cout << "LINE";
+                break;   
             case CIRCLE:
                 cout << "CIRCLE";
                 break;

@@ -54,18 +54,13 @@ typedef struct STentry {
 } STentry;   
 
 
-//structs for constructors
-typedef struct ConstructEntry {
-       // char* name;
-       char* memberFunc;
-       STentry entry;
-} ConstructEntry;
+
 
 
 extern deque<map<string,STentry> > SymTab;
 
 /*  0-Line  1-Circle 2-Triangle 3-para 4-regPoly */
-extern vector<map<string,ConstructEntry> > ConstructTab;
+extern vector<map<string,STentry> > ConstructTab;
 
 extern void insertType(char* name,enum type t, enum eletype etype);
 extern void printSymbolTable();

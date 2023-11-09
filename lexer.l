@@ -7,7 +7,7 @@
 #include <string.h>
 #include <math.h>
 // #include "y.tab.h"
-#include "test.tab.h" 
+#include "parser.tab.h" 
 
 extern FILE *fout_token;
 

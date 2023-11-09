@@ -153,6 +153,10 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 }
 
 void insertConstructTab() {
+    for(int i=0;i<6;i++) {
+        ConstructTab.push_back(map<string,STentry>());
+    }
+    
     /*POINT*/
     ConstructTab[0]["x"]={Var,REAL,{},{}};
     ConstructTab[0]["y"]={Var,REAL,{},{}};

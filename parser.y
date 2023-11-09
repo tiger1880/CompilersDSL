@@ -192,18 +192,21 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
        }   //Need to do testing
        ;
 
-arg_list : list1 
-         | 
-         ;
+arg_list : list1 | ;
 
-list1: list1 ',' argument  
-     | argument  
+list1: list1 ',' argument | argument  
 
 argument : DATATYPE ID check_arr {
        ParamList param;
        param.Eletype = $1;
        param.name = $2;
        param.dim = *$3;
+       if(param.dim.size()==0) {
+              param.Type = Var;
+       }
+       else {
+              param.Type = Array;
+       }
        paramslist.push_back(param);
        
 };

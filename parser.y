@@ -17,22 +17,7 @@ extern char* yytext;
 
 using namespace std;
 
-void semanticError(const char* s);
 
-enum eletype sumTypeCheck(enum eletype E1, enum eletype E2);
-enum eletype diffTypeCheck(enum eletype E1, enum eletype E2);
-enum eletype mulTypeCheck(enum eletype E1, enum eletype E2);
-enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
-enum eletype pointCheck (enum eletype x, enum eletype y);
-bool arithCompatible(int e);
-
-bool coercible(int t1, int t2);
-void typeUpdate(vector<char*>* v, enum eletype t);
-void insert(char* name, vector<int>* dim, enum eletype t);
-void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x);
-void updateMaxDim(vector<int>* comma, vector<int>* assign); // for now have to be equal
-void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList);
-void insertArray(char* name, vector <int>* dimList);
 
 
 /*     ONLY FOR  DEBUGGING    */
@@ -55,6 +40,8 @@ int ret_flag = 0;
 int ret_fig_flag = 0;
 
 enum eletype ret_type = UNDEF;
+
+std::vector<ParamList> paramslist;
 
 %}
 
@@ -80,6 +67,8 @@ enum eletype ret_type = UNDEF;
        vector<int>* dimList;
        enum eletype eletype;  
     } listAndType;
+    
+    
 }
 
 
@@ -124,7 +113,8 @@ enum eletype ret_type = UNDEF;
 %nterm <listAndType> arr_assign comma_arr_assign
 %nterm <eletype> decl_token decl_assign
 %nterm <eletype> cond_stmt ret_var 
-%nterm <eletype> optional_arg 
+%nterm <eletype> optional_arg valid_arg
+
 
 // precedence
 %right EQUAL  SUM_ASSIGN_OP SUB_ASSIGN_OP ASSIGN_OP
@@ -157,7 +147,12 @@ program: program func
  /* Function Definition */
 func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body  '}' {
               insertType($3, Func, $2);  
+              if(paramslist.size()>0) {
+                     addParamList($3,paramslist);
+                     paramslist.clear();
+              }
               printSymbolTable();
+              
               if(ret_flag==0) {
                      cerr<<"Error: Semantic error no return statement"<<endl;
               }
@@ -170,7 +165,13 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body  '}' {
        }
        |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
               insertType($3, Func, $2);  
+              if(paramslist.size()>0) {
+                     addParamList($3,paramslist);
+                     paramslist.clear();
+              }
+              paramslist.clear();
               printSymbolTable();
+              
               if(ret_type!=UNDEF && ret_type!=Void) {
                     cerr<<"Error: Semantic error return type not matching"<<endl; 
               }
@@ -181,11 +182,22 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body  '}' {
 
 arg_list : list1 | ;
 
-list1: list1 ',' argument  | argument ; 
+list1: list1 ',' argument | argument  
 
-argument : DATATYPE ID check_arr
-         | DATATYPE ID
-         ;
+argument : DATATYPE ID check_arr {
+       ParamList param;
+       param.Eletype = $1;
+       param.name = $2;
+       param.dim = *$3;
+       if(param.dim.size()==0) {
+              param.Type = Var;
+       }
+       else {
+              param.Type = Array;
+       }
+       paramslist.push_back(param);
+       
+};
 
 func_body : func_body stmt  | ;
  
@@ -230,8 +242,8 @@ constructor : TRICONSTRUCT { $$ = $1;}
             | REGPOLYCONSTRUCT { $$ = $1;}
             ;
 
-valid_arg: construct 
-         | expression 
+valid_arg: construct {$$ = $1;}
+         | expression {$$ = $1;}
          ;
 
 param_list: param_list ',' valid_arg 
@@ -494,7 +506,7 @@ void yyerror(const char * s)
 }
 
 void semanticError(const char* s){
-       cerr << s << "at line no. "<<yylineno;
+       cerr << s << "\n";
        exit(1);
 }
   
@@ -508,7 +520,7 @@ enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
+              cerr << "Error: Semantic error incompatible datatypes+\n";
               exit(1);
        }
 }
@@ -519,7 +531,7 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
+              cerr << "Error: Semantic error incompatible datatypes\n";
               exit(1);
        }
 }
@@ -652,7 +664,7 @@ enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
+              cerr << "Error: Semantic error incompatible datatypes\n";
               exit(1); // Change Later
        }
 }
@@ -663,7 +675,7 @@ enum eletype mulTypeCheck(enum eletype E1, enum eletype E2){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
+              cerr << "Error: Semantic error incompatible datatypes\n";
               exit(1); // Change Later
        }
 }

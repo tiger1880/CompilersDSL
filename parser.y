@@ -399,9 +399,31 @@ void insert(char* name, vector<int>* dim, enum eletype t){
 
 int main(int argc, char*argv[])
 {    
+    if (argc < 2){
+
+        fprintf(stderr, "Please provide the input file\n");
+        exit(1);
+    }
+
     FILE *fp;
     fp = fopen(argv[1], "r");
-    fout_token = fopen("seq_token.txt","w");
+
+    if (fp == NULL)
+    {
+      fprintf(stderr, "%s file could not be opened\n", argv[1]);
+      exit(1);
+    }
     yyin = fp;
+
+    /* For testing Lexer */
+    const char* tokenFilename = "seq_token.txt";
+    fout_token = fopen(tokenFilename, "w");
+
+    if (fout_token == NULL)
+    {
+      fprintf(stderr, "%s file could not be opened\n", tokenFilename);
+      exit(1);
+    }
+
     return yyparse();
 } 

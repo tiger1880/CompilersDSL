@@ -5,8 +5,9 @@
 #include "symbol_table.hpp"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 // #include "y.tab.h"
-#include "parser.tab.h" 
+#include "test.tab.h" 
 
 extern FILE *fout_token;
 
@@ -34,7 +35,8 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 {floats} {
-    yylval.eletype = REAL;
+    yylval.constExp.eletype = REAL;
+    yylval.constExp.d = atof(yytext);
     fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
 }
@@ -84,7 +86,8 @@ center {
 }
 
 {integers} {
-    yylval.eletype = INT;
+    yylval.constExp.i = atoi(yytext);
+    yylval.constExp.eletype = INT;
     fprintf(fout_token, "INTEGERS: %s\n", yytext);
     return INTEGERS;
 }
@@ -172,8 +175,16 @@ or {
     return PERPENDICULAR;
 }
 
-{boolean} {
-    yylval.eletype = BOOL;
+"true" {
+    yylval.constExp.eletype = BOOL;
+    yylval.constExp.i = true;
+    fprintf(fout_token, "BOOLEAN: %s\n", yytext);
+    return BOOLEAN;
+}
+
+"false" {
+    yylval.constExp.eletype = BOOL;
+    yylval.constExp.i = false;
     fprintf(fout_token, "BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }

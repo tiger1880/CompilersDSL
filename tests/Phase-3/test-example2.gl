@@ -1,0 +1,21 @@
+fig fig_tangents(2.0,(1,0))
+{   
+    circle c1 := Circle((2,3),2.5)
+
+    circle c2 := Circle((4,5), 3.6)
+
+    line p := c1.TANGENT((3,3))
+
+    line q := c2.TANGENT((5,6))
+    
+    point r := MIDPOINT(p)
+
+    point s := MIDPOINT(q)
+        
+    int distance := SHORTEST_DISTANCE(p,q)
+
+    
+}
+
+fig_tangents()
+

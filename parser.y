@@ -155,7 +155,7 @@ program: program func
        ; 
  
  /* Function Definition */
-func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
+func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body  '}' {
               insertType($3, Func, $2);  
               printSymbolTable();
               if(ret_flag==0) {
@@ -164,7 +164,9 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
               else if($2!=ret_type) {
                     cerr<<"Error: Semantic error return type not matching"<<endl; 
               }
+              
               ret_flag = 0;
+              delSymTabPtr();
        }
        |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
               insertType($3, Func, $2);  
@@ -173,6 +175,7 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
                     cerr<<"Error: Semantic error return type not matching"<<endl; 
               }
               ret_flag = 0; 
+              delSymTabPtr();
        }   //Need to do testing
        ;
 
@@ -180,14 +183,17 @@ arg_list : list1 | ;
 
 list1: list1 ',' argument  | argument ; 
 
-argument : DATATYPE ID check_arr;
+argument : DATATYPE ID check_arr
+         | DATATYPE ID
+         ;
 
 func_body : func_body stmt  | ;
  
 /* Figure Definition */
-fig: FIG ID '(' params ')' empty_space '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag =0; } 
+              
+fig: FIG ID '(' params ')' empty_space{ addSymTabPtr(); } '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag =0; delSymTabPtr(); } 
 params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
-       | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!($3 == REAL && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
+       | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3) && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 fig_body : fig_body stmt | ;
 
  /* Statements */
@@ -197,7 +203,7 @@ stmt_list: stmt_list stmt
          |  /* empty */
          ;
 
-stmt_block: '{'  stmt_list '}' 
+stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' { delSymTabPtr(); }
           ;
 
 stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;  //Add return type here
@@ -288,6 +294,7 @@ assign:  EQUAL expression
 
        /* Declaration Statement */
 decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1);}
+          | constructor id_list ENDLINE {typeUpdate($2, $1);}
           ;
 
 id_list: id_list ',' ID check_arr EQUAL arr_assign {$$ = $1;$$->push_back($3);compareAndInsertArray($3, $4, $6.eletype, $6.dimList);}
@@ -424,18 +431,6 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
                             else 
                                    $$.i = -$2.i;
                         } 
-/*  
-
-       if these are there in array declarations it is prolly wrong, so not allowing for now
-
-       | NOT const_expr {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
-       | const_expr AND const_expr {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
-       | const_expr OR const_expr{if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
-       | const_expr CMP_OP const_expr {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;} 
-       | const_expr '<' const_expr {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
-       | const_expr '>' const_expr  {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
-       | const_expr EQ_CMP_OP const_expr {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
-*/   
        | '(' const_expr ')' {
                                    $$.eletype = $2.eletype;
                                    if ($$.eletype == REAL) 
@@ -447,41 +442,6 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
        | INTEGERS {$$.eletype = $1.eletype;$$.i = $1.i;}
        | BOOLEAN {$$.eletype = INT;$$.i = $1.i;}
        ;          
-
-
-/* 
-ID_LIST: ID_LIST ',' ID check_arr decl_assign {$$ = $1;$$->push_back($3);insert($3, $4, $5);}
-       | ID check_arr decl_assign {$$ = new vector<char*>;$$->push_back($1);insert($1, $2, $3);}
-
-
-decl_assign : EQUAL decl_token {$$ = $2;}
-       |   {$$ = UNDEF;}
-       ; 
-
-decl_token :  
-         arr_assign {$$ = UNDEF;}
-       | construct  {$$ = UNDEF;}
-       | expression {$$ = $1;}
-       ;
-
- // change after adding expression values
-dim : dim '[' expression ']' {$$ = $1;}
-    | '[' expression ']' {$$ = new vector<int>; $$->push_back(1);}
-    ;
-
-check_arr: dim {$$ = $1;}
-         | '['']' 
-         | '['']' dim 
-         | {$$ = new vector<int>;}
-         ;
-  
-arr_assign : '{' arr1d_in_list '}' | '{' comma_arr_assign '}'; // { {1,, 2}, {2, 3}}
-comma_arr_assign: comma_arr_assign ',' arr_assign  | arr_assign ;       
-arr1d_in_list: mult_elements | ;
-mult_elements : mult_elements ',' expression  | expression ; 
-              
-       ; 
-*/
 
 
 member_access: member_access '.' ID  arr_access 
@@ -498,7 +458,7 @@ empty_space: empty_space ENDLINE | ;
 /* Conditional */
 
 stmt_list1: stmt_list1 stmt | stmt ;  
-stmt_block1: empty_space '{' stmt_list1 '}' ENDLINE | empty_space '{' '}' ENDLINE;
+stmt_block1: empty_space { addSymTabPtr(); } '{' stmt_list1 '}' { delSymTabPtr(); } ENDLINE | empty_space {addSymTabPtr();} '{' '}' {delSymTabPtr(); } ENDLINE;
 
 cond_stmt : IF '(' expression ')' stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' stmt_block1  ELSE stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
@@ -513,10 +473,11 @@ elif_stmt : ELIF '(' expression ')' stmt_block1  {if(!(arithCompatible($3))) sem
 /* Loops */
 
 stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
-stmt_loop_block: empty_space '{' stmt_loop_list '}' | empty_space '{' '}';
+stmt_loop_block: empty_space { addSymTabPtr(); } '{' stmt_loop_list '}' {delSymTabPtr();} | empty_space  { addSymTabPtr(); } '{' '}' {delSymTabPtr(); };
 
 loop : for_loop | while_loop ;
 
+// need to add constructor , array here
 for_loop_decl : DATATYPE ID EQUAL expression | ID EQUAL expression | ;
 optional_arg: expression {$$ = $1;} | {$$ = BOOL;} ;
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
@@ -533,7 +494,7 @@ void yyerror(const char * s)
 }
 
 void semanticError(const char* s){
-       cerr << s << "\n";
+       cerr << s << "at line no. "<<yylineno;
        exit(1);
 }
   
@@ -547,7 +508,7 @@ enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes+\n";
+              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
               exit(1);
        }
 }
@@ -558,7 +519,7 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes\n";
+              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
               exit(1);
        }
 }
@@ -691,7 +652,7 @@ enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes\n";
+              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
               exit(1); // Change Later
        }
 }
@@ -702,7 +663,7 @@ enum eletype mulTypeCheck(enum eletype E1, enum eletype E2){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes\n";
+              cerr << "Error: Semantic error incompatible datatypes at line no."<<yylineno;
               exit(1); // Change Later
        }
 }
@@ -718,6 +679,8 @@ void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
 
 int main(int argc, char*argv[])
 {    
+
+    /* yydebug = 1; */
     if (argc < 2){
 
         fprintf(stderr, "Please provide the input file\n");

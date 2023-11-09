@@ -13,6 +13,7 @@ vector<map<string,STentry> > ConstructTab;
 
 
 
+
 // Define functions here
 void insertType(char* name, enum type t ,enum eletype etype) {
     if(SymTab.empty()){
@@ -153,6 +154,7 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 }
 
 void insertConstructTab() {
+    ConstructTab.resize(6);
     /*POINT*/
     ConstructTab[0]["x"]={Var,REAL,{},{}};
     ConstructTab[0]["y"]={Var,REAL,{},{}};

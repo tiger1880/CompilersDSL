@@ -26,7 +26,7 @@ paraConstruct "Para"
 boolean  "true"|"false"
 line_op "->"|"<->"
 cmp_op ">="|"<="
-datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
+datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"|"linearr"
 assign "^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
 operators "+"|"*"|"/"|"%"|"^"|"-"
@@ -241,6 +241,9 @@ or {
     else if (strcmp(yytext, "line") == 0) {
         yylval.eletype = LINE;
     } 
+    else if (strcmp(yytext, "linearr") == 0) {
+        yylval.eletype = LINEARR;
+    }
     else if (strcmp(yytext, "angle") == 0) {
         yylval.eletype = ANGLE;
     } 

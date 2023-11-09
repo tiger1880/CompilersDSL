@@ -74,6 +74,23 @@ extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
 extern void updateType(char* name, enum eletype etype);
 extern void insertConstructTab();
 
+extern void semanticError(const char* s);
+
+extern enum eletype sumTypeCheck(enum eletype E1, enum eletype E2);
+extern enum eletype diffTypeCheck(enum eletype E1, enum eletype E2);
+extern enum eletype mulTypeCheck(enum eletype E1, enum eletype E2);
+extern enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
+extern enum eletype pointCheck (enum eletype x, enum eletype y);
+extern bool arithCompatible(int e);
+
+extern bool coercible(int t1, int t2);
+extern void typeUpdate(vector<char*>* v, enum eletype t);
+extern void insert(char* name, vector<int>* dim, enum eletype t);
+extern void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x);
+extern void updateMaxDim(vector<int>* comma, vector<int>* assign); // for now have to be equal
+extern void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList);
+extern void insertArray(char* name, vector <int>* dimList);
+
 
 #endif // UTILS_HPP
 

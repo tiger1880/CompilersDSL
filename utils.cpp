@@ -196,6 +196,189 @@ void insertConstructTab() {
     ConstructTab[5]["PERIMETER"]={Var,REAL,{},{}};
 }
 
+void semanticError(const char* s){
+       cerr << s << "\n";
+       exit(1);
+}
+  
+enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
+       
+       if(E1 == LABEL && E2 == LABEL)
+              return LABEL;
+       else if(E1 == POINT && E2 == POINT)
+              return POINT;
+       else if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes+\n";
+              exit(1);
+       }
+}
+
+enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
+       
+       if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1);
+       }
+}
+
+// check int change 
+bool arithCompatible(int e){
+
+       if (e == REAL || e == BOOL || e == INT || e == ANGLE) 
+              return true;
+       return false;
+}
+
+enum eletype pointCheck (enum eletype x, enum eletype y){
+       if ((x == INT || x == REAL) && (y == INT || y == REAL ))
+              return POINT;
+       else {
+              cerr << "Error: Semantic error invalid point \n";
+              exit(1);
+       }
+}
+
+bool coercible(int t1, int t2){
+       
+       if (arithCompatible(t1) && arithCompatible(t2))
+              return true;
+
+       if (t1 == UNDEF || t2 == UNDEF)
+              return true; // check where this function is used and make sure it doesn't cause problems
+
+       if (t1 == t2)
+              return true;
+
+       /* 
+              POINT
+              LABEL
+              LINE
+              CIRCLE
+              TRI
+              PARA
+              REGPOLY 
+       */
+
+       return false;      
+
+}
+
+void typeUpdate(vector<char*>* v, enum eletype t){
+
+       for (int i = 0;i < v->size();i++){
+
+              int prevType = checkEletype(v->at(i));
+              
+              
+              if (!coercible(prevType, t))
+              {
+                     cerr << "Error: " << "types don't match in declaration and initialisation\n";
+                     exit(1);
+                     // error recovery
+              }
+              
+              updateType(v->at(i), t);
+              
+              free(v->at(i));
+       }
+
+       delete v;
+
+       printSymbolTable();
+
+       return;
+}
+
+void insertArray(char* name, vector <int>* dimList){
+
+       insertType(name, Array, UNDEF);
+       addDimList(name, *dimList);
+       
+}
+
+void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList){
+
+       if (decDimList->size() != assignList->size()){
+
+              cerr << "Error: arrays declaration and initialization list don't match\n";
+              exit(1); // not freeing anything
+       }
+
+       if ((*decDimList)[0] == -1)
+             (*decDimList)[0] = (*assignList)[0];
+
+       for (int i = 0;i < decDimList->size();i++){
+
+              if ((*decDimList)[i] < (*assignList)[i]){
+                     cerr << "Error: arrays declaration and initialization list don't match\n";
+                     exit(1); // not freeing anything
+              }
+       } 
+
+       insertType(name, Array, e);
+       addDimList(name, *decDimList);
+
+       return;
+}
+
+void updateMaxDim(vector<int>* comma, vector<int>* assign){
+
+       if (comma->size() != assign->size()+1){
+
+              cerr << "Error: invaid array initializer list\n";
+              exit(1); // remove this only if added length checks in declarations O/W segfault 
+       }
+
+       for (int i = 0;i < assign->size();i++){
+
+              (*comma)[i+1] = max((*comma)[i+1], (*assign)[i]);
+       }
+
+       (*comma)[0] = (*comma)[0] + 1;
+
+       return;
+}
+
+/*  eletype can be TRI, CIRCLE, LINE .. as well from identifiers */
+
+enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
+
+       if (E1 == POINT && E2 == POINT)
+              return POINT;
+       else if (arithCompatible(E1) && arithCompatible(E2)){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1); // Change Later
+       }
+}
+
+enum eletype mulTypeCheck(enum eletype E1, enum eletype E2){
+
+       if (arithCompatible(E1) && arithCompatible(E2)){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1); // Change Later
+       }
+}
+
+void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
+
+       dest->push_back(x);
+
+       for (int i = 0;i < src->size();i++)
+              dest->push_back(src->at(i));
+}
+
 
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;

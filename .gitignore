@@ -1,9 +1,0 @@
-parser 
-seq_token.txt 
-test.cpp 
-utils 
-y.tab.c 
-y.tab.h 
-a.out 
-test.cpp 
-input.txt

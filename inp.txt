@@ -1,13 +1,15 @@
- func linearr func_1 (int x){
+func int func_1(int x){
 
     point p[4]
 
-    repeat ( i:= x | i< x + 4 | i++ ){
+    repeat ( int i:= x | i< x + 4 | i++ ){
 
         p[i-1] := ( i, i+2)
     }
 
     linearr l = p[0]<->p[1]<->p[2]<->p[3]
+    
+    return l
     
 }
 
@@ -24,15 +26,3 @@ fig tri(1, (1,0)){
 }
 
 tri()
-
-$$ fig fig_1(1.5, (2,2))
-{
-    ( 2,3) <-> (4,5) -> (1,2) <-> (3,4)
-}
-$$
-
-func int sine () 
-{
-    return
-    
-}

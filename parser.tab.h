@@ -94,7 +94,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 63 "parser.y"
+#line 50 "parser.y"
 
     char* name; 
     enum eletype eletype;  
@@ -115,8 +115,10 @@ union YYSTYPE
        vector<int>* dimList;
        enum eletype eletype;  
     } listAndType;
+    
+    
 
-#line 120 "parser.tab.h"
+#line 122 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

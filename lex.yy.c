@@ -816,7 +816,7 @@ YY_DECL
 		}
 
 	{
-#line 36 "lexer.l"
+#line 35 "lexer.l"
 
 #line 822 "lex.yy.c"
 
@@ -887,7 +887,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 37 "lexer.l"
+#line 36 "lexer.l"
 {
     yylval.constExp.eletype = REAL;
     yylval.constExp.d = atof(yytext);
@@ -897,7 +897,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 44 "lexer.l"
+#line 43 "lexer.l"
 {
     yylval.eletype = TRI;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
@@ -906,7 +906,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 50 "lexer.l"
+#line 49 "lexer.l"
 {
     yylval.eletype = CIRCLE;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
@@ -915,7 +915,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 56 "lexer.l"
+#line 55 "lexer.l"
 {
     yylval.eletype = REGPOLY;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
@@ -924,7 +924,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 62 "lexer.l"
+#line 61 "lexer.l"
 {
     yylval.eletype = PARA;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
@@ -933,7 +933,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 68 "lexer.l"
+#line 67 "lexer.l"
 {
     fprintf(fout_token, "PARENTHESIS: %s\n", yytext);
     return *yytext;
@@ -941,7 +941,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 73 "lexer.l"
+#line 72 "lexer.l"
 {
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return SCALE;
@@ -949,7 +949,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 78 "lexer.l"
+#line 77 "lexer.l"
 {
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return CENTER;
@@ -957,7 +957,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 83 "lexer.l"
+#line 82 "lexer.l"
 {
     fprintf(fout_token, "PUNCTUATION: %s\n", yytext);
     return *yytext;
@@ -965,7 +965,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 88 "lexer.l"
+#line 87 "lexer.l"
 {
     yylval.constExp.i = atoi(yytext);
     yylval.constExp.eletype = INT;
@@ -975,7 +975,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 95 "lexer.l"
+#line 94 "lexer.l"
 {
     fprintf(fout_token, "LINE_OP: %s\n", yytext);
     return LINE_OP;
@@ -983,23 +983,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 100 "lexer.l"
+#line 99 "lexer.l"
 {fprintf(fout_token, "MEMEBER ACCESS: .\n"); return *yytext;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 102 "lexer.l"
+#line 101 "lexer.l"
 { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 	YY_BREAK
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 103 "lexer.l"
+#line 102 "lexer.l"
 { fprintf(fout_token, "BLOCK COMMENT: %s\n", yytext);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 105 "lexer.l"
+#line 104 "lexer.l"
 {
     fprintf(fout_token, "IF: %s\n", yytext);
     return IF;
@@ -1007,7 +1007,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 110 "lexer.l"
+#line 109 "lexer.l"
 {
     fprintf(fout_token, "ELIF: %s\n", yytext);
     return ELIF;
@@ -1015,7 +1015,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 115 "lexer.l"
+#line 114 "lexer.l"
 {
     fprintf(fout_token, "ELSE: %s\n", yytext);
     return ELSE;
@@ -1023,7 +1023,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 120 "lexer.l"
+#line 119 "lexer.l"
 {
     fprintf(fout_token, "FOR: %s\n", yytext);
     return FOR;
@@ -1031,7 +1031,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 125 "lexer.l"
+#line 124 "lexer.l"
 {
     fprintf(fout_token, "WHILE: %s\n", yytext);
     return WHILE;
@@ -1039,7 +1039,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 130 "lexer.l"
+#line 129 "lexer.l"
 {
     fprintf(fout_token, "RETURN: %s\n", yytext);
     return RETURN;
@@ -1047,7 +1047,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 135 "lexer.l"
+#line 134 "lexer.l"
 {
     if (strcmp(yytext, "void") == 0) {
         yylval.eletype = Void;
@@ -1058,7 +1058,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 143 "lexer.l"
+#line 142 "lexer.l"
 {
     fprintf(fout_token, "OPERATORS: %s\n", yytext);
     return *yytext;
@@ -1066,7 +1066,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 148 "lexer.l"
+#line 147 "lexer.l"
 {
     fprintf(fout_token, "STOP: %s\n", yytext);
     return BREAK;
@@ -1074,7 +1074,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 153 "lexer.l"
+#line 152 "lexer.l"
 {
     fprintf(fout_token, "CONTINUE: %s\n", yytext);
     return CONTINUE;
@@ -1082,7 +1082,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 158 "lexer.l"
+#line 157 "lexer.l"
 {
     fprintf(fout_token, "LOGICAL_OP: %s\n", yytext);
     return AND;
@@ -1090,7 +1090,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 163 "lexer.l"
+#line 162 "lexer.l"
 {
     fprintf(fout_token, "LOGICAL_OP: %s\n", yytext);
     return OR;
@@ -1098,7 +1098,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 168 "lexer.l"
+#line 167 "lexer.l"
 {
     fprintf(fout_token, "PARALLEL: %s\n", yytext);
     return PARALLEL;
@@ -1106,7 +1106,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 173 "lexer.l"
+#line 172 "lexer.l"
 {
     fprintf(fout_token, "PERPENDICULAR: %s\n", yytext);
     return PERPENDICULAR;
@@ -1114,7 +1114,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 178 "lexer.l"
+#line 177 "lexer.l"
 {
     yylval.constExp.eletype = BOOL;
     yylval.constExp.i = true;
@@ -1124,7 +1124,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 185 "lexer.l"
+#line 184 "lexer.l"
 {
     yylval.constExp.eletype = BOOL;
     yylval.constExp.i = false;
@@ -1134,7 +1134,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 192 "lexer.l"
+#line 191 "lexer.l"
 {
     fprintf(fout_token, "FUNC: %s\n", yytext);
     return FUNC;
@@ -1142,7 +1142,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 197 "lexer.l"
+#line 196 "lexer.l"
 {
     fprintf(fout_token, "FIG: %s\n", yytext);
     return FIG;
@@ -1150,7 +1150,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 202 "lexer.l"
+#line 201 "lexer.l"
 {
     fprintf(fout_token, "UNARY: %s\n", yytext);
     return UNARY;
@@ -1158,7 +1158,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 207 "lexer.l"
+#line 206 "lexer.l"
 {
     fprintf(fout_token, "NOT: %s\n", yytext);
     return NOT;
@@ -1166,7 +1166,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 212 "lexer.l"
+#line 211 "lexer.l"
 {
     
     if (strcmp(yytext, "int") == 0) {
@@ -1212,7 +1212,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 255 "lexer.l"
+#line 254 "lexer.l"
 {
     fprintf(fout_token, "CMP_OP: %s\n", yytext);
     return CMP_OP;
@@ -1220,7 +1220,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 260 "lexer.l"
+#line 259 "lexer.l"
 {
     fprintf(fout_token, "CMP_OP/BRACKET: %s\n", yytext);
     return *yytext;
@@ -1228,7 +1228,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 265 "lexer.l"
+#line 264 "lexer.l"
 {
     fprintf(fout_token, "EQ_CMP_OP: %s\n", yytext);
     return EQ_CMP_OP;
@@ -1236,7 +1236,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 270 "lexer.l"
+#line 269 "lexer.l"
 {
     fprintf(fout_token, "SEPERATOR: %s\n", yytext);
     return *yytext;
@@ -1244,7 +1244,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 275 "lexer.l"
+#line 274 "lexer.l"
 {
     fprintf(fout_token, "SUM_ASSIGN_OP: %s\n", yytext);
     return SUM_ASSIGN_OP;
@@ -1253,7 +1253,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 280 "lexer.l"
+#line 279 "lexer.l"
 {
     fprintf(fout_token, "SUB_ASSIGN_OP: %s\n", yytext);
     return SUB_ASSIGN_OP;
@@ -1261,7 +1261,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 285 "lexer.l"
+#line 284 "lexer.l"
 {
     fprintf(fout_token, "EQUAL: %s\n", yytext);
     return EQUAL;
@@ -1269,7 +1269,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 289 "lexer.l"
+#line 288 "lexer.l"
 {
     fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
     return ASSIGN_OP;
@@ -1278,7 +1278,7 @@ YY_RULE_SETUP
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 293 "lexer.l"
+#line 292 "lexer.l"
 {
     yylval.eletype = LABEL;
     fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
@@ -1287,7 +1287,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 299 "lexer.l"
+#line 298 "lexer.l"
 { 
 
     yylval.name = dupString(yytext); // have to free !
@@ -1298,7 +1298,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 308 "lexer.l"
+#line 307 "lexer.l"
 {
 
 }
@@ -1306,14 +1306,14 @@ YY_RULE_SETUP
 case 47:
 /* rule 47 can match eol */
 YY_RULE_SETUP
-#line 312 "lexer.l"
+#line 311 "lexer.l"
 {
     return ENDLINE;
 }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 316 "lexer.l"
+#line 315 "lexer.l"
 {
     fprintf(stderr, "Error: Invalid token: %s at line %d\n", yytext, yylineno);
     exit(1);
@@ -1321,7 +1321,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 321 "lexer.l"
+#line 320 "lexer.l"
 ECHO;
 	YY_BREAK
 #line 1328 "lex.yy.c"
@@ -2341,7 +2341,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 321 "lexer.l"
+#line 320 "lexer.l"
 
 
 int  yywrap(){

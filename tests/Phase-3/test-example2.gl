@@ -12,9 +12,7 @@ fig fig_tangents(2.0,(1,0))
 
     point s := MIDPOINT(q)
         
-    int distance := SHORTEST_DISTANCE(p,q)
-
-    
+    int distance := SHORTEST_DISTANCE(p,q)  
 }
 
 fig_tangents()

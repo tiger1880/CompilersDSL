@@ -10,7 +10,6 @@ func linearr func_1(int x){
     linearr l = p[0]<->p[1]<->p[2]<->p[3]
     
 }
-
 fig tri(1, (1,0)){
 
     linearr l = func_1(1)
@@ -22,5 +21,4 @@ fig tri(1, (1,0)){
     p.y +:= p.x
     
 }
-
 tri()

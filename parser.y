@@ -145,7 +145,7 @@ program: program func
        ; 
  
  /* Function Definition */
-func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body  '}' {
+func:  FUNC DATATYPE  ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body  '}' {
               insertType($3, Func, $2);  
               if(paramslist.size()>0) {
                      addParamList($3,paramslist);
@@ -163,7 +163,7 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body  '}' {
               ret_flag = 0;
               delSymTabPtr();
        }
-       |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
+       |  FUNC VOID ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body '}' {
               insertType($3, Func, $2);  
               if(paramslist.size()>0) {
                      addParamList($3,paramslist);
@@ -203,7 +203,7 @@ func_body : func_body stmt  | ;
  
 /* Figure Definition */
               
-fig: FIG ID '(' params ')' empty_space{ addSymTabPtr(); } '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag =0; delSymTabPtr(); } 
+fig: FIG ID { addSymTabPtr(); }  '(' params ')' empty_space'{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag =0; delSymTabPtr(); } 
 params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
        | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3) && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 fig_body : fig_body stmt | ;
@@ -218,9 +218,13 @@ stmt_list: stmt_list stmt
 stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' { delSymTabPtr(); }
           ;
 
-stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE;  //Add return type here
+stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE | stmt_loop_block ;  //Add return type here
 
 break_stmt : BREAK ENDLINE | CONTINUE ENDLINE ;
+
+stmt_loop_list: stmt_loop_list stmt_loop | ;
+
+stmt_loop_block:  { addSymTabPtr(); } '{'  stmt_loop_list '}' { delSymTabPtr(); };
 
        /* Return Statement */
 return_stmt : RETURN ret_var ENDLINE {ret_type = $2; ret_flag = 1; ret_fig_flag = 1;};
@@ -483,18 +487,17 @@ elif_stmt : ELIF '(' expression ')' stmt_block1  {if(!(arithCompatible($3))) sem
           ;
 
 /* Loops */
-
-stmt_loop_list: stmt_loop_list stmt_loop | stmt_loop ;   
-stmt_loop_block: empty_space { addSymTabPtr(); } '{' stmt_loop_list '}' {delSymTabPtr();} | empty_space  { addSymTabPtr(); } '{' '}' {delSymTabPtr(); };
-
+  
+stmt_loop_list1: stmt_loop_list1 stmt_loop | stmt_loop;
+stmt_loop_block1: empty_space  '{' stmt_loop_list1 '}' {delSymTabPtr();} | empty_space  '{' '}' {delSymTabPtr(); };
 loop : for_loop | while_loop ;
 
 // need to add constructor , array here
-for_loop_decl : DATATYPE ID EQUAL expression | ID EQUAL expression | ;
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression | { addSymTabPtr(); } ID EQUAL expression | { addSymTabPtr(); } ;
 optional_arg: expression {$$ = $1;} | {$$ = BOOL;} ;
-for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block1 {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
 
-while_loop : WHILE '(' expression ')' stmt_loop_block 
+while_loop : WHILE '(' expression ')' { addSymTabPtr(); } stmt_loop_block1
 
 
 %%

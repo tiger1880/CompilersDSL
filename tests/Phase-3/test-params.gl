@@ -1,0 +1,56 @@
+func real sin(real x) {
+    
+    real result := 0.0
+    real term := x
+    int sign := 1
+    
+    repeat (int i := 1| i <= 10| i +:= 2) {
+        result +:= sign * term
+        sign *:= -1
+        term *:= (x * x) / (i * (i + 1))
+    }
+
+    return result
+}
+
+func void point_assign(int nums[][2]) {
+    point[] p
+    repeat(int i:= 0 | i < 3 | i++) {
+        p[i] = (nums[i][0],nums[i][1])
+    }
+}
+
+fig figure1(scale:=1,center:=(0,1)) {
+    int nums[3][2] = {{1,2},{3,4},{5,6}}
+
+    point_assign(nums)
+
+    tri t := Tri(5.,4.)
+
+    t.CIRCUMCENTRE(4)
+
+    real x := 5 * sin(4.5,3)
+}
+
+fig circles(3,(0,0)) {
+    point p,q,r,s
+
+    real a := 2.333
+
+    circle c := CIRCLE(p,6.75*5)
+
+    tri triangle = Tri(q,r,a)
+    s := triangle.CIRCUMCENTRE()
+
+    real rad := || s - q ||
+
+    INTERSECTION(c, CIRCLE(s,rad))
+}
+
+circles()
+
+figure1()
+
+para p := Para(3,<(1,1) (4,5) (0,0)>,8)
+line l[] := p.DIAGONAL()
+point intersect := INTERSECTION(l[0],l[1])

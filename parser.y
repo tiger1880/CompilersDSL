@@ -56,6 +56,8 @@ int ret_fig_flag = 0;
 
 enum eletype ret_type = UNDEF;
 
+std::vector<ParamList> paramslist;
+
 %}
 
 
@@ -80,6 +82,8 @@ enum eletype ret_type = UNDEF;
        vector<int>* dimList;
        enum eletype eletype;  
     } listAndType;
+    
+    
 }
 
 
@@ -124,7 +128,8 @@ enum eletype ret_type = UNDEF;
 %nterm <listAndType> arr_assign comma_arr_assign
 %nterm <eletype> decl_token decl_assign
 %nterm <eletype> cond_stmt ret_var 
-%nterm <eletype> optional_arg 
+%nterm <eletype> optional_arg valid_arg
+
 
 // precedence
 %right EQUAL  SUM_ASSIGN_OP SUB_ASSIGN_OP ASSIGN_OP
@@ -157,7 +162,12 @@ program: program func
  /* Function Definition */
 func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
               insertType($3, Func, $2);  
+              if(paramslist.size()>0) {
+                     addParamList($3,paramslist);
+                     paramslist.clear();
+              }
               printSymbolTable();
+              
               if(ret_flag==0) {
                      cerr<<"Error: Semantic error no return statement"<<endl;
               }
@@ -168,7 +178,13 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
        }
        |  FUNC VOID ID '(' arg_list ')' empty_space '{' func_body '}' {
               insertType($3, Func, $2);  
+              if(paramslist.size()>0) {
+                     addParamList($3,paramslist);
+                     paramslist.clear();
+              }
+              paramslist.clear();
               printSymbolTable();
+              
               if(ret_type!=UNDEF && ret_type!=Void) {
                     cerr<<"Error: Semantic error return type not matching"<<endl; 
               }
@@ -176,11 +192,21 @@ func:  FUNC DATATYPE  ID  '(' arg_list ')' empty_space '{' func_body '}' {
        }   //Need to do testing
        ;
 
-arg_list : list1 | ;
+arg_list : list1 
+         | 
+         ;
 
-list1: list1 ',' argument  | argument ; 
+list1: list1 ',' argument  
+     | argument  
 
-argument : DATATYPE ID check_arr;
+argument : DATATYPE ID check_arr {
+       ParamList param;
+       param.Eletype = $1;
+       param.name = $2;
+       param.dim = *$3;
+       paramslist.push_back(param);
+       
+};
 
 func_body : func_body stmt  | ;
  
@@ -224,8 +250,8 @@ constructor : TRICONSTRUCT { $$ = $1;}
             | REGPOLYCONSTRUCT { $$ = $1;}
             ;
 
-valid_arg: construct 
-         | expression 
+valid_arg: construct {$$ = $1;}
+         | expression {$$ = $1;}
          ;
 
 param_list: param_list ',' valid_arg 

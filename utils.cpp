@@ -87,13 +87,13 @@ int checkEletype(char* name) {
 }
 
 
-void addParamList(char* name, ParamList& param) {
+void addParamList(char* name, vector<ParamList>& paramlist) {
     if(SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
     
     if (SymTab.back().find(name) != SymTab.back().end()) {
-        SymTab.back()[name].paramList.push_back(param);
+        SymTab.back()[name].paramList = paramlist;
     } 
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;

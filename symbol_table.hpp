@@ -64,7 +64,7 @@ extern void insertType(char* name,enum type t, enum eletype etype);
 extern void printSymbolTable();
 extern int checkType(char* name);
 extern int checkEletype(char* name);
-extern void addParamList(char* name, ParamList param);
+extern void addParamList(char* name, vector<ParamList>& paramlist);
 extern int sizeParamList(char* name);
 extern void addDimList(char* name, vector<int>& dim);
 extern void addSymTabPtr();

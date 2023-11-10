@@ -74,6 +74,7 @@ extern deque<map<string,STentry> > SymTab;
 extern vector<map<string,STentry> > ConstructTab;
 
 extern void insertType(char* name,enum type t, enum eletype etype);
+extern void insertParams(vector<ParamList>& paramlist);
 extern void printSymbolTable();
 extern int checkType(char* name);
 extern int checkEletype(char* name);

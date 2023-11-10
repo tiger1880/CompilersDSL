@@ -160,9 +160,10 @@ program: program func
  
  /* Function Definition */
 func:  FUNC DATATYPE  ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body  '}' {
-              insertType($3, Func, $2);  
+              insertType($3, Func, $2);
               if(paramslist.size()>0) {
                      addParamList($3,paramslist);
+                     insertParams(paramslist);
                      paramslist.clear();
               }
               printSymbolTable();
@@ -181,6 +182,7 @@ func:  FUNC DATATYPE  ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' fu
               insertType($3, Func, $2);  
               if(paramslist.size()>0) {
                      addParamList($3,paramslist);
+                     insertParams(paramslist);
                      paramslist.clear();
               }
               paramslist.clear();
@@ -196,22 +198,26 @@ func:  FUNC DATATYPE  ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' fu
 
 arg_list : list1 | ;
 
-list1: list1 ',' argument | argument  
+list1: list1 ',' argument | argument ;
 
 argument : DATATYPE ID check_arr {
-       ParamList param;
-       param.Eletype = $1;
-       param.name = $2;
-       param.dim = *$3;
-       if(param.dim.size()==0) {
-              param.Type = Var;
-       }
-       else {
+              ParamList param;
+              param.Eletype = $1;
+              param.name = $2;
+              param.dim = *$3;
               param.Type = Array;
+              paramslist.push_back(param);
        }
-       paramslist.push_back(param);
-       
-};
+       | DATATYPE ID {
+              ParamList param;
+              param.Eletype = $1;
+              param.name = $2;
+              vector<int> dim;
+              param.dim = dim;
+              param.Type = Var;
+              paramslist.push_back(param);
+       }
+;
 
 func_body : func_body stmt  | ;
  
@@ -507,9 +513,9 @@ memb_access : memb_access '.' ID  arr_access {
               }
               | ID arr_access {
               int count = checkDims($1,$2);
-              new vector<cntAndType> ;
+              $$ = new vector<cntAndType> ;   //free?
               if(count >= 0) {
-                     $$->push_back({count,$1});
+                     $$->push_back({count,$1});  
               }
        }
        ;  
@@ -519,7 +525,6 @@ arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1 ;} | {$$ = 0;} ;
 func_call : member_access {
               if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
               is_member = 0;
-              //copy(typelist.paramList.begin(), typelist.paramList.end(), back_inserter(func_paramlist));
               func_paramlist = typelist.paramList;
            }
           '(' param_list_opt ')' {

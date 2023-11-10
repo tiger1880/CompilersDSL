@@ -31,6 +31,13 @@ void insertType(char* name, enum type t ,enum eletype etype) {
     
 }
 
+void insertParams(vector<ParamList>& paramlist) {
+    for(int i = 0;i<paramlist.size();i++) {
+        insertType(const_cast<char*>(paramlist[i].name.data()),paramlist[i].Type,paramlist[i].Eletype);
+        addDimList(const_cast<char*>(paramlist[i].name.data()),paramlist[i].dim);
+    }
+}
+
 void updateType(char* name, enum eletype etype) {
     
     if(SymTab.empty()){

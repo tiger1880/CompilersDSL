@@ -30,11 +30,12 @@ $$
 $tri() 
 
 
-$$func int foo(int x) {
+func int foo(int x) {
     point p[4]
     int i
+    x := x + 2
     return 2
-}$$
+}
 
 int x
 point p1 := (x,x+1)
@@ -46,4 +47,4 @@ tri t := Tri(p1, p1, (0,0))
 
 point p := t.CENTROID()
 
-p.y +:= p.x
+$p.y +:= p.x

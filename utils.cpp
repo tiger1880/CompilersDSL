@@ -262,37 +262,37 @@ void insertConstructTab() {
 
 
     /*Line*/
-    ConstructTab[1]["INTERSECTION"] = {Var,POINT,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
-    ConstructTab[1]["MIDPOINT_LINE"] = {Var,POINT,{{Var,LINE,"l",{}}},{}};
-    ConstructTab[1]["MIDPOINT_POINTS"] = {Var,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
-    ConstructTab[1]["SHORTEST_DISTNACE"] = {Var,REAL,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
-    ConstructTab[1]["ANGLE_BISECTOR"] = {Var,LINE,{{Var,LINE,"a",{}},{Var,POINT,"b",{}}},{}};
-    ConstructTab[1]["LINE_AT_ANGLE"] = {Var,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
+    ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
+    ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["SHORTEST_DISTNACE"] = {Func,REAL,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
 
     /*Circle*/
-    ConstructTab[2]["TANGENT"] = {Var,LINE,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[2]["INTERSECTION_CIRCLE"] = {Array,POINT,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
-    ConstructTab[2]["COMMON_TANGENT"] = {Array,LINE,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
-    ConstructTab[2]["AREA"] = {Var,REAL,{},{}};
-    ConstructTab[2]["PERIMETER"]={Var,REAL,{},{}};
+    ConstructTab[2]["TANGENT"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[2]["INTERSECTION_CIRCLE"] = {Func,POINT,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["COMMON_TANGENT"] = {Func,LINE,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["AREA"] = {Func,REAL,{},{}};
+    ConstructTab[2]["PERIMETER"]={Func,REAL,{},{}};
 
     /*Triangle*/
-    ConstructTab[3]["CIRCUMCENTRE"] = {Var,POINT,{},{}};
-    ConstructTab[3]["EXCENTRE"] = {Var,POINT,{},{}};
-    ConstructTab[3]["INCENTRE"] = {Var,POINT,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[3]["ORTHOCENTRE"]={Var,POINT,{},{}};
-    ConstructTab[3]["ALTITUDE"] = {Var,LINE,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[3]["MEDIAN"] = {Var,LINE,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[3]["CENTROID"] = {Var,POINT,{},{}};
-    ConstructTab[3]["AREA"] = {Var,REAL,{},{}};
-    ConstructTab[3]["PERIMETER"] = {Var,REAL,{},{}};
+    ConstructTab[3]["CIRCUMCENTRE"] = {Func,POINT,{},{}};
+    ConstructTab[3]["EXCENTRE"] = {Func,POINT,{},{}};
+    ConstructTab[3]["INCENTRE"] = {Func,POINT,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["ORTHOCENTRE"]={Func,POINT,{},{}};
+    ConstructTab[3]["ALTITUDE"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["MEDIAN"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["CENTROID"] = {Func,POINT,{},{}};
+    ConstructTab[3]["AREA"] = {Func,REAL,{},{}};
+    ConstructTab[3]["PERIMETER"] = {Func,REAL,{},{}};
 
     /*Parallelogram*/
-    ConstructTab[4]["DIAGONAL"]={Array,LINE,{},{}};
+    ConstructTab[4]["DIAGONAL"]={Func,LINE,{},{}};
 
     /*Regular Polygon*/
-    ConstructTab[5]["AREA"]={Var,REAL,{},{}};
-    ConstructTab[5]["PERIMETER"]={Var,REAL,{},{}};
+    ConstructTab[5]["AREA"]={Func,REAL,{},{}};
+    ConstructTab[5]["PERIMETER"]={Func,REAL,{},{}};
 }
 
 void semanticError(const char* s){
@@ -389,7 +389,7 @@ void typeUpdate(vector<char*>* v, enum eletype t){
 
        delete v;
 
-       printSymbolTable();
+       //printSymbolTable();
 
        return;
 }

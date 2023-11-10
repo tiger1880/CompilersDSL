@@ -42,6 +42,7 @@ extern int yydebug;
 int ret_flag = 0;
 int ret_fig_flag = 0;
 int is_member = 0;
+int isArray = 0;
 
 enum eletype ret_type = UNDEF;
 
@@ -160,42 +161,41 @@ program: program func
  
 
  /* Function Definition */
-func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body  '}' {
-              if(paramslist.size()>0) {
+func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
+              }}
+              ')' empty_space '{' func_body  '}' {
+                     printSymbolTable();
+                     if(ret_flag==0) {
+                            cerr<<"Error: Semantic error no return statement"<<endl;
+                     }
+                     else if($2!=ret_type) {
+                     cerr<<"Error: Semantic error return type not matching"<<endl; 
+                     }
+                     
+                     ret_flag = 0;
+                     delete $ID;
+                     delSymTabPtr();
               }
-              printSymbolTable();
-              
-              if(ret_flag==0) {
-                     cerr<<"Error: Semantic error no return statement"<<endl;
-              }
-              else if($2!=ret_type) {
-                    cerr<<"Error: Semantic error return type not matching"<<endl; 
-              }
-              
-              ret_flag = 0;
-              delete $ID;
-              delSymTabPtr();
-       }
-       |  FUNC VOID ID { insertType($3, Func, $2);  addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body '}' {
-               if(paramslist.size()>0) {
+              |  FUNC VOID ID { insertType($3, Func, $2);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
-              }
-              paramslist.clear();
-              printSymbolTable();
-              
-              if(ret_type!=UNDEF && ret_type!=Void) {
-                    cerr<<"Error: Semantic error return type not matching"<<endl; 
-              }
-              ret_flag = 0; 
-              delete $ID;
-              delSymTabPtr();
-       }   //Need to do testing
-       ;
+              }}
+              ')' empty_space '{' func_body '}' {
+                     paramslist.clear();
+                     printSymbolTable();
+                     
+                     if(ret_type!=UNDEF && ret_type!=Void) {
+                     cerr<<"Error: Semantic error return type not matching"<<endl; 
+                     }
+                     ret_flag = 0; 
+                     delete $ID;
+                     delSymTabPtr();
+              }   //Need to do testing
+              ;
 
 arg_list : list1 | ;
 
@@ -259,7 +259,7 @@ assign_stmt : expression ENDLINE {$$ = $1;}
             | construct ENDLINE  {$$ = $1;}
             ;
 
-construct :  constructor '(' param_list ')' {$$ = $1;} 
+construct :  constructor '(' param_list ')' {$$ = $1; params.clear(); } 
           | constructor '(' ')' {$$ = $1;} 
           ; 
 
@@ -274,24 +274,24 @@ valid_arg: construct {$$ = $1;}
          ;
 
 param_list: param_list ',' valid_arg {
-              if(is_member) {
-                   params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});  
+              if(isArray) {
+                  params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});  
               }
               else {
                      vector<int> dim;
                      params.push_back({$3,Var,dim});   
               }
-              is_member = 0;
           }
           | valid_arg {
-              if(is_member) {
-                   params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});  
+              if(isArray) {
+                    params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});
+                    
               }
               else {
                      vector<int> dim;
                      params.push_back({$1,Var,dim});   
               }
-              is_member = 0;
+              
           }
           ;
 
@@ -329,7 +329,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1) && arithCompatible($3)) || ($1 == $3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | member_access {$$ = $1;}
+            | member_access {$$ = $1; if(typelist.Type==Array) isArray = 1;}
             | '(' expression ')' {$$ = $2;}
             | FLOATS {$$ = $1.eletype;} 
             | INTEGERS {$$ = $1.eletype;}
@@ -502,10 +502,9 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
 member_access : memb_access {
               typelist = returnType(*$1);
               $$ = typelist.Eletype;
-              is_member = 1;
-
+              //cout<<typelist.Eletype<<endl;
+              //is_member = 1;
               for (int i = 0;i < $1->size();i++){
-
                      delete ($1->at(i)).name ;
               }
        };
@@ -530,10 +529,10 @@ arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;} | {$$ = 0;} ;
 
 func_call : member_access {
               if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
-              is_member = 0;
               func_paramlist = typelist.paramList;
            }
           '(' param_list_opt ')' {
+              //cout<<params.size()<<endl;
               argumentTypeChecking(func_paramlist,params);
               params.clear();
 
@@ -621,7 +620,7 @@ void yyerror(const char * s)
 
 int checkDims(char* name,int count) {
        if(lookupConstructTab2(name).Type!=Invalid) {
-              return 0;
+           return 0;
        }
        vector<int> dimlist (checkDimList(name)); 
        if(dimlist.size() < count) {
@@ -635,6 +634,7 @@ int checkDims(char* name,int count) {
 
 STentry returnType(vector<cntAndType> dimsAndType) {
        STentry t;
+       
        STentry s = lookup(dimsAndType[0].name);
        if(s.Type==Invalid) {
            STentry st = lookupConstructTab(dimsAndType[0].name,UNDEF);

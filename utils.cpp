@@ -8,11 +8,10 @@
 
 using namespace std;
 
-deque<map<string, STentry>> SymTab;
-vector<map<string,STentry> > ConstructTab;
+deque< map<string, STentry> > SymTab;
+vector< map<string,STentry> > ConstructTab;
 
 extern int yylineno;
-
 
 // Define functions here
 void insertType(char* name, enum type t ,enum eletype etype) {
@@ -172,7 +171,6 @@ int checkEletype(char* name) {
     }  
 }
 
-
 vector<int> checkDimList(char* name) {
     if(SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
@@ -187,7 +185,6 @@ vector<int> checkDimList(char* name) {
         return temp;
     }  
 }
-
 
 void addParamList(char* name, vector<ParamList>& paramlist) {
     if(SymTab.empty()){
@@ -447,8 +444,6 @@ void updateMaxDim(vector<int>* comma, vector<int>* assign){
        return;
 }
 
-/*  eletype can be TRI, CIRCLE, LINE .. as well from identifiers */
-
 enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
 
        if (E1 == POINT && E2 == POINT)
@@ -480,7 +475,6 @@ void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
        for (int i = 0;i < src->size();i++)
               dest->push_back(src->at(i));
 }
-
 
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
@@ -580,8 +574,3 @@ void printSymbolTable() {
         cout << "-------------------------" << endl;
     }
 }
-
-
-
-
-

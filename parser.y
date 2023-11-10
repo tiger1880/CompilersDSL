@@ -304,9 +304,8 @@ vertex: ID { if (checkEletype($1) != POINT) semanticError("Error: vertex has to 
       | point 
       ;
 
-/* Should I change to ANGLE ? */
-angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = REAL;}
-       | '<' vertex vertex vertex '>' {$$ = REAL;}
+angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = ANGLE;}
+       | '<' vertex vertex vertex '>' {$$ = ANGLE;}
        ;
 
 expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
@@ -346,7 +345,6 @@ assign:  EQUAL expression {$$ = $2;}
        | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2) || $2 == LABEL || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }
        | SUB_ASSIGN_OP expression {if(!(arithCompatible($2) || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
        ;
-       
 
 
        /* Declaration Statement */
@@ -500,6 +498,7 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
        ;          
 
 
+
 member_access : memb_access {
               typelist = returnType(*$1);
               $$ = typelist.Eletype;
@@ -511,7 +510,7 @@ member_access : memb_access {
               }
        };
 
-memb_access : memb_access '.' ID  arr_access {
+memb_access: memb_access '.' ID  arr_access {
                      $$ = $1; 
                      int count = checkDims($3,$4);
                      if(count >= 0) {
@@ -527,7 +526,7 @@ memb_access : memb_access '.' ID  arr_access {
               }
        ;  
 
-arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1 ;} | {$$ = 0;} ;
+arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;} | {$$ = 0;} ;
 
 func_call : member_access {
               if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
@@ -554,18 +553,26 @@ func_call : member_access {
               $$ = $1;
           }; */
 
-param_list_opt : param_list | ;
+param_list_opt : param_list 
+               | /* empty */ 
+               ;
 
-empty_space: empty_space ENDLINE | ;
+empty_space: empty_space ENDLINE 
+           | /* empty */ 
+           ;
 
 /* Conditional */
 
-stmt_list1: stmt_list1 stmt | stmt ; 
-stmt_list1_opt : stmt_list1 | ; 
-stmt_block1: empty_space { addSymTabPtr(); } '{' stmt_list1_opt '}' { delSymTabPtr(); } ENDLINE 
-           /*| empty_space {addSymTabPtr();} '{' '}' {delSymTabPtr(); } ENDLINE;*/
+stmt_list1: stmt_list1 stmt 
+          | stmt 
+          ; 
+stmt_list1_opt: stmt_list1 
+              | /* empty */ 
+              ; 
+stmt_block1: empty_space {addSymTabPtr();} '{' stmt_list1_opt '}' { delSymTabPtr();} ENDLINE
+           ;
 
-cond_stmt : IF '(' expression ')' stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+cond_stmt:  IF '(' expression ')' stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' stmt_block1  ELSE stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' stmt_block1 elif_stmt ELSE stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' stmt_block1 elif_stmt {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
@@ -577,18 +584,26 @@ elif_stmt : ELIF '(' expression ')' stmt_block1  {if(!(arithCompatible($3))) sem
 
 /* Loops */
   
-stmt_loop_list1: stmt_loop_list1 stmt_loop | stmt_loop;
-stmt_loop_block1: empty_space  '{' stmt_loop_list1 '}' {delSymTabPtr();} | empty_space  '{' '}' {delSymTabPtr(); };
-loop : for_loop | while_loop ;
+stmt_loop_list1: stmt_loop_list1 stmt_loop 
+               | stmt_loop
+               ;
+stmt_loop_list1_opt: stmt_loop_list1
+                   | /* empty */
+                   ;
+stmt_loop_block1: empty_space  '{' stmt_loop_list1_opt '}' {delSymTabPtr();} 
+                ;
+loop : for_loop 
+     | while_loop
+     ;
 
-// need to add constructor , array here
-for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID; printSymbolTable();}
-              | { addSymTabPtr(); } ID EQUAL expression {delete $ID;}
+// need to add constructor, array here
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID;printSymbolTable(); }
+              | { addSymTabPtr(); } ID EQUAL expression { delete $ID; }
               | { addSymTabPtr(); } 
               ;
 
-optional_arg: expression {$$ = $1;} 
-            | {$$ = BOOL;} 
+optional_arg: expression  {$$ = $1;} 
+            | /* empty */ {$$ = UNDEF;} 
             ;
             
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block1 {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}

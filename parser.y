@@ -324,7 +324,8 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | member_access assign  {if(!($2 == POINT && $1 == POINT)||($2 == LABEL && $1 == LABEL || arithCompatible($1) && arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;}
+            | member_access assign       {if (!(($1 == $2) || coercible($1, $2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1; }
+            /* {if(!($2 == POINT && $1 == POINT)||($2 == LABEL && $1 == LABEL || arithCompatible($1) && arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;} */
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;} 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}

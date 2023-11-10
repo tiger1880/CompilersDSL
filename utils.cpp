@@ -350,6 +350,7 @@ bool coercible(int t1, int t2){
 
        if (t1 == UNDEF || t2 == UNDEF)
               return true; // check where this function is used and make sure it doesn't cause problems
+              //member_access funciton in expression makesure not passed up
 
        if (t1 == t2)
               return true;

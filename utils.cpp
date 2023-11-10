@@ -328,7 +328,7 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
 
 // check int change 
 bool arithCompatible(int e){
-
+    //cout<<e<<endl;
        if (e == REAL || e == BOOL || e == INT || e == ANGLE) 
               return true;
        return false;

@@ -308,7 +308,7 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = ANGLE;}
        | '<' vertex vertex vertex '>' {$$ = ANGLE;}
        ;
 
-expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
+expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | expression '-' expression {$$ = diffTypeCheck($1, $3);}
             | expression '*' expression {$$ = mulTypeCheck($1, $3);}
             | expression '/' expression {$$ = mulTypeCheck($1, $3);}
@@ -346,6 +346,7 @@ assign:  EQUAL expression {$$ = $2;}
        | SUB_ASSIGN_OP expression {if(!(arithCompatible($2) || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
        ;
 
+//Error coming for x := x + 2 / p.x +:= 3 type statements which it shouldn't.
 
        /* Declaration Statement */
 decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1);}
@@ -501,9 +502,8 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
 
 member_access : memb_access {
               typelist = returnType(*$1);
-              $$ = typelist.Eletype;
               //cout<<typelist.Eletype<<endl;
-              //is_member = 1;
+              $$ = typelist.Eletype;
               for (int i = 0;i < $1->size();i++){
                      delete ($1->at(i)).name ;
               }
@@ -539,18 +539,6 @@ func_call : member_access {
               $$ = $1;
           };
           
-          /* | member_access {
-              if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
-              is_member = 0;
-              //copy(typelist.paramList.begin(), typelist.paramList.end(), back_inserter(func_paramlist));
-              func_paramlist = typelist.paramList;
-          }
-          '(' ')' {
-              argumentTypeChecking(func_paramlist,params);
-              params.clear();
-
-              $$ = $1;
-          }; */
 
 param_list_opt : param_list 
                | /* empty */ 

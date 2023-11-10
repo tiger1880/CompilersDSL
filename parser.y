@@ -158,6 +158,7 @@ program: program func
          }      
        ; 
  
+
  /* Function Definition */
 func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body  '}' {
               if(paramslist.size()>0) {
@@ -175,6 +176,7 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
               }
               
               ret_flag = 0;
+              delete $ID;
               delSymTabPtr();
        }
        |  FUNC VOID ID { insertType($3, Func, $2);  addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body '}' {
@@ -190,6 +192,7 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
                     cerr<<"Error: Semantic error return type not matching"<<endl; 
               }
               ret_flag = 0; 
+              delete $ID;
               delSymTabPtr();
        }   //Need to do testing
        ;
@@ -205,6 +208,7 @@ argument : DATATYPE ID check_arr {
               param.dim = *$3;
               param.Type = Array;
               paramslist.push_back(param);
+              delete $ID;
        }
        | DATATYPE ID {
               ParamList param;
@@ -214,6 +218,7 @@ argument : DATATYPE ID check_arr {
               param.dim = dim;
               param.Type = Var;
               paramslist.push_back(param);
+              delete $ID;
        }
 ;
 
@@ -221,7 +226,7 @@ func_body : func_body stmt  | ;
  
 /* Figure Definition */
               
-fig: FIG ID { addSymTabPtr(); }  '(' params ')' empty_space'{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag =0; delSymTabPtr(); } 
+fig: FIG ID { addSymTabPtr(); }  '(' params ')' empty_space '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag = 0;insertType($ID, Fig, UNDEF);delSymTabPtr();delete $ID; } 
 params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
        | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3) && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 fig_body : fig_body stmt | ;
@@ -295,7 +300,7 @@ point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$ = pointCheck($
        ; 
 
 // NOT TESTED
-vertex: ID { if (checkEletype($1) != POINT) semanticError("Error: vertex has to be a point");}
+vertex: ID { if (checkEletype($1) != POINT) semanticError("Error: vertex has to be a point");delete $ID;}
       | point 
       ;
 
@@ -391,7 +396,7 @@ dim : dim '[' const_expr ']' {$$ = $1;
 
 /* NEED TO ADD EMPTY SPACE WHEREEVER POSSIBLE IN ARRAY ASSIGN */
 
-arr_assign : '{' arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;print(*($$.dimList));}
+arr_assign : '{'  arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;print(*($$.dimList));}
            | '{' comma_arr_assign '}' {$$.dimList = $2.dimList;print(*($$.dimList));$$.eletype = $2.eletype;}
            ; // { {1, 2}, {2, 3}}
 
@@ -494,10 +499,16 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
        | BOOLEAN {$$.eletype = INT;$$.i = $1.i;}
        ;          
 
+
 member_access : memb_access {
               typelist = returnType(*$1);
               $$ = typelist.Eletype;
               is_member = 1;
+
+              for (int i = 0;i < $1->size();i++){
+
+                     delete ($1->at(i)).name ;
+              }
        };
 
 memb_access : memb_access '.' ID  arr_access {
@@ -506,15 +517,14 @@ memb_access : memb_access '.' ID  arr_access {
                      if(count >= 0) {
                             $$->push_back({count,$3});
                      }
-                     
               }
               | ID arr_access {
-              int count = checkDims($1,$2);
-              $$ = new vector<cntAndType> ;   //free?
-              if(count >= 0) {
-                     $$->push_back({count,$1});  
+                     int count = checkDims($1,$2);
+                     $$ = new vector<cntAndType> ;   //free?
+                     if(count >= 0) {
+                            $$->push_back({count,$1});  
+                     }     
               }
-       }
        ;  
 
 arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1 ;} | {$$ = 0;} ;
@@ -573,7 +583,7 @@ loop : for_loop | while_loop ;
 
 // need to add constructor , array here
 for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID; printSymbolTable();}
-              | { addSymTabPtr(); } ID EQUAL expression 
+              | { addSymTabPtr(); } ID EQUAL expression {delete $ID;}
               | { addSymTabPtr(); } 
               ;
 

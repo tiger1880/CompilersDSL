@@ -56,7 +56,7 @@ void updateType(char* name, enum eletype etype) {
 
 STentry lookupConstructTab(char* name,enum eletype e) {
     if(e==UNDEF) {
-        if(!strcpy(name,"COMMON_TANGENT") || !strcpy(name,"INTERSECTION_CIRCLE")) {
+        if(!strcmp(name,"COMMON_TANGENT") || !strcmp(name,"INTERSECTION_CIRCLE")) {
             e = CIRCLE;
         }
         else {

@@ -14,14 +14,14 @@ func real sin(real x) {
 }
 
 func void point_assign(int nums[][2]) {
-    point[] p
+    point p[3]
     repeat(int i:= 0 | i < 3 | i++) {
-        p[i] = (nums[i][0],nums[i][1])
+        p[i] := (nums[i][0],nums[i][1])
     }
 }
 
 fig figure1(scale:=1,center:=(0,1)) {
-    int nums[3][2] = {{1,2},{3,4},{5,6}}
+    int nums[3][2] := {{1,2},{3,4},{5,6}}
 
     point_assign(nums)
 
@@ -39,7 +39,7 @@ fig circles(3,(0,0)) {
 
     circle c := CIRCLE(p,6.75*5)
 
-    tri triangle = Tri(q,r,a)
+    tri triangle := Tri(q,r,a)
     s := triangle.CIRCUMCENTRE()
 
     real rad := || s - q ||

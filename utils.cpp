@@ -221,8 +221,9 @@ void addDimList(char* name, vector<int>& dim) {
     if (SymTab.back().find(name) != SymTab.back().end()) {
         
         for(int i=0;i<dim.size();i++){
+            //cout<<dim[i]<<endl;
             if(dim[i]<0)
-            {   cerr<<"Array index cannot be negative";
+            {   cerr<<"Array index cannot be negative"<<endl;
                 return;
             }
         }

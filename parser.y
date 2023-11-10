@@ -219,6 +219,9 @@ argument : DATATYPE ID check_arr {
               param.dim = *$3;
               param.Type = Array;
               paramslist.push_back(param);
+              // for(int i =0;i<$3->size();i++) {
+              //        cout<<$3->at(i)<<endl;
+              // }
               delete $ID;
        }
        | DATATYPE ID {
@@ -628,9 +631,11 @@ int checkDims(char* name,int count) {
        if(lookupConstructTab2(name).Type!=Invalid) {
            return 0;
        }
+       //cout<<name<<endl;
        vector<int> dimlist (checkDimList(name)); 
        if(dimlist.size() < count) {
-             
+              /* cout<<count<<endl;
+              cout<<dimlist.size()<<endl; */
               cerr<<"Error: Dimension not matching"<<endl;
               return -1;
        }
@@ -690,11 +695,12 @@ void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_p
                      cout<<passed_params[i].eletype<<endl; */
                      if(func_params[i].Eletype==passed_params[i].eletype) {
                             bool isEqual = 0;
-                            if(func_params[i].dim==passed_params[i].dim) {
+                            
+                            if(equal(func_params[i].dim.begin(),func_params[i].dim.end(),passed_params[i].dim.begin(),passed_params[i].dim.end())) {
                                    isEqual = 1;
                             }
                             if(!isEqual) {
-                                  semanticError("Error: Array dimension is not matching for argument"); 
+                                   semanticError("Error: Array dimension is not matching for argument"); 
                             }  
                      }
                      else {

@@ -369,7 +369,6 @@ decl_token: construct  {$$ = $1;}
 check_arr: dim {$$ = $1;}
          | '['']' {$$ = new vector<int>;$$->push_back(-1);}
          | '['']' dim {$$ = new vector<int>;addFrontAndCopy($$, $3, -1);delete $3;}
-         /* | empty {$$ = new vector<int>;} */
          ;
          
  // change after adding expression values
@@ -573,8 +572,15 @@ stmt_loop_block1: empty_space  '{' stmt_loop_list1 '}' {delSymTabPtr();} | empty
 loop : for_loop | while_loop ;
 
 // need to add constructor , array here
-for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression | { addSymTabPtr(); } ID EQUAL expression | { addSymTabPtr(); } ;
-optional_arg: expression {$$ = $1;} | {$$ = BOOL;} ;
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID; printSymbolTable();}
+              | { addSymTabPtr(); } ID EQUAL expression 
+              | { addSymTabPtr(); } 
+              ;
+
+optional_arg: expression {$$ = $1;} 
+            | {$$ = BOOL;} 
+            ;
+            
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block1 {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
 
 while_loop : WHILE '(' expression ')' { addSymTabPtr(); } stmt_loop_block1

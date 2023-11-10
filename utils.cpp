@@ -11,7 +11,7 @@ using namespace std;
 deque<map<string, STentry>> SymTab;
 vector<map<string,STentry> > ConstructTab;
 
-
+extern int yylineno;
 
 
 // Define functions here

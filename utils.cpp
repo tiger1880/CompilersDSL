@@ -47,6 +47,54 @@ void updateType(char* name, enum eletype etype) {
     
 }
 
+STentry lookupConstructTab(char* name,enum eletype e) {
+    if(e==UNDEF) {
+        if(!strcpy(name,"COMMON_TANGENT") || !strcpy(name,"INTERSECTION_CIRCLE")) {
+            e = CIRCLE;
+        }
+        else {
+            e = LINE;
+        }
+    }
+
+    int index;
+
+    if(e==POINT) {
+        index = 0;
+    }
+    else if(e==LINE) {
+        index = 1;
+    }
+    else if(e==CIRCLE) {
+        index = 2;
+    }
+    else if(e==TRI) {
+        index = 3;
+    }
+    else if(e==PARA) {
+        index = 4;
+    }
+    else if(e==REGPOLY) {
+        index = 5;
+    }
+    else {
+        STentry stentry;
+        stentry.Type = Invalid;
+        return stentry; 
+    }
+
+    
+    if(ConstructTab[index].find(name) != ConstructTab[index].end()) {
+        return ConstructTab[index][name];
+    }
+    
+    STentry stentry;
+    stentry.Type = Invalid;
+    return stentry;
+
+
+}
+
 STentry lookup(char *name) {
     for(int i = SymTab.size();i>=0;i--) {
         if(SymTab[i].find(name) != SymTab[i].end()) {
@@ -84,6 +132,22 @@ int checkEletype(char* name) {
     else{
         cerr << "Error: " << name << " not found in SymTab." << endl;
         return -1;
+    }  
+}
+
+
+vector<int> checkDimList(char* name) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
+    if (lookup(name).Type!=Invalid) {
+        return lookup(name).DimList;
+    }
+    else{
+        cerr << "Error: " << name << " not found in SymTab." << endl;
+        vector<int> temp;
+        return temp;
     }  
 }
 

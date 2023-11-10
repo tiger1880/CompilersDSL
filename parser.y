@@ -5,6 +5,7 @@
 #include <math.h>
 #include <string>
 #include <iostream>
+#include<algorithm>
 #include <vector>
 #include <map>
 
@@ -17,7 +18,9 @@ extern char* yytext;
 
 using namespace std;
 
-
+int checkDims(char* name,int count);
+STentry returnType(vector<cntAndType> dimsAndType);
+void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params);
 
 
 /*     ONLY FOR  DEBUGGING    */
@@ -38,10 +41,14 @@ extern int yydebug;
 
 int ret_flag = 0;
 int ret_fig_flag = 0;
+int is_member = 0;
 
 enum eletype ret_type = UNDEF;
 
-std::vector<ParamList> paramslist;
+vector<ParamList> paramslist;
+STentry typelist;
+vector<types> params;
+vector<ParamList> func_paramlist;
 
 %}
 
@@ -49,6 +56,7 @@ std::vector<ParamList> paramslist;
 
 %union {
     char* name; 
+    int count;
     enum eletype eletype;  
     vector<char*>* nameList;
     vector<int>* dimList;
@@ -68,6 +76,8 @@ std::vector<ParamList> paramslist;
        enum eletype eletype;  
     } listAndType;
     
+    vector<cntAndType>* dimCount;
+   
     
 }
 
@@ -105,7 +115,7 @@ std::vector<ParamList> paramslist;
 // non-terminals
 %nterm <eletype> construct assign_stmt constructor
 %nterm <eletype> point angle expression member_access
-%nterm <eletype> assign
+%nterm <eletype> assign func_call
 %nterm <nameList> id_list
 %nterm <countAndType> mult_elements arr1d_in_list
 %nterm <constExp> const_expr 
@@ -114,6 +124,10 @@ std::vector<ParamList> paramslist;
 %nterm <eletype> decl_token decl_assign
 %nterm <eletype> cond_stmt ret_var 
 %nterm <eletype> optional_arg valid_arg
+%nterm <count> arr_access
+%nterm <dimCount> memb_access
+//%nterm <types> param_list;
+
 
 
 // precedence
@@ -250,8 +264,26 @@ valid_arg: construct {$$ = $1;}
          | expression {$$ = $1;}
          ;
 
-param_list: param_list ',' valid_arg 
-          | valid_arg 
+param_list: param_list ',' valid_arg {
+              if(is_member) {
+                   params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});  
+              }
+              else {
+                     vector<int> dim;
+                     params.push_back({$3,Var,dim});   
+              }
+              is_member = 0;
+          }
+          | valid_arg {
+              if(is_member) {
+                   params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});  
+              }
+              else {
+                     vector<int> dim;
+                     params.push_back({$1,Var,dim});   
+              }
+              is_member = 0;
+          }
           ;
 
 point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$ = pointCheck($2, $4); }
@@ -295,7 +327,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | INTEGERS {$$ = $1.eletype;}
             | BOOLEAN {$$ = $1.eletype;}
             | STRING_TOKEN {$$ = $1;}
-            | func_call 
+            | func_call {$$ = $1;}
             | point {$$ = $1;}
             | angle {$$ = $1;}            
             ; 
@@ -459,22 +491,67 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
        | BOOLEAN {$$.eletype = INT;$$.i = $1.i;}
        ;          
 
+member_access : memb_access {
+              typelist = returnType(*$1);
+              $$ = typelist.Eletype;
+              is_member = 1;
+       };
 
-member_access: member_access '.' ID  arr_access 
-       | ID arr_access 
+memb_access : memb_access '.' ID  arr_access {
+                     $$ = $1; 
+                     int count = checkDims($3,$4);
+                     if(count >= 0) {
+                            $$->push_back({count,$3});
+                     }
+                     
+              }
+              | ID arr_access {
+              int count = checkDims($1,$2);
+              new vector<cntAndType> ;
+              if(count >= 0) {
+                     $$->push_back({count,$1});
+              }
+       }
        ;  
 
-arr_access: arr_access '[' expression ']' |  ;
+arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1 ;} | {$$ = 0;} ;
 
-func_call: member_access '(' param_list ')' | member_access '(' ')' ;
+func_call : member_access {
+              if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
+              is_member = 0;
+              //copy(typelist.paramList.begin(), typelist.paramList.end(), back_inserter(func_paramlist));
+              func_paramlist = typelist.paramList;
+           }
+          '(' param_list_opt ')' {
+              argumentTypeChecking(func_paramlist,params);
+              params.clear();
 
+              $$ = $1;
+          };
+          
+          /* | member_access {
+              if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
+              is_member = 0;
+              //copy(typelist.paramList.begin(), typelist.paramList.end(), back_inserter(func_paramlist));
+              func_paramlist = typelist.paramList;
+          }
+          '(' ')' {
+              argumentTypeChecking(func_paramlist,params);
+              params.clear();
+
+              $$ = $1;
+          }; */
+
+param_list_opt : param_list | ;
 
 empty_space: empty_space ENDLINE | ;
 
 /* Conditional */
 
-stmt_list1: stmt_list1 stmt | stmt ;  
-stmt_block1: empty_space { addSymTabPtr(); } '{' stmt_list1 '}' { delSymTabPtr(); } ENDLINE | empty_space {addSymTabPtr();} '{' '}' {delSymTabPtr(); } ENDLINE;
+stmt_list1: stmt_list1 stmt | stmt ; 
+stmt_list1_opt : stmt_list1 | ; 
+stmt_block1: empty_space { addSymTabPtr(); } '{' stmt_list1_opt '}' { delSymTabPtr(); } ENDLINE 
+           /*| empty_space {addSymTabPtr();} '{' '}' {delSymTabPtr(); } ENDLINE;*/
 
 cond_stmt : IF '(' expression ')' stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' stmt_block1  ELSE stmt_block1 {if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
@@ -508,7 +585,79 @@ void yyerror(const char * s)
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
 
+int checkDims(char* name,int count) {
+       vector<int> dimlist (checkDimList(name));  //Add this function
+       if(dimlist.size() < count) {
+              cerr<<"Error: Dimension not matching"<<endl;
+              return -1;
+       }
+       else {
+              return dimlist.size() - count;
+       }
+}
 
+STentry returnType(vector<cntAndType> dimsAndType) {
+       STentry t;
+       STentry s = lookup(dimsAndType[0].name);
+       if(s.Type==Invalid) {
+           STentry st = lookupConstructTab(dimsAndType[0].name,UNDEF);
+           if(st.Type==Invalid) {
+              cerr<<"Error: Identifier not found"<<endl;
+              exit(1);
+           }
+           else {
+              return st;  // Std Library function
+           }   
+       }
+       else {
+              t = s;
+              vector<int> new_dimlist;
+              for(int i = dimsAndType[0].count;i<t.DimList.size();i++) {
+                     new_dimlist.push_back(t.DimList[i]);
+              }
+              t.DimList = new_dimlist;
+              for(int i = 1;i<dimsAndType.size();i++) {
+                     if(dimsAndType[i-1].count > 0) {
+                            cerr<<"Error: Array has no member attribute"<<endl;
+                            exit(1);
+                     }
+                     else {
+                        STentry st = lookupConstructTab(dimsAndType[i].name,t.Eletype);
+                        if(st.Type!=Invalid) {
+                            t = st;
+                        }            
+                     }         
+              }
+
+              return t;
+       }
+       
+}
+
+void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params) {
+       if(func_params.size() > passed_params.size()) {
+              semanticError("Error: Too few arguments");
+       }
+       else if(func_params.size() < passed_params.size()) {
+              semanticError("Error: Too many arguments");
+       }
+       else {
+              for(int i = 0;i<func_params.size();i++) {
+                     if(func_params[i].Eletype==passed_params[i].eletype && func_params[i].Type==passed_params[i].type) {
+                            bool isEqual = 0;
+                            if(func_params[i].dim==passed_params[i].dim) {
+                                   isEqual = 1;
+                            }
+                            if(!isEqual) {
+                                  semanticError("Error: Array dimension is not matching for argument"); 
+                            }  
+                     }
+                     else {
+                            semanticError("Error: Type is not matching for argument");
+                     }
+              }
+       }
+}
 
 
 int main(int argc, char*argv[])

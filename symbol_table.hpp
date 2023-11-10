@@ -54,6 +54,19 @@ typedef struct STentry {
        vector<int> DimList;
 } STentry;   
 
+typedef struct cntAndType {
+       int count;
+       char* name;
+} cntAndType;
+
+typedef struct types {
+       enum eletype eletype;  
+       enum type type;
+       vector<int> dim;
+} types;
+
+
+
 
 extern deque<map<string,STentry> > SymTab;
 
@@ -64,12 +77,14 @@ extern void insertType(char* name,enum type t, enum eletype etype);
 extern void printSymbolTable();
 extern int checkType(char* name);
 extern int checkEletype(char* name);
+extern vector<int> checkDimList(char* name);
 extern void addParamList(char* name, vector<ParamList>& paramlist);
 extern int sizeParamList(char* name);
 extern void addDimList(char* name, vector<int>& dim);
 extern void addSymTabPtr();
 extern void delSymTabPtr();
 extern STentry lookup(char* name);
+extern STentry lookupConstructTab(char* name,enum eletype e);
 extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
 extern void updateType(char* name, enum eletype etype);
 extern void insertConstructTab();

@@ -1,7 +1,7 @@
 real a := 7.55
 
 func int test(int x) {
-    int arr[][] := {{1,2,3,4},{5,6,7,"8"}}
+    int arr[][4] := {{1,2,3,4},{5,6,7,"8"}}
     int b,c,d
     b +:= a
     c := true
@@ -12,7 +12,7 @@ func int test(int x) {
 
 }
 
-func test_2(int y,point p) {
+func void test_2(int y,point p) {
     real b,c,f
 
     int d

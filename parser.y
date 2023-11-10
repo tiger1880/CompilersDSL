@@ -36,7 +36,13 @@ void print(vector<T>& v){
 extern int yydebug;
 
 #define YYDEBUG 1
-/*     ONLY FOR  DEBUGGING    */
+/*     ONLY FOR  DEBUGGING    
+
+Problems: 1.) linearr should have dimension 1. Hence dimension not matching
+          2.) label s := "LABEL" showing  Error: types don't match in declaration and initialisation  
+          3.) Some problem with point declaration/initialization check once.
+          4.) 
+*/
 
 
 int ret_flag = 0;
@@ -167,15 +173,17 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
                      paramslist.clear();
               }}
               ')' empty_space '{' func_body  '}' {
-                     printSymbolTable();
+                     //printSymbolTable();
                      if(ret_flag==0) {
                             cerr<<"Error: Semantic error no return statement"<<endl;
                      }
                      else if($2!=ret_type) {
-                     cerr<<"Error: Semantic error return type not matching"<<endl; 
+                            cerr<<"Error: Semantic error return type not matching"<<endl; 
                      }
                      
                      ret_flag = 0;
+                     ret_fig_flag = 0;
+                     ret_type = UNDEF;
                      delete $ID;
                      delSymTabPtr();
               }
@@ -186,12 +194,15 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
               }}
               ')' empty_space '{' func_body '}' {
                      paramslist.clear();
-                     printSymbolTable();
+                     //printSymbolTable();
                      
                      if(ret_type!=UNDEF && ret_type!=Void) {
-                     cerr<<"Error: Semantic error return type not matching"<<endl; 
+                            cout<<"Hi"<<endl;
+                            cerr<<"Error: Semantic error return type not matching"<<endl; 
                      }
                      ret_flag = 0; 
+                     ret_fig_flag = 0;
+                     ret_type = UNDEF;
                      delete $ID;
                      delSymTabPtr();
               }   //Need to do testing
@@ -226,7 +237,7 @@ func_body : func_body stmt  | ;
  
 /* Figure Definition */
               
-fig: FIG ID { addSymTabPtr(); }  '(' params ')' empty_space '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag = 0;insertType($ID, Fig, UNDEF);delSymTabPtr();delete $ID; } 
+fig: FIG ID { addSymTabPtr();}  '(' params ')' empty_space '{' fig_body '}'{ if (ret_fig_flag == 1)  semanticError("Error: Return statement is not allowed in figures."); ret_fig_flag = 0;insertType($ID, Fig, UNDEF);delSymTabPtr();delete $ID; } 
 params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
        | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3) && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 fig_body : fig_body stmt | ;
@@ -274,8 +285,9 @@ valid_arg: construct {$$ = $1;}
          ;
 
 param_list: param_list ',' valid_arg {
-              if(isArray) {
-                  params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});  
+              if(is_member) {
+                  params.push_back({typelist.Eletype,typelist.Type,typelist.DimList}); 
+                  isArray = 0; 
               }
               else {
                      vector<int> dim;
@@ -283,15 +295,15 @@ param_list: param_list ',' valid_arg {
               }
           }
           | valid_arg {
-              if(isArray) {
-                    params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});
+              if(is_member) {
+                     params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});
+                    isArray = 0;
                     
               }
               else {
                      vector<int> dim;
                      params.push_back({$1,Var,dim});   
               }
-              
           }
           ;
 
@@ -330,7 +342,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1) && arithCompatible($3)) || ($1 == $3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | member_access {$$ = $1; if(typelist.Type==Array) isArray = 1;}
+            | member_access {$$ = $1; }
             | '(' expression ')' {$$ = $2;}
             | FLOATS {$$ = $1.eletype;} 
             | INTEGERS {$$ = $1.eletype;}
@@ -502,12 +514,16 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
 
 
 member_access : memb_access {
+              if($1->empty()) {
+                     exit(1);
+              }
               typelist = returnType(*$1);
               //cout<<typelist.Eletype<<endl;
               $$ = typelist.Eletype;
               for (int i = 0;i < $1->size();i++){
                      delete ($1->at(i)).name ;
               }
+              is_member = 1;
        };
 
 memb_access: memb_access '.' ID  arr_access {
@@ -531,6 +547,7 @@ arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;} | {$$ = 0;} ;
 func_call : member_access {
               if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
               func_paramlist = typelist.paramList;
+              is_member = 0;
            }
           '(' param_list_opt ')' {
               //cout<<params.size()<<endl;
@@ -585,7 +602,7 @@ loop : for_loop
      ;
 
 // need to add constructor, array here
-for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID;printSymbolTable(); }
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID;/*printSymbolTable();*/ }
               | { addSymTabPtr(); } ID EQUAL expression { delete $ID; }
               | { addSymTabPtr(); } 
               ;
@@ -594,7 +611,7 @@ optional_arg: expression  {$$ = $1;}
             | /* empty */ {$$ = UNDEF;} 
             ;
             
-for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block1 {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11"); cout<<"k";}
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' stmt_loop_block1 {if(!(arithCompatible($5))) semanticError("Error: Semantic error incompatible datatype11");}
 
 while_loop : WHILE '(' expression ')' { addSymTabPtr(); } stmt_loop_block1
 
@@ -613,6 +630,7 @@ int checkDims(char* name,int count) {
        }
        vector<int> dimlist (checkDimList(name)); 
        if(dimlist.size() < count) {
+             
               cerr<<"Error: Dimension not matching"<<endl;
               return -1;
        }
@@ -623,7 +641,6 @@ int checkDims(char* name,int count) {
 
 STentry returnType(vector<cntAndType> dimsAndType) {
        STentry t;
-       
        STentry s = lookup(dimsAndType[0].name);
        if(s.Type==Invalid) {
            STentry st = lookupConstructTab(dimsAndType[0].name,UNDEF);
@@ -669,7 +686,9 @@ void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_p
        }
        else {
               for(int i = 0;i<func_params.size();i++) {
-                     if(func_params[i].Eletype==passed_params[i].eletype && func_params[i].Type==passed_params[i].type) {
+                     /* cout<<func_params[i].Eletype<<endl;
+                     cout<<passed_params[i].eletype<<endl; */
+                     if(func_params[i].Eletype==passed_params[i].eletype) {
                             bool isEqual = 0;
                             if(func_params[i].dim==passed_params[i].dim) {
                                    isEqual = 1;

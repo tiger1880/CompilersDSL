@@ -153,7 +153,7 @@ program: program func
        | program stmt 
        | /* empty */ {
               if(ret_flag) {
-                     cerr<<"Error: Return statement not allowed outside function"<<endl;
+                     cerr << "Error: Return statement not allowed outside function" << endl;
               }
          }      
        ; 
@@ -338,7 +338,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3); }
             | angle {$$ = $1;}            
             ; 
 
-assign:  EQUAL expression 
+assign:  EQUAL expression {$$ = $2;}
        | ASSIGN_OP  expression  {if(!(arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }  
        | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2) || $2 == LABEL || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }
        | SUB_ASSIGN_OP expression {if(!(arithCompatible($2) || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}

@@ -13,10 +13,10 @@ $$func int func_1(int x){
     
 }
 
-fig tri(1, (1,0)){
 
-    linearr l = func_1(1)
-
+fig tri(1, (1,0))
+{
+    $ linearr l = func_1(1)
     tri t := Tri(l[0], l[1], l[2])
 
     point p = t.CENTROID()
@@ -25,12 +25,25 @@ fig tri(1, (1,0)){
     
 }
 
-tri() 
 $$
 
-func int foo(int x) {
+$tri() 
+
+
+$$func int foo(int x) {
     point p[4]
     int i
-    $x := x + 4
     return 2
-}
+}$$
+
+int x
+point p1 := (x,x+1)
+point p2 := (x,x+1)
+
+real d := || p1 - p2 ||
+
+tri t := Tri(p1, p1, (0,0))
+
+point p := t.CENTROID()
+
+p.y +:= p.x

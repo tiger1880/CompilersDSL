@@ -159,8 +159,7 @@ program: program func
        ; 
  
  /* Function Definition */
-func:  FUNC DATATYPE  ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body  '}' {
-              insertType($3, Func, $2);
+func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body  '}' {
               if(paramslist.size()>0) {
                      addParamList($3,paramslist);
                      insertParams(paramslist);
@@ -178,9 +177,8 @@ func:  FUNC DATATYPE  ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' fu
               ret_flag = 0;
               delSymTabPtr();
        }
-       |  FUNC VOID ID { addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body '}' {
-              insertType($3, Func, $2);  
-              if(paramslist.size()>0) {
+       |  FUNC VOID ID { insertType($3, Func, $2);  addSymTabPtr(); } '(' arg_list ')' empty_space '{' func_body '}' {
+               if(paramslist.size()>0) {
                      addParamList($3,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
@@ -591,7 +589,10 @@ void yyerror(const char * s)
 }
 
 int checkDims(char* name,int count) {
-       vector<int> dimlist (checkDimList(name));  //Add this function
+       if(lookupConstructTab2(name).Type!=Invalid) {
+              return 0;
+       }
+       vector<int> dimlist (checkDimList(name)); 
        if(dimlist.size() < count) {
               cerr<<"Error: Dimension not matching"<<endl;
               return -1;

@@ -86,6 +86,7 @@ extern void addSymTabPtr();
 extern void delSymTabPtr();
 extern STentry lookup(char* name);
 extern STentry lookupConstructTab(char* name,enum eletype e);
+extern STentry lookupConstructTab2(char* name);
 extern bool funcParamSizeCheck(char *name, vector<ParamList> param);
 extern void updateType(char* name, enum eletype etype);
 extern void insertConstructTab();

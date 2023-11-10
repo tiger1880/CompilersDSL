@@ -102,6 +102,36 @@ STentry lookupConstructTab(char* name,enum eletype e) {
 
 }
 
+STentry lookupConstructTab2(char* name) {
+    if(lookupConstructTab(name,UNDEF).Type!=Invalid) {
+       return lookupConstructTab(name,UNDEF); 
+    }
+    else if(lookupConstructTab(name,POINT).Type!=Invalid) {
+        return lookupConstructTab(name,POINT);
+    }
+    else if(lookupConstructTab(name,LINE).Type!=Invalid) {
+        return lookupConstructTab(name,LINE);
+    }
+    else if(lookupConstructTab(name,CIRCLE).Type!=Invalid) {
+        return lookupConstructTab(name,CIRCLE);
+    }
+    else if(lookupConstructTab(name,TRI).Type!=Invalid) {
+        return lookupConstructTab(name,TRI);
+    }
+    else if(lookupConstructTab(name,PARA).Type!=Invalid) {
+        return lookupConstructTab(name,PARA);
+    }
+    else if(lookupConstructTab(name,REGPOLY).Type!=Invalid) {
+        return lookupConstructTab(name,REGPOLY);
+    }
+    else {
+        STentry stentry;
+        stentry.Type = Invalid;
+        return stentry;
+    }
+
+}
+
 STentry lookup(char *name) {
     for(int i = SymTab.size();i>=0;i--) {
         if(SymTab[i].find(name) != SymTab[i].end()) {
@@ -164,8 +194,8 @@ void addParamList(char* name, vector<ParamList>& paramlist) {
         SymTab.push_back(map<string,STentry>());
     }
     
-    if (SymTab.back().find(name) != SymTab.back().end()) {
-        SymTab.back()[name].paramList = paramlist;
+    if (SymTab.at(SymTab.size()-2).find(name) != SymTab.at(SymTab.size()-2).end()) {
+        SymTab.at(SymTab.size()-2)[name].paramList = paramlist;
     } 
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
@@ -244,7 +274,7 @@ void insertConstructTab() {
 
     /*Circle*/
     ConstructTab[2]["TANGENT"] = {Var,LINE,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[2]["INTERSECTION"] = {Array,POINT,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["INTERSECTION_CIRCLE"] = {Array,POINT,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
     ConstructTab[2]["COMMON_TANGENT"] = {Array,LINE,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
     ConstructTab[2]["AREA"] = {Var,REAL,{},{}};
     ConstructTab[2]["PERIMETER"]={Var,REAL,{},{}};

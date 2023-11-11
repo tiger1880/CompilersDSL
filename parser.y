@@ -44,6 +44,7 @@ int ret_flag = 0;
 int ret_fig_flag = 0;
 int is_member = 0;
 int isArray = 0;
+int is_fig = 0;
 
 enum eletype ret_type = UNDEF;
 
@@ -406,8 +407,8 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | expression '%' expression {if ($1 != INT || $3 != INT) semanticError("Error: Semantic error incompatible datatype"); $$ = INT;}
             | expression '^' expression {$$ = mulTypeCheck($1, $3);}
             /* | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) $$ = LINEARR; else  semanticError("Error: Semantic error incompatible datatype");}  // <-> -> */
-            /* | expression PARALLEL expression {if(($1 == LINE||$1 == LINEARR) && ($3 == LINE||$1 == LINEARR)) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ;  } */
-            /* | expression PERPENDICULAR expression  {if(($1 == LINE||$1 == LINEARR) && ($3 == LINE||$1 == LINEARR)) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ; } */
+            | expression PARALLEL expression {$$ = parallelCheck($1, $3);}
+            | expression PERPENDICULAR expression  {$$ = perpendicularCheck($1, $3);}
             | PARALLEL expression PARALLEL  {if ($2 != POINT) semanticError("Error: Semantic error incompatible datatype") ; $$ = REAL; }
             | '-' expression %prec NEG {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; } 
             | UNARY member_access {if(!($2 == INT || $2 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }
@@ -416,7 +417,6 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | member_access assign       {if (!(($1 == $2) || coercible($1, $2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1; }
-            /* {if(!($2 == POINT && $1 == POINT)||($2 == LABEL && $1 == LABEL || arithCompatible($1) && arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;} */
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;} 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
@@ -617,16 +617,35 @@ arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;}
           ;
 
 func_call : member_access {
-              if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 
-              func_paramlist = typelist.paramList;
-              is_member = 0;
-           }
-          '(' param_list_opt ')' {
-              argumentTypeChecking(func_paramlist,params);
-              params.clear();
 
-              $$ = $1;
-          };
+              if (typelist.Type == Fig){
+
+                     is_fig = 1;
+
+              }
+              else {
+                     if (typelist.Type != Func) 
+                            semanticError("Error: Identifier is not a function"); 
+                     func_paramlist = typelist.paramList;
+                     is_member = 0;
+              }
+       }
+       '(' param_list_opt ')' {
+
+              if (is_fig){
+
+                     
+              }
+              else {
+
+                     argumentTypeChecking(func_paramlist, params);
+                     params.clear();
+
+                     $$ = $1;              
+              }
+
+              is_fig = 0;
+       };
           
 
 param_list_opt : param_list 

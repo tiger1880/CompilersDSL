@@ -95,6 +95,9 @@ extern enum eletype diffTypeCheck(enum eletype E1, enum eletype E2);
 extern enum eletype mulTypeCheck(enum eletype E1, enum eletype E2);
 extern enum eletype arithTypeCheck(enum eletype E1, enum eletype E2);
 extern enum eletype pointCheck (enum eletype x, enum eletype y);
+extern enum eletype parallelCheck(enum eletype E1, enum eletype E2);
+extern enum eletype perpendicularCheck(enum eletype E1, enum eletype E2);
+
 extern bool arithCompatible(int e);
 
 extern bool coercible(int t1, int t2);

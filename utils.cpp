@@ -443,11 +443,38 @@ void updateMaxDim(vector<int>* comma, vector<int>* assign){
        return;
 }
 
+enum eletype parallelCheck(enum eletype E1, enum eletype E2){
+
+    if (!(E1 == BOOL || E1 == LINE)){
+        semanticError("Error: Operands for || can be only bool or line");
+        return BOOL; // so that error won't cascade
+    }
+
+    if (!(E2 == BOOL || E2 == LINE)){
+        semanticError("Error: Operands for || can be only bool or line");
+        return BOOL; // so that error won't cascade
+    }
+
+    return BOOL;
+
+}
+
+enum eletype perpendicularCheck(enum eletype E1, enum eletype E2){
+
+    if (E1 == LINE && E2 == LINE)
+        return BOOL;
+    else {
+        semanticError("Error: Operands for |- has to be a line");
+        return BOOL; //  so that error won't cascade
+    }
+
+}
+
 enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
 
-       if (E1 == POINT && E2 == POINT)
-              return POINT;
-       else if (arithCompatible(E1) && arithCompatible(E2)){
+    //    if (E1 == POINT && E2 == POINT)
+    //           return POINT;
+       if (arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
        }
        else {

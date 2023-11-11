@@ -44,7 +44,7 @@ fig circles(3,(0,0)) {
 
     real rad := || s - q ||
 
-    INTERSECTION(c, CIRCLE(s,rad))
+    INTERSECTION_CIRCLE(c, CIRCLE(s,rad))
 }
 
 circles()
@@ -52,5 +52,6 @@ circles()
 figure1()
 
 para p := Para(3,<(1,1) (4,5) (0,0)>,8)
-line l[] := p.DIAGONAL()
+line l[2] 
+l := p.DIAGONAL()
 point intersect := INTERSECTION(l[0],l[1])

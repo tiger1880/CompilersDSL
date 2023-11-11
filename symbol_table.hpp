@@ -65,9 +65,6 @@ typedef struct types {
        vector<int> dim;
 } types;
 
-
-
-
 extern deque<map<string,STentry> > SymTab;
 
 /* 0-Point  1-Line  2-Circle  3-Triangle 4-para 5-regPoly */

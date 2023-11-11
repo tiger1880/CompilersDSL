@@ -126,7 +126,7 @@ vector<ParamList> func_paramlist;
 
 
 // non-terminals
-%nterm <eletype> construct assign_stmt constructor
+%nterm <eletype> construct constructor
 %nterm <eletype> point angle expression member_access
 %nterm <eletype> assign func_call
 %nterm <nameList> id_list
@@ -254,7 +254,6 @@ argument : DATATYPE ID check_arr {
        }
        ;
 
-/* func_body : func_body stmt  | ; */
  
 /* Figure Definition */
               
@@ -273,7 +272,6 @@ fig: FIG ID { addSymTabPtr();}  '(' params ')' empty_space stmt_block {
 
 params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
        | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3) && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
-/* fig_body : fig_body stmt | ; */
 
  /* Statements */
 stmt : cond_stmt {$$ = $1;}
@@ -300,20 +298,14 @@ break_stmt : BREAK ENDLINE
            | CONTINUE ENDLINE 
            ;
 
-/* stmt_loop : cond_stmt | loop | decl_stmt | assign_stmt | return_stmt | break_stmt | ENDLINE | stmt_loop_block ;  //Add return type here */
-
-/* stmt_loop_list: stmt_loop_list stmt_loop | ; */
-
-/* stmt_loop_block:  { addSymTabPtr(); } '{'  stmt_loop_list '}' { delSymTabPtr(); }; */
-
        /* Return Statement */
 return_stmt : RETURN ret_var ENDLINE {ret_type = $2; ret_flag = 1; ret_fig_flag = 1;};
 
 ret_var : construct {$$ = $1;} | expression {$$ = $1;} | {$$ = Void;}; 
 
        /* Assignment Statement */
-assign_stmt : expression ENDLINE {$$ = $1;}
-            | construct ENDLINE  {$$ = $1;}
+assign_stmt : expression ENDLINE 
+            | construct ENDLINE  
             ;
 
 construct :  constructor '(' construct_param_list ')' {$$ = $1; construct_params.clear(); } 
@@ -410,7 +402,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1) && arithCompatible($3)) || ($1 == $3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | member_access {$$ = $1; }
+            | member_access {$$ = $1;}
             | '(' expression ')' {$$ = $2;}
             | FLOATS {$$ = $1.eletype;} 
             | INTEGERS {$$ = $1.eletype;}
@@ -609,7 +601,9 @@ memb_access: memb_access '.' ID  arr_access {
               }
        ;  
 
-arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;} | {$$ = 0;} ;
+arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;} 
+          | /* empty */ {$$ = 0;} 
+          ;
 
 func_call : member_access {
               if(typelist.Type!=Func) semanticError("Error: Identifier is not a function"); 

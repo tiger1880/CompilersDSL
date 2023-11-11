@@ -40,8 +40,11 @@ extern int yydebug;
 
 Problems: 1.) linearr should have dimension 1. Hence dimension not matching
           2.) label s := "LABEL" showing  Error: types don't match in declaration and initialisation  
-          3.) Some problem with point declaration/initialization check once.
-          4.) 
+          3.) if(h) {
+              advance/stop  showing syntax error
+          }
+          4.) Error Handling
+          5.) figure call
 */
 
 
@@ -55,6 +58,7 @@ enum eletype ret_type = UNDEF;
 vector<ParamList> paramslist;
 STentry typelist;
 vector<types> params;
+vector<types> construct_params;
 vector<ParamList> func_paramlist;
 
 %}
@@ -275,7 +279,7 @@ assign_stmt : expression ENDLINE {$$ = $1;}
             | construct ENDLINE  {$$ = $1;}
             ;
 
-construct :  constructor '(' param_list ')' {$$ = $1; params.clear(); } 
+construct :  constructor '(' construct_param_list ')' {$$ = $1; construct_params.clear(); } 
           | constructor '(' ')' {$$ = $1;} 
           ; 
 
@@ -292,7 +296,7 @@ valid_arg: construct {$$ = $1;}
 param_list: param_list ',' valid_arg {
               if(is_member) {
                   params.push_back({typelist.Eletype,typelist.Type,typelist.DimList}); 
-                  isArray = 0; 
+                  is_member = 0; 
               }
               else {
                      vector<int> dim;
@@ -302,12 +306,34 @@ param_list: param_list ',' valid_arg {
           | valid_arg {
               if(is_member) {
                      params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});
-                    isArray = 0;
-                    
+                     is_member = 0;
               }
               else {
                      vector<int> dim;
                      params.push_back({$1,Var,dim});   
+              }
+          }
+          ;
+
+construct_param_list: construct_param_list ',' valid_arg {
+              if(is_member) {
+                  construct_params.push_back({typelist.Eletype,typelist.Type,typelist.DimList}); 
+                  is_member = 0; 
+              }
+              else {
+                     vector<int> dim;
+                     construct_params.push_back({$3,Var,dim});   
+              }
+          }
+          | valid_arg {
+              if(is_member) {
+                     construct_params.push_back({typelist.Eletype,typelist.Type,typelist.DimList});
+                    is_member = 0;
+                    
+              }
+              else {
+                     vector<int> dim;
+                     construct_params.push_back({$1,Var,dim});   
               }
           }
           ;
@@ -413,8 +439,8 @@ dim : dim '[' const_expr ']' {$$ = $1;
 
 /* NEED TO ADD EMPTY SPACE WHEREEVER POSSIBLE IN ARRAY ASSIGN */
 
-arr_assign : '{'  arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;print(*($$.dimList));}
-           | '{' comma_arr_assign '}' {$$.dimList = $2.dimList;print(*($$.dimList));$$.eletype = $2.eletype;}
+arr_assign : '{'  arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;/*print(*($$.dimList));*/}
+           | '{' comma_arr_assign '}' {$$.dimList = $2.dimList;/*print(*($$.dimList));*/$$.eletype = $2.eletype;}
            ; // { {1, 2}, {2, 3}}
 
 comma_arr_assign: comma_arr_assign ',' arr_assign  {updateMaxDim($1.dimList, $3.dimList); delete $3.dimList;$$.dimList = $1.dimList;if (!coercible($1.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");else $$.eletype = $1.eletype;}
@@ -523,7 +549,6 @@ member_access : memb_access {
                      exit(1);
               }
               typelist = returnType(*$1);
-              //cout<<typelist.Eletype<<endl;
               $$ = typelist.Eletype;
               for (int i = 0;i < $1->size();i++){
                      delete ($1->at(i)).name ;
@@ -555,7 +580,6 @@ func_call : member_access {
               is_member = 0;
            }
           '(' param_list_opt ')' {
-              //cout<<params.size()<<endl;
               argumentTypeChecking(func_paramlist,params);
               params.clear();
 
@@ -627,89 +651,6 @@ while_loop : WHILE '(' expression ')' { addSymTabPtr(); } stmt_loop_block1
 void yyerror(const char * s)
 {   
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
-}
-
-int checkDims(char* name,int count) {
-       if(lookupConstructTab2(name).Type!=Invalid) {
-           return 0;
-       }
-       //cout<<name<<endl;
-       vector<int> dimlist (checkDimList(name)); 
-       if(dimlist.size() < count) {
-              /* cout<<count<<endl;
-              cout<<dimlist.size()<<endl; */
-              cerr<<"Error: Dimension not matching"<<endl;
-              return -1;
-       }
-       else {
-              return dimlist.size() - count;
-       }
-}
-
-STentry returnType(vector<cntAndType> dimsAndType) {
-       STentry t;
-       STentry s = lookup(dimsAndType[0].name);
-       if(s.Type==Invalid) {
-           STentry st = lookupConstructTab(dimsAndType[0].name,UNDEF);
-           if(st.Type==Invalid) {
-              cerr<<"Error: Identifier not found"<<endl;
-              exit(1);
-           }
-           else {
-              return st;  // Std Library function
-           }   
-       }
-       else {
-              t = s;
-              vector<int> new_dimlist;
-              for(int i = dimsAndType[0].count;i<t.DimList.size();i++) {
-                     new_dimlist.push_back(t.DimList[i]);
-              }
-              t.DimList = new_dimlist;
-              for(int i = 1;i<dimsAndType.size();i++) {
-                     if(dimsAndType[i-1].count > 0) {
-                            cerr<<"Error: Array has no member attribute"<<endl;
-                            exit(1);
-                     }
-                     else {
-                        STentry st = lookupConstructTab(dimsAndType[i].name,t.Eletype);
-                        if(st.Type!=Invalid) {
-                            t = st;
-                        }            
-                     }         
-              }
-
-              return t;
-       }
-       
-}
-
-void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params) {
-       if(func_params.size() > passed_params.size()) {
-              semanticError("Error: Too few arguments");
-       }
-       else if(func_params.size() < passed_params.size()) {
-              semanticError("Error: Too many arguments");
-       }
-       else {
-              for(int i = 0;i<func_params.size();i++) {
-                     /* cout<<func_params[i].Eletype<<endl;
-                     cout<<passed_params[i].eletype<<endl; */
-                     if(func_params[i].Eletype==passed_params[i].eletype) {
-                            bool isEqual = 0;
-                            
-                            if(equal(func_params[i].dim.begin(),func_params[i].dim.end(),passed_params[i].dim.begin(),passed_params[i].dim.end())) {
-                                   isEqual = 1;
-                            }
-                            if(!isEqual) {
-                                   semanticError("Error: Array dimension is not matching for argument"); 
-                            }  
-                     }
-                     else {
-                            semanticError("Error: Type is not matching for argument");
-                     }
-              }
-       }
 }
 
 

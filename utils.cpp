@@ -262,10 +262,10 @@ void insertConstructTab() {
 
 
     /*Line*/
-    ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
     ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
-    ConstructTab[1]["SHORTEST_DISTNACE"] = {Func,REAL,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["SHORTEST_DISTANCE"] = {Func,REAL,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,POINT,"b",{}}},{}};
     ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
 
@@ -477,6 +477,85 @@ void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
 
        for (int i = 0;i < src->size();i++)
               dest->push_back(src->at(i));
+}
+
+
+int checkDims(char* name,int count) {
+       if(lookupConstructTab2(name).Type!=Invalid) {
+           return 0;
+       }
+       vector<int> dimlist (checkDimList(name)); 
+       if(dimlist.size() < count) {
+              cerr<<"Error: Dimension not matching"<<endl;
+              return -1;
+       }
+       else {
+              return count;
+       }
+}
+
+STentry returnType(vector<cntAndType> dimsAndType) {
+       STentry t;
+       STentry s = lookup(dimsAndType[0].name);
+       if(s.Type==Invalid) {
+           STentry st = lookupConstructTab(dimsAndType[0].name,UNDEF);
+           if(st.Type==Invalid) {
+              cerr<<"Error: Identifier not found"<<endl;
+              exit(1);
+           }
+           else {
+              return st;  // Std Library function
+           }   
+       }
+       else {
+              t = s;
+              vector<int> new_dimlist;
+              for(int i = dimsAndType[0].count;i<t.DimList.size();i++) {
+                     
+                     new_dimlist.push_back(t.DimList[i]);
+              }
+              t.DimList = new_dimlist;
+              for(int i = 1;i<dimsAndType.size();i++) {
+                     if(dimsAndType[i-1].count > 0) {
+                            cerr<<"Error: Array has no member attribute"<<endl;
+                            exit(1);
+                     }
+                     else {
+                        STentry st = lookupConstructTab(dimsAndType[i].name,t.Eletype);
+                        if(st.Type!=Invalid) {
+                            t = st;
+                        }            
+                     }         
+              }
+
+              return t;
+       }
+       
+}
+
+void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params) {
+       if(func_params.size() > passed_params.size()) {
+              semanticError("Error: Too few arguments");
+       }
+       else if(func_params.size() < passed_params.size()) {
+              semanticError("Error: Too many arguments");
+       }
+       else {
+              for(int i = 0;i<func_params.size();i++) {
+                     if(func_params[i].Eletype==passed_params[i].eletype) {
+                            bool isEqual = 0;
+                            if(equal(func_params[i].dim.begin(),func_params[i].dim.end(),passed_params[i].dim.begin(),passed_params[i].dim.end())) {
+                                   isEqual = 1;
+                            }
+                            if(!isEqual) {
+                                   semanticError("Error: Array dimension is not matching for argument"); 
+                            }  
+                     }
+                     else {
+                            semanticError("Error: Type is not matching for argument");
+                     }
+              }
+       }
 }
 
 void printSymbolTable() {

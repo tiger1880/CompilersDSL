@@ -108,6 +108,10 @@ extern void updateMaxDim(vector<int>* comma, vector<int>* assign); // for now ha
 extern void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList);
 extern void insertArray(char* name, vector <int>* dimList);
 
+extern int checkDims(char* name,int count);
+extern STentry returnType(vector<cntAndType> dimsAndType);
+extern void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params);
+
 
 #endif // UTILS_HPP
 

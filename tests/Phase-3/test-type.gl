@@ -63,10 +63,10 @@ regPoly p := Circle( y, 5 )
 
 fig figure1(2,(3,3)) {
     point m,n
-    tri t = Tri(m,n,k)
+    tri t := Tri(m,n,k)
 
     real area := t.AREA()
 
-    t.ORTHOCENTRE().x
+    t.ORTHOCENTRE()
 }
 

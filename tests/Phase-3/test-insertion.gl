@@ -31,5 +31,5 @@ Para p
 
 {
     int _p
-    bool f = true
+    bool f := true
 }

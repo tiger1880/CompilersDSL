@@ -202,7 +202,6 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
                      paramslist.clear();
                      
                      if(ret_type!=UNDEF && ret_type!=Void) {
-                            cout<<"Hi"<<endl;
                             cerr<<"Error: Semantic error return type not matching"<<endl; 
                      }
                      ret_flag = 0; 
@@ -231,9 +230,6 @@ argument : DATATYPE ID check_arr {
               param.dim = *$3;
               param.Type = Array;
               paramslist.push_back(param);
-              // for(int i =0;i<$3->size();i++) {
-              //        cout<<$3->at(i)<<endl;
-              // }
               delete $ID;
        }
        | DATATYPE ID {
@@ -251,11 +247,11 @@ argument : DATATYPE ID check_arr {
  
 /* Figure Definition */
               
-fig: FIG ID { addSymTabPtr();}  '(' params ')' empty_space stmt_block { 
+fig: FIG ID {insertType($ID, Fig, UNDEF); addSymTabPtr();}  '(' params ')' empty_space stmt_block { 
                                                         if (ret_fig_flag == 1)  
                                                                semanticError("Error: Return statement is not allowed in figures."); 
                                                         ret_fig_flag = 0;
-                                                        insertType($ID, Fig, UNDEF);
+                                                        
 
                                                         if ($[stmt_block])
                                                                semanticError("stop/advance cannot be outside the loop");
@@ -626,22 +622,21 @@ arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;}
 func_call : member_access {
 
               if (typelist.Type == Fig){
-
                      is_fig = 1;
-
               }
               else {
                      if (typelist.Type != Func) 
                             semanticError("Error: Identifier is not a function"); 
                      func_paramlist = typelist.paramList;
-                     is_member = 0;
               }
+              is_member = 0;
        }
        '(' param_list_opt ')' {
 
               if (is_fig){
-
-                     
+                     figArgumentChecking(params);
+                     params.clear();
+                     $$ = UNDEF;
               }
               else {
 

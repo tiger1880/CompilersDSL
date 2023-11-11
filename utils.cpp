@@ -580,6 +580,32 @@ void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_p
        }
 }
 
+void figArgumentChecking(vector<types>& passed_params) {
+       if(passed_params.size()>2) {
+            semanticError("Too many arguments");  
+       }
+
+       if(passed_params.size()==2) {
+              if (!arithCompatible(passed_params[0].eletype) && passed_params[0].eletype != UNDEF){
+              
+                     semanticError("in fig call scale has to be a number type");
+              }
+
+              if (passed_params[1].eletype != POINT && passed_params[1].eletype != UNDEF){
+                     
+                     semanticError("in fig call center has to be a point type");
+
+              }  
+       }
+
+       if(passed_params.size()==1) {
+              if ((!arithCompatible(passed_params[0].eletype) && passed_params[0].eletype != UNDEF) || (passed_params[0].eletype != POINT && passed_params[0].eletype != UNDEF)){
+                     semanticError("in fig call arguemnt can be scale or center");
+              }  
+       }
+       
+}
+
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
     for (const auto& entry : SymTab.back()) {

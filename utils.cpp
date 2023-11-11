@@ -12,7 +12,7 @@ vector< map<string,STentry> > ConstructTab;
 
 extern int yylineno;
 
-// Define functions here
+
 void insertType(char* name, enum type t ,enum eletype etype) {
     if(SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
@@ -371,8 +371,6 @@ bool coercible(int t1, int t2){
 
 void typeUpdate(vector<char*>* v, enum eletype t){
 
-    // printSymbolTable();
-
        for (int i = 0;i < v->size();i++){
 
               int prevType = checkEletype(v->at(i));
@@ -391,8 +389,6 @@ void typeUpdate(vector<char*>* v, enum eletype t){
        }
 
        delete v;
-
-       //printSymbolTable();
 
        return;
 }
@@ -478,7 +474,6 @@ void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
        for (int i = 0;i < src->size();i++)
               dest->push_back(src->at(i));
 }
-
 
 int checkDims(char* name,int count) {
        if(lookupConstructTab2(name).Type!=Invalid) {

@@ -18,11 +18,6 @@ extern char* yytext;
 
 using namespace std;
 
-int checkDims(char* name,int count);
-STentry returnType(vector<cntAndType> dimsAndType);
-void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params);
-
-
 /*     ONLY FOR  DEBUGGING    */
 template < typename T >
 void print(vector<T>& v){
@@ -40,11 +35,8 @@ extern int yydebug;
 
 Problems: 1.) linearr should have dimension 1. Hence dimension not matching
           2.) label s := "LABEL" showing  Error: types don't match in declaration and initialisation  
-          3.) if(h) {
-              advance/stop  showing syntax error
-          }
-          4.) Error Handling
-          5.) figure call
+          3.) Error Handling
+          4.) figure call
 */
 
 
@@ -89,7 +81,7 @@ vector<ParamList> func_paramlist;
     
     vector<cntAndType>* dimCount;
 
-    bool stopAdvanceFound; // true for a non-nullified break/continue
+    bool stopAdvanceFound; // true for a non-nullified stop/advance
    
     
 }
@@ -448,7 +440,6 @@ check_arr: dim {$$ = $1;}
          | '['']' dim {$$ = new vector<int>;addFrontAndCopy($$, $3, -1);delete $3;}
          ;
          
- // change after adding expression values
 dim : dim '[' const_expr ']' {$$ = $1;
                               
                             if ($3.eletype == REAL)
@@ -484,11 +475,6 @@ mult_elements : mult_elements ',' expression  {$$.count = $1.count + 1; if (!coe
               | expression {$$.count = 1;$$.eletype = $1;}
               ;
 
-/*  
-              ** const_expr: TESTING NOT DONE PROPERLY **
-x : const_expr ENDLINE {if ($1.eletype == INT) cout << $1.i; else cout << $1.d;}; 
-
-*/
 const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.eletype);
 
                                           if ($1.eletype == REAL && $3.eletype == REAL)
@@ -626,7 +612,7 @@ empty_space: empty_space ENDLINE
            | /* empty */ 
            ;
 
-/* Conditional */
+/* Conditional Statements */
 
 cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE {$$ = $6;if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' empty_space stmt_block ENDLINE  ELSE empty_space stmt_block ENDLINE {$$ = $6||$10;if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
@@ -637,6 +623,7 @@ cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE {$$ = $6;if(!(a
 elif_stmt : ELIF '(' expression ')' empty_space stmt_block ENDLINE  {$$ = $[stmt_block];if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
           | elif_stmt ELIF '(' expression ')' empty_space stmt_block ENDLINE {$$ = $1||$[stmt_block];if(!(arithCompatible($4))) semanticError("Error: Semantic error incompatible datatype");}
           ;
+
 
 /* Loops */
 

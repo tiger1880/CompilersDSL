@@ -263,7 +263,7 @@ void insertConstructTab() {
 
 
     /*Line*/
-    ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
     ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
     ConstructTab[1]["SHORTEST_DISTNACE"] = {Func,REAL,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};

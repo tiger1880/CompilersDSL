@@ -1,11 +1,10 @@
 #include "symbol_table.hpp"
-#include<map>
-#include<deque>
-#include<string>
+#include <map>
+#include <deque>
+#include <string>
 #include <iostream> 
-#include<bits/stdc++.h> 
-#include<vector>
-
+#include <bits/stdc++.h> 
+#include <vector>
 using namespace std;
 
 deque< map<string, STentry> > SymTab;
@@ -297,7 +296,7 @@ void insertConstructTab() {
 }
 
 void semanticError(const char* s){
-       cerr << s << "\n";
+       cerr << yylineno << ": "<< s << "\n";
        exit(1);
 }
   
@@ -307,7 +306,7 @@ enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
               return LABEL;
        else if(E1 == POINT && E2 == POINT)
               return POINT;
-       else if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
+       else if(arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
        }
        else {
@@ -372,15 +371,17 @@ bool coercible(int t1, int t2){
 
 void typeUpdate(vector<char*>* v, enum eletype t){
 
+    // printSymbolTable();
+
        for (int i = 0;i < v->size();i++){
 
               int prevType = checkEletype(v->at(i));
               
               
               if (!coercible(prevType, t))
-              {
+              {      
                      cerr << "Error: " << "types don't match in declaration and initialisation\n";
-                     exit(1);
+                     // exit(1);
                      // error recovery
               }
               
@@ -525,9 +526,9 @@ void printSymbolTable() {
             case LINE:
                 cout << "LINE";
                 break;
-            case LINEARR:
-                cout << "LINE";
-                break;   
+            // case LINEARR:
+                // cout << "ERROR!!!";
+                // break;   
             case CIRCLE:
                 cout << "CIRCLE";
                 break;

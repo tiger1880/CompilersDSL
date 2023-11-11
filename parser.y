@@ -208,7 +208,9 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
               }   //Need to do testing
               ;
 
-arg_list : list1 | ;
+arg_list : list1 
+         | /* empty */
+         ;
 
 list1: list1 ',' argument | argument ;
 
@@ -311,7 +313,7 @@ param_list: param_list ',' valid_arg {
           ;
 
 point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$ = pointCheck($2, $4); }
-       |  '(' expression ','  expression  ')'  {  $$ = pointCheck($2, $4); }
+       |  '(' expression ','  expression  ')'  {  $$ = pointCheck($2, $4);}
        ; 
 
 // NOT TESTED
@@ -324,14 +326,14 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = ANGLE;}
        ;
 
 expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
-            | expression '-' expression {$$ = diffTypeCheck($1, $3);}
+            | expression '-' expression {$$ = diffTypeCheck($1, $3);} // change this - won't work for p-q->r for now
             | expression '*' expression {$$ = mulTypeCheck($1, $3);}
             | expression '/' expression {$$ = mulTypeCheck($1, $3);}
             | expression '%' expression {if ($1 != INT || $3 != INT) semanticError("Error: Semantic error incompatible datatype"); $$ = INT;}
             | expression '^' expression {$$ = mulTypeCheck($1, $3);}
-            | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) $$ = LINEARR ; else  semanticError("Error: Semantic error incompatible datatype") ;  }  // <-> ->
-            | expression PARALLEL expression {if(($1 == LINE||$1 == LINEARR) && ($3 == LINE||$1 == LINEARR)) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ;  }
-            | expression PERPENDICULAR expression  {if(($1 == LINE||$1 == LINEARR) && ($3 == LINE||$1 == LINEARR)) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ; }
+            /* | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) $$ = LINEARR; else  semanticError("Error: Semantic error incompatible datatype");}  // <-> -> */
+            /* | expression PARALLEL expression {if(($1 == LINE||$1 == LINEARR) && ($3 == LINE||$1 == LINEARR)) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ;  } */
+            /* | expression PERPENDICULAR expression  {if(($1 == LINE||$1 == LINEARR) && ($3 == LINE||$1 == LINEARR)) $$ = BOOL ; else  semanticError("Error: Semantic error incompatible datatype") ; } */
             | PARALLEL expression PARALLEL  {if ($2 != POINT) semanticError("Error: Semantic error incompatible datatype") ; $$ = REAL; }
             | '-' expression %prec NEG {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; } 
             | UNARY member_access {if(!($2 == INT || $2 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }

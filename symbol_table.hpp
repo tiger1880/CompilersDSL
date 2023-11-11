@@ -25,13 +25,13 @@ enum type {
 enum eletype {
        BOOL,
        INT,
-       REAL,
+       ANGLE,
+       REAL, // dont change order -> sumTypeCheck dependent
        POINT,
        LABEL,
-       ANGLE,
        Void,
        LINE,
-       LINEARR,
+       // LINEARR,
        CIRCLE,
        TRI,
        PARA,

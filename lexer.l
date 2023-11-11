@@ -69,6 +69,10 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return *yytext;
 }
 
+printSymbolTable {
+    printSymbolTable();
+}
+
 scale {
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return SCALE;
@@ -241,7 +245,8 @@ or {
         yylval.eletype = LINE;
     } 
     else if (strcmp(yytext, "linearr") == 0) {
-        yylval.eletype = LINEARR;
+        // yylval.eletype = LINEARR;
+        yylval.eletype = UNDEF;
     }
     else if (strcmp(yytext, "angle") == 0) {
         yylval.eletype = ANGLE;

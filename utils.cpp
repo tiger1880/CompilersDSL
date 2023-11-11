@@ -11,6 +11,7 @@ deque< map<string, STentry> > SymTab;
 vector< map<string,STentry> > ConstructTab;
 
 extern int yylineno;
+extern int lineArrNo;
 
 
 void insertType(char* name, enum type t ,enum eletype etype) {
@@ -472,8 +473,16 @@ enum eletype perpendicularCheck(enum eletype E1, enum eletype E2){
 
 enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
 
-    //    if (E1 == POINT && E2 == POINT)
-    //           return POINT;
+       if (E1 == POINT && E2 == POINT){
+              lineArrNo = 1;
+              return LINEARR;
+       }
+
+       if (E1 == LINEARR && E2 == POINT){
+              lineArrNo++;
+              return LINEARR;
+       }
+
        if (arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
        }

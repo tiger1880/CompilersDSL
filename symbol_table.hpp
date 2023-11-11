@@ -31,7 +31,7 @@ enum eletype {
        LABEL,
        Void,
        LINE,
-       // LINEARR,
+       LINEARR,
        CIRCLE,
        TRI,
        PARA,

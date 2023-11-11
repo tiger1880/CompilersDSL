@@ -46,6 +46,8 @@ int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
 
+int lineArrNo = 0;
+
 enum eletype ret_type = UNDEF;
 
 vector<ParamList> paramslist;
@@ -126,7 +128,7 @@ vector<ParamList> func_paramlist;
 %nterm <countAndType> mult_elements arr1d_in_list
 %nterm <constExp> const_expr 
 %nterm <dimList> check_arr dim 
-%nterm <listAndType> arr_assign comma_arr_assign
+%nterm <listAndType> arr_assign comma_arr_assign arr_assign_line
 %nterm <eletype> decl_token decl_assign
 %nterm <eletype> ret_var 
 %nterm <eletype> optional_arg valid_arg
@@ -298,8 +300,8 @@ return_stmt : RETURN ret_var ENDLINE {ret_type = $2; ret_flag = 1; ret_fig_flag 
 ret_var : construct {$$ = $1;} | expression {$$ = $1;} | {$$ = Void;}; 
 
        /* Assignment Statement */
-assign_stmt : expression ENDLINE 
-            | construct ENDLINE  
+assign_stmt : expression ENDLINE {lineArrNo = 0;}
+            | construct ENDLINE  {lineArrNo = 0;}
             /* | fig_call ENDLINE */
             ;
 
@@ -402,22 +404,22 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = ANGLE;}
        ;
 
 expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
-            | expression '-' expression {$$ = diffTypeCheck($1, $3);} // change this - won't work for p-q->r for now
+            | expression '-' expression {$$ = diffTypeCheck($1, $3);} 
             | expression '*' expression {$$ = mulTypeCheck($1, $3);}
             | expression '/' expression {$$ = mulTypeCheck($1, $3);}
             | expression '%' expression {if ($1 != INT || $3 != INT) semanticError("Error: Semantic error incompatible datatype"); $$ = INT;}
             | expression '^' expression {$$ = mulTypeCheck($1, $3);}
-            /* | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) $$ = LINEARR; else  semanticError("Error: Semantic error incompatible datatype");}  // <-> -> */
+            | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) {$$ = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
             | expression PARALLEL expression {$$ = parallelCheck($1, $3);}
             | expression PERPENDICULAR expression  {$$ = perpendicularCheck($1, $3);}
-            | PARALLEL inside_norm PARALLEL  {$$ = REAL; }
+            | PARALLEL inside_norm PARALLEL  {$$ = REAL;}
             | '-' expression %prec NEG {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; } 
             | UNARY member_access {if(!($2 == INT || $2 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }
             | member_access UNARY {if(!($1 == INT || $1 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;  }
             | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
             | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | member_access assign       {if (!(($1 == $2) || coercible($1, $2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1; }
+            | member_access assign       {if (!(($1 == $2) || coercible($1, $2) || ($1 == LINE && $2 == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1; }
             | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;} 
             | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
@@ -446,15 +448,15 @@ assign:  EQUAL expression {$$ = $2;}
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1);}
-          | constructor id_list ENDLINE {typeUpdate($2, $1);}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1);lineArrNo = 0;}
+          | constructor id_list ENDLINE {typeUpdate($2, $1);lineArrNo = 0;}
           ;
 
-id_list: id_list ',' ID check_arr EQUAL arr_assign {$$ = $1;$$->push_back($3);compareAndInsertArray($3, $4, $6.eletype, $6.dimList);}
+id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$ = $1;$$->push_back($3);compareAndInsertArray($3, $4, $6.eletype, $6.dimList);}
        | id_list ',' ID check_arr  {$$ = $1;$$->push_back($3);insertArray($3, $4);}       
        | id_list ',' ID decl_assign {$$ = $1;$$->push_back($3);insertType($3, Var, $4);}
        | ID check_arr  {$$ = new vector<char*>;$$->push_back($1);insertArray($1, $2);}
-       | ID check_arr EQUAL arr_assign {$$ = new vector<char*>;$$->push_back($1);compareAndInsertArray($1, $2, $4.eletype, $4.dimList);}
+       | ID check_arr EQUAL arr_assign_line {$$ = new vector<char*>;$$->push_back($1);compareAndInsertArray($1, $2, $4.eletype, $4.dimList);}
        | ID decl_assign {$$ = new vector<char*>;$$->push_back($1);insertType($1, Var, $2);}
        ;
 
@@ -491,8 +493,18 @@ dim : dim '[' const_expr ']' {$$ = $1;
 
 /* NEED TO ADD EMPTY SPACE WHEREEVER POSSIBLE IN ARRAY ASSIGN */
 
-arr_assign : '{'  arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;/*print(*($$.dimList));*/}
-           | '{' comma_arr_assign '}' {$$.dimList = $2.dimList;/*print(*($$.dimList));*/$$.eletype = $2.eletype;}
+arr_assign_line : arr_assign {$$.dimList = $1.dimList;$$.eletype = $1.eletype;}
+                | expression {
+                            if ($1 != LINEARR) 
+                                   semanticError("Error: Invalid Datatypes\n");
+                            $$.dimList = new vector<int>;
+                            $$.dimList->push_back(lineArrNo);
+                            lineArrNo = 0;
+                     }
+                ;
+
+arr_assign : '{'  arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;}
+           | '{' comma_arr_assign '}' {$$.dimList = $2.dimList;$$.eletype = $2.eletype;}
            ; // { {1, 2}, {2, 3}}
 
 comma_arr_assign: comma_arr_assign ',' arr_assign  {updateMaxDim($1.dimList, $3.dimList); delete $3.dimList;$$.dimList = $1.dimList;if (!coercible($1.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");else $$.eletype = $1.eletype;}

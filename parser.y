@@ -132,6 +132,7 @@ vector<ParamList> func_paramlist;
 %nterm <count> arr_access
 %nterm <dimCount> memb_access
 %nterm <stopAdvanceFound> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
+%nterm <eletype> opt_exp
 //%nterm <types> param_list;
 
 
@@ -298,7 +299,33 @@ ret_var : construct {$$ = $1;} | expression {$$ = $1;} | {$$ = Void;};
        /* Assignment Statement */
 assign_stmt : expression ENDLINE 
             | construct ENDLINE  
+            /* | fig_call ENDLINE */
             ;
+
+opt_exp: expression {$$ = $1;}
+       | /* empty */ {$$ = UNDEF;}
+       ;
+
+fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
+
+       if (!arithCompatible($scale) && $scale != UNDEF){
+              
+              semanticError("in fig call scale has to be a number type");
+       }
+
+       if ($center != POINT && $center != UNDEF){
+              
+              semanticError("in fig call scale has to be a point type");
+
+       }
+
+       STentry figEntry = lookup($ID);
+
+       if (figEntry.Type != Fig)
+              semanticError("fig not defined");
+
+       delete $ID;
+}
 
 construct :  constructor '(' construct_param_list ')' {$$ = $1; construct_params.clear(); } 
           | constructor '(' ')' {$$ = $1;} 
@@ -410,8 +437,6 @@ assign:  EQUAL expression {$$ = $2;}
        | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2) || $2 == LABEL || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }
        | SUB_ASSIGN_OP expression {if(!(arithCompatible($2) || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
        ;
-
-//Error coming for x := x + 2 / p.x +:= 3 type statements which it shouldn't.
 
        /* Declaration Statement */
 decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1);}
@@ -631,7 +656,6 @@ loop : for_loop
      | while_loop
      ;
 
-// need to add constructor, array here
 for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID;}
               | { addSymTabPtr(); } ID EQUAL expression { delete $ID; }
               | { addSymTabPtr(); } 

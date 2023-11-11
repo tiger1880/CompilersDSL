@@ -111,6 +111,7 @@ extern void insertArray(char* name, vector <int>* dimList);
 extern int checkDims(char* name,int count);
 extern STentry returnType(vector<cntAndType> dimsAndType);
 extern void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params);
+extern void figArgumentChecking(vector<types>& passed_params);
 
 
 #endif // UTILS_HPP

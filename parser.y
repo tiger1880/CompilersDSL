@@ -120,7 +120,7 @@ vector<ParamList> func_paramlist;
 
 // non-terminals
 %nterm <eletype> construct constructor
-%nterm <eletype> point angle expression member_access
+%nterm <eletype> point angle expression member_access 
 %nterm <eletype> assign func_call
 %nterm <nameList> id_list
 %nterm <countAndType> mult_elements arr1d_in_list
@@ -392,7 +392,8 @@ point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$ = pointCheck($
        ; 
 
 // NOT TESTED
-vertex: ID { if (checkEletype($1) != POINT) semanticError("Error: vertex has to be a point");delete $ID;}
+vertex: member_access { if ($1 != POINT) semanticError("Error: vertex has to be a point");}
+      /* | func_call { if ($1 != POINT) semanticError("Error: vertex has to be a point");} */
       | point 
       ;
 
@@ -409,7 +410,7 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             /* | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) $$ = LINEARR; else  semanticError("Error: Semantic error incompatible datatype");}  // <-> -> */
             | expression PARALLEL expression {$$ = parallelCheck($1, $3);}
             | expression PERPENDICULAR expression  {$$ = perpendicularCheck($1, $3);}
-            | PARALLEL expression PARALLEL  {if ($2 != POINT) semanticError("Error: Semantic error incompatible datatype") ; $$ = REAL; }
+            | PARALLEL inside_norm PARALLEL  {$$ = REAL; }
             | '-' expression %prec NEG {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; } 
             | UNARY member_access {if(!($2 == INT || $2 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }
             | member_access UNARY {if(!($1 == INT || $1 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;  }
@@ -431,6 +432,12 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | point {$$ = $1;}
             | angle {$$ = $1;}            
             ; 
+
+inside_norm: inside_norm '+' vertex 
+           | inside_norm '-' vertex 
+           | vertex
+           /* | memb_access assign   will := add in || ||  later*/
+           ; // norm cannot be empty
 
 assign:  EQUAL expression {$$ = $2;}
        | ASSIGN_OP  expression  {if(!(arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }  

@@ -4,10 +4,14 @@
 
 #include "symbol_table.hpp"
 #include <stdio.h>
-#include<string.h>
-#include "y.tab.h"
+#include <string.h>
+#include <math.h>
+// #include "y.tab.h"
+#include "parser.tab.h" 
 
 extern FILE *fout_token;
+
+char* dupString(char* src);
 
 %}
 
@@ -15,32 +19,58 @@ integers [1-9][0-9]*|0
 floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)  
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
-constructor "Circle"|"Tri"|"RegPoly"|"Para"
-boolean  "true"|"false"
+triConstruct "Tri"
+circleConstruct "Circle"
+regPolyConstruct "RegPoly"
+paraConstruct "Para"
 line_op "->"|"<->"
 cmp_op ">="|"<="
-datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
-assign "+:="|"-:="|"^:="|"/:="|"%:="|"*:="
+datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"|"linearr"
+assign "^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
 operators "+"|"*"|"/"|"%"|"^"|"-"
 string_literal (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
-{floats} { // .05 1.
-    yylval.eletype = REAL;
+{floats} {
+    yylval.constExp.eletype = REAL;
+    yylval.constExp.d = atof(yytext);
     fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
 }
 
-{constructor} {
+{triConstruct} {
+    yylval.eletype = TRI;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
-    return CONSTRUCTOR;
+    return TRICONSTRUCT;
+}
+
+{circleConstruct} {
+    yylval.eletype = CIRCLE;
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
+    return CIRCLECONSTRUCT;
+}
+
+{regPolyConstruct} {
+    yylval.eletype = REGPOLY;
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
+    return REGPOLYCONSTRUCT;
+}
+
+{paraConstruct} {
+    yylval.eletype = PARA;
+    fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
+    return PARACONSTRUCT;
 }
 
 {parenthesis} {
     fprintf(fout_token, "PARENTHESIS: %s\n", yytext);
     return *yytext;
+}
+
+printSymbolTable {
+    printSymbolTable();
 }
 
 scale {
@@ -59,7 +89,8 @@ center {
 }
 
 {integers} {
-    yylval.eletype = INT;
+    yylval.constExp.i = atoi(yytext);
+    yylval.constExp.eletype = INT;
     fprintf(fout_token, "INTEGERS: %s\n", yytext);
     return INTEGERS;
 }
@@ -147,8 +178,16 @@ or {
     return PERPENDICULAR;
 }
 
-{boolean} {
-    yylval.eletype = BOOL;
+"true" {
+    yylval.constExp.eletype = BOOL;
+    yylval.constExp.i = true;
+    fprintf(fout_token, "BOOLEAN: %s\n", yytext);
+    return BOOLEAN;
+}
+
+"false" {
+    yylval.constExp.eletype = BOOL;
+    yylval.constExp.i = false;
     fprintf(fout_token, "BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }
@@ -174,6 +213,7 @@ or {
 }
 
 {datatype} {
+    
     if (strcmp(yytext, "int") == 0) {
         yylval.eletype = INT;
     } 
@@ -204,6 +244,10 @@ or {
     else if (strcmp(yytext, "line") == 0) {
         yylval.eletype = LINE;
     } 
+    else if (strcmp(yytext, "linearr") == 0) {
+        // yylval.eletype = LINEARR;
+        yylval.eletype = UNDEF;
+    }
     else if (strcmp(yytext, "angle") == 0) {
         yylval.eletype = ANGLE;
     } 
@@ -232,24 +276,34 @@ or {
     return *yytext;
 }
 
-{assign} {
-    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
-    return ASSIGN_OP;
+"+:=" {
+    fprintf(fout_token, "SUM_ASSIGN_OP: %s\n", yytext);
+    return SUM_ASSIGN_OP;
+
+}
+"-:=" {
+    fprintf(fout_token, "SUB_ASSIGN_OP: %s\n", yytext);
+    return SUB_ASSIGN_OP;
 }
 
 ":=" {
     fprintf(fout_token, "EQUAL: %s\n", yytext);
     return EQUAL;
 }
-
+{assign} {
+    fprintf(fout_token, "ASSIGN_OP: %s\n", yytext);
+    return ASSIGN_OP;
+}
 {string_literal}  {
-    fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     yylval.eletype = LABEL;
+    fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     return STRING_TOKEN;
 }
 
 {id} { 
-    yylval.name = yytext;
+
+    yylval.name = dupString(yytext); // have to free !
+
     fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
     return ID;
 }
@@ -272,4 +326,12 @@ or {
 
 int  yywrap(){
     return 1;
+}
+
+char* dupString(char* src){
+
+    char* cpy = (char*)malloc(sizeof(char)*(yyleng+1));
+    strcpy(cpy, src);
+    return cpy;
+
 }

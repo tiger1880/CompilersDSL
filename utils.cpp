@@ -9,9 +9,13 @@
 
 using namespace std;
 
-deque<map<string, STentry>> SymTab;
+deque< map<string, STentry> > SymTab;
+vector< map<string,STentry> > ConstructTab;
 
-// Define functions here
+extern int yylineno;
+extern int lineArrNo;
+
+
 void insertType(char* name, enum type t ,enum eletype etype) {
     if(SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
@@ -19,12 +23,114 @@ void insertType(char* name, enum type t ,enum eletype etype) {
         
     if(SymTab.back().find(name) != SymTab.back().end()) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
+        exit(1); // error recovery later
     }
     else{
         SymTab.back()[name].Type = t;
         SymTab.back()[name].Eletype = etype;      
     }  
     
+}
+
+void insertParams(vector<ParamList>& paramlist) {
+    for(int i = 0;i<paramlist.size();i++) {
+        insertType(const_cast<char*>(paramlist[i].name.data()),paramlist[i].Type,paramlist[i].Eletype);
+        addDimList(const_cast<char*>(paramlist[i].name.data()),paramlist[i].dim);
+    }
+}
+
+void updateType(char* name, enum eletype etype) {
+    
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    } //remove
+        
+    if(SymTab.back().find(name) == SymTab.back().end()) {
+        cerr << "Error: " << "Not declared " << name << endl;
+        exit(1); // error recovery later
+    }
+    else{
+        SymTab.back()[name].Eletype = etype;      
+    }  
+    
+}
+
+STentry lookupConstructTab(char* name,enum eletype e) {
+    if(e==UNDEF) {
+        if(!strcmp(name,"COMMON_TANGENT") || !strcmp(name,"INTERSECTION_CIRCLE")) {
+            e = CIRCLE;
+        }
+        else {
+            e = LINE;
+        }
+    }
+
+    int index;
+
+    if(e==POINT) {
+        index = 0;
+    }
+    else if(e==LINE) {
+        index = 1;
+    }
+    else if(e==CIRCLE) {
+        index = 2;
+    }
+    else if(e==TRI) {
+        index = 3;
+    }
+    else if(e==PARA) {
+        index = 4;
+    }
+    else if(e==REGPOLY) {
+        index = 5;
+    }
+    else {
+        STentry stentry;
+        stentry.Type = Invalid;
+        return stentry; 
+    }
+
+    
+    if(ConstructTab[index].find(name) != ConstructTab[index].end()) {
+        return ConstructTab[index][name];
+    }
+    
+    STentry stentry;
+    stentry.Type = Invalid;
+    return stentry;
+
+
+}
+
+STentry lookupConstructTab2(char* name) {
+    if(lookupConstructTab(name,UNDEF).Type!=Invalid) {
+       return lookupConstructTab(name,UNDEF); 
+    }
+    else if(lookupConstructTab(name,POINT).Type!=Invalid) {
+        return lookupConstructTab(name,POINT);
+    }
+    else if(lookupConstructTab(name,LINE).Type!=Invalid) {
+        return lookupConstructTab(name,LINE);
+    }
+    else if(lookupConstructTab(name,CIRCLE).Type!=Invalid) {
+        return lookupConstructTab(name,CIRCLE);
+    }
+    else if(lookupConstructTab(name,TRI).Type!=Invalid) {
+        return lookupConstructTab(name,TRI);
+    }
+    else if(lookupConstructTab(name,PARA).Type!=Invalid) {
+        return lookupConstructTab(name,PARA);
+    }
+    else if(lookupConstructTab(name,REGPOLY).Type!=Invalid) {
+        return lookupConstructTab(name,REGPOLY);
+    }
+    else {
+        STentry stentry;
+        stentry.Type = Invalid;
+        return stentry;
+    }
+
 }
 
 STentry lookup(char *name) {
@@ -66,21 +172,31 @@ int checkEletype(char* name) {
         return -1;
     }  
 }
-void addParamList(char* name, vector<ParamList>& param) {
-    if (SymTab.empty()) {
-        SymTab.push_back(map<string, STentry>());
+
+vector<int> checkDimList(char* name) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
     }
+    
+    if (lookup(name).Type!=Invalid) {
+        return lookup(name).DimList;
+    }
+    else{
+        cerr << "Error: " << name << " not found in SymTab." << endl;
+        vector<int> temp;
+        return temp;
+    }  
+}
 
-    if (SymTab.back().find(name) != SymTab.back().end()) {
-        for (const ParamList& newParam : param) {
-            if (std::count(param.begin(), param.end(), newParam) > 1) {
-                cerr << "Error: Duplicate parameter entry in " << name << "." << endl;
-                return;
-            }
-        }
-
-        SymTab.back()[name].paramList.insert(SymTab.back()[name].paramList.end(), param.begin(), param.end());
-    } else {
+void addParamList(char* name, vector<ParamList>& paramlist) {
+    if(SymTab.empty()){
+        SymTab.push_back(map<string,STentry>());
+    }
+    
+    if (SymTab.at(SymTab.size()-2).find(name) != SymTab.at(SymTab.size()-2).end()) {
+        SymTab.at(SymTab.size()-2)[name].paramList = paramlist;
+    } 
+    else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
@@ -109,12 +225,13 @@ void addDimList(char* name, vector<int>& dim) {
     if (SymTab.back().find(name) != SymTab.back().end()) {
         
         for(int i=0;i<dim.size();i++){
+            //cout<<dim[i]<<endl;
             if(dim[i]<0)
-            {   cerr<<"Array index cannot be negative";
+            {   cerr<<"Array index cannot be negative"<<endl;
                 return;
             }
         }
-        SymTab.back()[name].DimList = dim;
+        SymTab.back()[name].DimList = dim; //ref destroy while removing
     } 
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
@@ -139,6 +256,368 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
     return false;
 }
 
+void insertConstructTab() {
+    for(int i=0;i<6;i++) {
+        ConstructTab.push_back(map<string,STentry>());
+    }
+    
+    /*POINT*/
+    ConstructTab[0]["x"]={Var,REAL,{},{}};
+    ConstructTab[0]["y"]={Var,REAL,{},{}};
+
+
+    /*Line*/
+    ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
+    ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
+    ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["SHORTEST_DISTANCE"] = {Func,REAL,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
+    ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
+
+    /*Circle*/
+    ConstructTab[2]["TANGENT"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[2]["INTERSECTION_CIRCLE"] = {Func,POINT,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["COMMON_TANGENT"] = {Func,LINE,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
+    ConstructTab[2]["AREA"] = {Func,REAL,{},{}};
+    ConstructTab[2]["PERIMETER"]={Func,REAL,{},{}};
+
+    /*Triangle*/
+    ConstructTab[3]["CIRCUMCENTRE"] = {Func,POINT,{},{}};
+    ConstructTab[3]["EXCENTRE"] = {Func,POINT,{},{}};
+    ConstructTab[3]["INCENTRE"] = {Func,POINT,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["ORTHOCENTRE"]={Func,POINT,{},{}};
+    ConstructTab[3]["ALTITUDE"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["MEDIAN"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["CENTROID"] = {Func,POINT,{},{}};
+    ConstructTab[3]["AREA"] = {Func,REAL,{},{}};
+    ConstructTab[3]["PERIMETER"] = {Func,REAL,{},{}};
+
+    /*Parallelogram*/
+    ConstructTab[4]["DIAGONAL"]={Func,LINE,{},{}};
+
+    /*Regular Polygon*/
+    ConstructTab[5]["AREA"]={Func,REAL,{},{}};
+    ConstructTab[5]["PERIMETER"]={Func,REAL,{},{}};
+}
+
+void semanticError(const char* s){
+       cerr << yylineno << ": "<< s << "\n";
+       exit(1);
+}
+  
+enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
+       
+       if(E1 == LABEL && E2 == LABEL)
+              return LABEL;
+       else if(E1 == POINT && E2 == POINT)
+              return POINT;
+       else if(arithCompatible(E1) && arithCompatible(E2)){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes+\n";
+              exit(1);
+       }
+}
+
+enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
+       
+       if((E1 == REAL || E1 == BOOL || E1 == INT) && (E2 == REAL || E2 == BOOL || E2 == INT) ){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1);
+       }
+}
+
+// check int change 
+bool arithCompatible(int e){
+    //cout<<e<<endl;
+       if (e == REAL || e == BOOL || e == INT || e == ANGLE) 
+              return true;
+       return false;
+}
+
+enum eletype pointCheck (enum eletype x, enum eletype y){
+       if ((x == INT || x == REAL) && (y == INT || y == REAL ))
+              return POINT;
+       else {
+              cerr << "Error: Semantic error invalid point \n";
+              exit(1);
+       }
+}
+
+bool coercible(int t1, int t2){
+       
+       if (arithCompatible(t1) && arithCompatible(t2))
+              return true;
+
+       if (t1 == UNDEF || t2 == UNDEF)
+              return true; // check where this function is used and make sure it doesn't cause problems
+              //member_access funciton in expression makesure not passed up
+
+       if (t1 == t2)
+              return true;
+
+       /* 
+              POINT
+              LABEL
+              LINE
+              CIRCLE
+              TRI
+              PARA
+              REGPOLY 
+       */
+
+       return false;      
+
+}
+
+void typeUpdate(vector<char*>* v, enum eletype t){
+
+       for (int i = 0;i < v->size();i++){
+
+              int prevType = checkEletype(v->at(i));
+              
+              
+              if (!coercible(prevType, t))
+              {      
+                     cerr << "Error: " << "types don't match in declaration and initialisation\n";
+                     // exit(1);
+                     // error recovery
+              }
+              
+              updateType(v->at(i), t);
+              
+              free(v->at(i));
+       }
+
+       delete v;
+
+       return;
+}
+
+void insertArray(char* name, vector <int>* dimList){
+
+       insertType(name, Array, UNDEF);
+       addDimList(name, *dimList);
+       
+}
+
+void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList){
+
+       if (decDimList->size() != assignList->size()){
+
+              cerr << "Error: arrays declaration and initialization list don't match\n";
+              exit(1); // not freeing anything
+       }
+
+       if ((*decDimList)[0] == -1)
+             (*decDimList)[0] = (*assignList)[0];
+
+       for (int i = 0;i < decDimList->size();i++){
+
+              if ((*decDimList)[i] < (*assignList)[i]){
+                     cerr << "Error: arrays declaration and initialization list don't match\n";
+                     exit(1); // not freeing anything
+              }
+       } 
+
+       insertType(name, Array, e);
+       addDimList(name, *decDimList);
+
+       return;
+}
+
+void updateMaxDim(vector<int>* comma, vector<int>* assign){
+
+       if (comma->size() != assign->size()+1){
+
+              cerr << "Error: invaid array initializer list\n";
+              exit(1); // remove this only if added length checks in declarations O/W segfault 
+       }
+
+       for (int i = 0;i < assign->size();i++){
+
+              (*comma)[i+1] = max((*comma)[i+1], (*assign)[i]);
+       }
+
+       (*comma)[0] = (*comma)[0] + 1;
+
+       return;
+}
+
+enum eletype parallelCheck(enum eletype E1, enum eletype E2){
+
+    if (!(E1 == BOOL || E1 == LINE)){
+        semanticError("Error: Operands for || can be only bool or line");
+        return BOOL; // so that error won't cascade
+    }
+
+    if (!(E2 == BOOL || E2 == LINE)){
+        semanticError("Error: Operands for || can be only bool or line");
+        return BOOL; // so that error won't cascade
+    }
+
+    return BOOL;
+
+}
+
+enum eletype perpendicularCheck(enum eletype E1, enum eletype E2){
+
+    if (E1 == LINE && E2 == LINE)
+        return BOOL;
+    else {
+        semanticError("Error: Operands for |- has to be a line");
+        return BOOL; //  so that error won't cascade
+    }
+
+}
+
+enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
+
+       if (E1 == POINT && E2 == POINT){
+              lineArrNo = 1;
+              return LINEARR;
+       }
+
+       if (E1 == LINEARR && E2 == POINT){
+              lineArrNo++;
+              return LINEARR;
+       }
+
+       if (arithCompatible(E1) && arithCompatible(E2)){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1); // Change Later
+       }
+}
+
+enum eletype mulTypeCheck(enum eletype E1, enum eletype E2){
+
+       if (arithCompatible(E1) && arithCompatible(E2)){
+              return max(E1, E2);
+       }
+       else {
+              cerr << "Error: Semantic error incompatible datatypes\n";
+              exit(1); // Change Later
+       }
+}
+
+void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
+
+       dest->push_back(x);
+
+       for (int i = 0;i < src->size();i++)
+              dest->push_back(src->at(i));
+}
+
+int checkDims(char* name,int count) {
+       if(lookupConstructTab2(name).Type!=Invalid) {
+           return 0;
+       }
+       vector<int> dimlist (checkDimList(name)); 
+       if(dimlist.size() < count) {
+              cerr<<"Error: Dimension not matching"<<endl;
+              return -1;
+       }
+       else {
+              return count;
+       }
+}
+
+STentry returnType(vector<cntAndType> dimsAndType) {
+       STentry t;
+       STentry s = lookup(dimsAndType[0].name);
+       if(s.Type==Invalid) {
+           STentry st = lookupConstructTab(dimsAndType[0].name,UNDEF);
+           if(st.Type==Invalid) {
+              cerr<<"Error: Identifier not found"<<endl;
+              exit(1);
+           }
+           else {
+              return st;  // Std Library function
+           }   
+       }
+       else {
+              t = s;
+              vector<int> new_dimlist;
+              for(int i = dimsAndType[0].count;i<t.DimList.size();i++) {
+                     
+                     new_dimlist.push_back(t.DimList[i]);
+              }
+              t.DimList = new_dimlist;
+              for(int i = 1;i<dimsAndType.size();i++) {
+                     if(dimsAndType[i-1].count > 0) {
+                            cerr<<"Error: Array has no member attribute"<<endl;
+                            exit(1);
+                     }
+                     else {
+                        STentry st = lookupConstructTab(dimsAndType[i].name,t.Eletype);
+                        if(st.Type!=Invalid) {
+                            t = st;
+                        }            
+                     }         
+              }
+
+              return t;
+       }
+       
+}
+
+void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_params) {
+       if(func_params.size() > passed_params.size()) {
+              semanticError("Error: Too few arguments");
+       }
+       else if(func_params.size() < passed_params.size()) {
+              semanticError("Error: Too many arguments");
+       }
+       else {
+              for(int i = 0;i<func_params.size();i++) {
+                     if(func_params[i].Eletype==passed_params[i].eletype) {
+                            bool isEqual = 0;
+                            if(equal(func_params[i].dim.begin(),func_params[i].dim.end(),passed_params[i].dim.begin(),passed_params[i].dim.end())) {
+                                   isEqual = 1;
+                            }
+                            if(!isEqual) {
+                                   semanticError("Error: Array dimension is not matching for argument"); 
+                            }  
+                     }
+                     else {
+                            semanticError("Error: Type is not matching for argument");
+                     }
+              }
+       }
+}
+
+void figArgumentChecking(vector<types>& passed_params) {
+       if(passed_params.size()>2) {
+            semanticError("Too many arguments");  
+       }
+
+       if(passed_params.size()==2) {
+              if (!arithCompatible(passed_params[0].eletype) && passed_params[0].eletype != UNDEF){
+              
+                     semanticError("in fig call scale has to be a number type");
+              }
+
+              if (passed_params[1].eletype != POINT && passed_params[1].eletype != UNDEF){
+                     
+                     semanticError("in fig call center has to be a point type");
+
+              }  
+       }
+
+       if(passed_params.size()==1) {
+              if ((!arithCompatible(passed_params[0].eletype) && passed_params[0].eletype != UNDEF) || (passed_params[0].eletype != POINT && passed_params[0].eletype != UNDEF)){
+                     semanticError("in fig call arguemnt can be scale or center");
+              }  
+       }
+       
+}
 
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
@@ -187,6 +666,9 @@ void printSymbolTable() {
             case LINE:
                 cout << "LINE";
                 break;
+            // case LINEARR:
+                // cout << "ERROR!!!";
+                // break;   
             case CIRCLE:
                 cout << "CIRCLE";
                 break;
@@ -235,6 +717,3 @@ void printSymbolTable() {
         cout << "-------------------------" << endl;
     }
 }
-
-
-

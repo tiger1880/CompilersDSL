@@ -282,10 +282,10 @@ void insertConstructTab() {
     ConstructTab[2]["PERIMETER"]={Func,REAL,{},{}};
 
     /*Triangle*/
-    ConstructTab[3]["CIRCUMCENTRE"] = {Func,POINT,{},{}};
-    ConstructTab[3]["EXCENTRE"] = {Func,POINT,{},{}};
+    ConstructTab[3]["CIRCUMCENTER"] = {Func,POINT,{},{}};
+    ConstructTab[3]["EXCENTER"] = {Func,POINT,{},{}};
     ConstructTab[3]["INCENTRE"] = {Func,POINT,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[3]["ORTHOCENTRE"]={Func,POINT,{},{}};
+    ConstructTab[3]["ORTHOCENTER"]={Func,POINT,{},{}};
     ConstructTab[3]["ALTITUDE"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
     ConstructTab[3]["MEDIAN"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
     ConstructTab[3]["CENTROID"] = {Func,POINT,{},{}};

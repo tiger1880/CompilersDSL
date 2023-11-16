@@ -114,7 +114,7 @@ class Tri:public Shapes{
         glEnd();
     }
 
-    Point CIRCUMCENTER() {
+    Point CIRCUMCENTER() {  //Check once again
         double a = (p1.y*p1.y + p2.x*p3.x)*(p2.x - p3.x) + (p2.y*p2.y + p3.x*p1.x)*(p3.x - p1.x) + (p3.y*p3.y + p1.x*p2.x)*(p1.x - p2.x);
         double b = (p1.x*p1.x + p2.y*p3.y)*(p2.y - p3.y) + (p2.x*p2.x + p3.y*p1.y)*(p3.y - p1.y) + (p3.x*p3.x + p1.y*p2.y)*(p1.y - p2.y);
         double c = p2.y*(p3.x-p1.x) - p1.x*(p3.y-p1.y) - (p1.y*p3.x - p3.y*p1.x);
@@ -125,21 +125,48 @@ class Tri:public Shapes{
 
     }
 
-    Point ORTHOCENTER() {
-        
-    }
-
     Point CENTROID() {
         Point g = Point((p1.x+p2.x+p3.x)/3,(p1.y+p2.y+p3.y)/3);
         return g;
     }
 
+    Point ORTHOCENTER() {
+        Point o = CIRCUMCENTER();
+        Point g = CENTROID();
+
+        Point h = Point(3*g.x - 2*o.x,3*g.y - 2*o.y);
+
+        return h;
+    }
+
     Point EXCENTER(Point p) {
-        
+        Point q;
+        if(p1.x==p.x && p1.y==p.y) {
+            return q;
+        }
+        else if(p2.x==p.x && p2.y==p.y) {
+            //q = Point((p1.x+p3.x)/2,(p1.y+p3.y)/2);
+            return q;
+        }
+        else if(p3.x==p.x && p3.y==p.y) {
+            //q = Point((p2.x+p1.x)/2,(p2.y+p1.y)/2);
+            return q;
+        }
+        else {
+            return q;
+        }
     }
 
     Point INCENTER() {
-        
+        Line a = Line(p1,p2);
+        Line b = Line(p2,p3);
+        Line c = Line(p3,p1);
+
+        Line l1 = ANGLE_BISECTOR(a,b);
+        Line l2 = ANGLE_BISECTOR(b,c);
+        Point i = INTERSECTION(l1,l2);
+
+        return i;
     }
 
     class Line MEDIAN(Point p) {
@@ -161,7 +188,7 @@ class Tri:public Shapes{
         }
     }
 
-    Line ALTITUDE(Point p) {
+    Line ALTITUDE(Point p) {   //Check once again
         Point q;
         if(p1.x==p.x && p1.y==p.y) {
             double c = (p2.x-p3.x)*(p2.x-p3.x) + (p2.y-p3.y)*(p2.y-p3.y);

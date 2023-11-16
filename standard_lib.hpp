@@ -123,7 +123,8 @@ class Tri:public Shapes{
     }
 
     Point CENTROID() {
-        
+        Point g = Point((p1.x+p2.x+p3.x)/3,(p1.y+p2.y+p3.y)/3);
+        return g;
     }
 
     Point EXCENTER(Point p) {
@@ -135,7 +136,22 @@ class Tri:public Shapes{
     }
 
     Line MEDIAN(Point p) {
-
+        Point q;
+        if(p1.x==p.x && p1.y==p.y) {
+            q = Point((p2.x+p3.x)/2,(p2.y+p3.y)/2);
+            return Line(p,q);
+        }
+        else if(p2.x==p.x && p2.y==p.y) {
+            q = Point((p1.x+p3.x)/2,(p1.y+p3.y)/2);
+            return Line(p,q);
+        }
+        else if(p3.x==p.x && p3.y==p.y) {
+            q = Point((p2.x+p1.x)/2,(p2.y+p1.y)/2);
+            return Line(p,q);
+        }
+        else {
+            return Line();
+        }
     }
 
     Line ALTITUDE(Point p) {

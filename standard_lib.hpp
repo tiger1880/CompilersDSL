@@ -221,9 +221,13 @@ class Para:public Shapes{
 
 class RegPoly:public Shapes{
     class Point center;
-    int sides;
+    int numOfSides;
     float sideLength;
 
+    RegPoly(int numOfSides, float sideLength, class Point center){
+        this->numOfSides = numOfSides;
+        this->sideLength = sideLength;
+        this->center = center;
+    }
     
-
 };

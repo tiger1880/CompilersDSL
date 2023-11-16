@@ -142,7 +142,7 @@ class Tri:public Shapes{
         
     }
 
-    Line MEDIAN(Point p) {
+    class Line MEDIAN(Point p) {
         Point q;
         if(p1.x==p.x && p1.y==p.y) {
             q = Point((p2.x+p3.x)/2,(p2.y+p3.y)/2);
@@ -204,6 +204,9 @@ class Tri:public Shapes{
 };
 
 class Circle:public Shapes{
+    float radius;
+    class Point center ;
+
 
 };
 
@@ -212,5 +215,10 @@ class Para:public Shapes{
 };
 
 class RegPoly:public Shapes{
+    class Point center;
+    int sides;
+    float sideLength;
+
+    
 
 };

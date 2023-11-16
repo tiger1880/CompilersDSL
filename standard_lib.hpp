@@ -115,6 +115,13 @@ class Tri:public Shapes{
     }
 
     Point CIRCUMCENTER() {
+        double a = (p1.y*p1.y + p2.x*p3.x)*(p2.x - p3.x) + (p2.y*p2.y + p3.x*p1.x)*(p3.x - p1.x) + (p3.y*p3.y + p1.x*p2.x)*(p1.x - p2.x);
+        double b = (p1.x*p1.x + p2.y*p3.y)*(p2.y - p3.y) + (p2.x*p2.x + p3.y*p1.y)*(p3.y - p1.y) + (p3.x*p3.x + p1.y*p2.y)*(p1.y - p2.y);
+        double c = p2.y*(p3.x-p1.x) - p1.x*(p3.y-p1.y) - (p1.y*p3.x - p3.y*p1.x);
+        double k = a/2*c;
+        double h = -b/2*c;
+
+        return Point(h,k);
 
     }
 
@@ -155,7 +162,31 @@ class Tri:public Shapes{
     }
 
     Line ALTITUDE(Point p) {
-
+        Point q;
+        if(p1.x==p.x && p1.y==p.y) {
+            double c = (p2.x-p3.x)*(p2.x-p3.x) + (p2.y-p3.y)*(p2.y-p3.y);
+            double a = (p2.x-p3.x)*(p2.x-p3.x)*p1.x + (p2.y-p3.y)*(p2.y-p3.y)*p2.x + (p1.y-p2.y)*(p2.y-p3.y)*(p2.x-p3.x);
+            double b = (p2.x-p3.x)*(p2.x-p3.x)*p2.y + (p2.y-p3.y)*(p2.y-p3.y)*p1.y + (p1.x-p2.x)*(p2.y-p3.y)*(p2.x-p3.x);
+            q = Point(a/c,b/c);
+            return Line(p,q);
+        }
+        else if(p2.x==p.x && p2.y==p.y) {
+            double c = (p3.x-p1.x)*(p3.x-p1.x) + (p3.y-p1.y)*(p3.y-p1.y);
+            double a = (p3.x-p1.x)*(p3.x-p1.x)*p2.x + (p3.y-p1.y)*(p3.y-p1.y)*p3.x + (p2.y-p3.y)*(p3.y-p1.y)*(p3.x-p1.x);
+            double b = (p3.x-p1.x)*(p3.x-p1.x)*p3.y + (p3.y-p1.y)*(p3.y-p1.y)*p2.y + (p2.x-p3.x)*(p3.y-p1.y)*(p3.x-p1.x);
+            q = Point(a/c,b/c);
+            return Line(p,q);
+        }
+        else if(p3.x==p.x && p3.y==p.y) {
+            double c = (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y);
+            double a = (p1.x-p2.x)*(p1.x-p2.x)*p3.x + (p1.y-p2.y)*(p1.y-p2.y)*p1.x + (p3.y-p1.y)*(p1.y-p2.y)*(p1.x-p2.x);
+            double b = (p1.x-p2.x)*(p1.x-p2.x)*p1.y + (p1.y-p2.y)*(p1.y-p2.y)*p3.y + (p3.x-p1.x)*(p1.y-p2.y)*(p1.x-p2.x);
+            q = Point(a/c,b/c);
+            return Line(p,q);
+        }
+        else {
+            return Line();
+        }
     }
 
     double Area() override {

@@ -235,10 +235,7 @@ class Circle:public Shapes{
         return 3.14*radius*radius;
 
     }
-    double Perimeter(){
-       //Here perimeter means circumference
-        return 2*3.14*radius;
-    }
+    
 
 };
 
@@ -257,12 +254,6 @@ class RegPoly:public Shapes{
         this->center = center;
     }
 
-    double Area(){
-        return ((numOfSides*sideLength*sideLength)/(4*tan(3.14/numOfSides)));
-    }
-
-    double Perimeter(){
-        return numOfSides*sideLength;
-    }
+    
 
 };

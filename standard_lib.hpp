@@ -240,11 +240,14 @@ class Circle:public Shapes{
     }
 
     class Line  TANGENT(class Point q){
-
-
-
-
-
+        double m;
+        m = (center.y - q.y)/(center.x-q.x);
+        class Point p;
+        p.y = q.y - m*q.x ;
+        p.x = 0;
+        class Line l;
+        l = Line(p,q);
+        return l;
     }
 
     vector<class Point> INTERSECTION(class Circle c1, class Circle c2){
@@ -271,6 +274,8 @@ class Circle:public Shapes{
             p[0].x = k*p[0].y + c ;
             p[0].x = k*p[1].y + c ;
         }
+
+        return p;
     }
 
     class Line COMMON_TANGENT(class Circle c1, class Circle c2){

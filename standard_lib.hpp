@@ -235,7 +235,10 @@ class Circle:public Shapes{
         return 3.14*radius*radius;
 
     }
-    
+    double Perimeter(){
+       //Here perimeter means circumference
+        return 2*3.14*radius;
+    }
 
 };
 

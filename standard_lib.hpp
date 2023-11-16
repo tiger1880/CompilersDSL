@@ -207,6 +207,11 @@ class Circle:public Shapes{
     float radius;
     class Point center ;
 
+    Circle(float radius, class Point center){
+        this->radius = radius;
+        this->center = center;
+    }
+
 
 };
 

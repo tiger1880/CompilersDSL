@@ -308,15 +308,16 @@ class Tri:public Shapes{
 
 };
 
-class Circle:public Shapes{
+class Circle:public Shapes {
     float radius;
     class Point center ;
 
-    Circle(float radius, class Point center){
+    Circle(float radius, class Point center) {
         this->radius = radius;
         this->center = center;
     }
 
+    
     class Line  TANGENT(class Point q){
         double m;
         m = (center.y - q.y)/(center.x-q.x);
@@ -327,18 +328,21 @@ class Circle:public Shapes{
         l = Line(p,q);
         return l;
     }
+    
+    
     void tangents (class Point c, double r1, double r2, vector<class Line> & ans) {
-    double r = r2 - r1;
-    double z = sqrt(c.x) + sqrt(c.y);
-    double d = z - sqrt(r);
-    if (d < -EPS)  return;
-    d = sqrt (abs (d));
-    Line l;
-    l.a = (c.x * r + c.y * d) / z;
-    l.b = (c.y * r - c.x * d) / z;
-    l.c = r1;
-    ans.push_back (l);
-}
+        double r = r2 - r1;
+        double z = sqrt(c.x) + sqrt(c.y);
+        double d = z - sqrt(r);
+        if (d < -EPS)  return;
+        d = sqrt (abs (d));
+        Line l;
+        l.a = (c.x * r + c.y * d) / z;
+        l.b = (c.y * r - c.x * d) / z;
+        l.c = r1;
+        ans.push_back (l);
+    }
+    
     vector<class Point> INTERSECTION(class Circle c1, class Circle c2){
         vector<class Point> p;
         //Finding quadratic equation and then sove it.
@@ -353,11 +357,11 @@ class Circle:public Shapes{
         c = (c1.radius*c1.radius- (c2.radius*c2.radius) + (c2.center.x*c2.center.x + c2.center.y*c2.center.y) - (c1.center.x*c1.center.x+ c1.center.x*c1.center.x))/(2*(c2.center.x-c1.center.x)) ;
         k =  (c1.center.y-c2.center.y)/(c2.center.x-c1.center.x);
         double D = (pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)) - 4*(k*k+1)*(c1.center.x*c1.center.x+c1.center.y*c1.center.y+c*c-c1.radius*c1.radius-2*c*c1.radius);
-        if(D == 0){
+        if(D == 0) {
             p[0].y = -1*(pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)/2*(k*k+1));
             p[0].x = k*p[0].y + c;
         }
-        else{
+        else {
             p[0].y = -1*(pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)/2*(k*k+1)) + sqrt(D);
             p[1].y = -1*(pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)/2*(k*k+1)) + sqrt(D);
             p[0].x = k*p[0].y + c ;
@@ -468,10 +472,10 @@ class Circle:public Shapes{
 class Para:public Shapes{
     public:
         Point s1;
-        real angle;
+        double angle;
         Point s2;
     
-    Para(Point point1, real ang, Point point2){
+    Para(Point point1, double ang, Point point2){
         s1 = point1;
         angle = ang;
         s2 = point2;

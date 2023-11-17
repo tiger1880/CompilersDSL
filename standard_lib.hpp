@@ -10,6 +10,8 @@
 
 using namespace std;
 
+//Everyone add string tag for label and bool show to indicate show/hide.
+
 double norm(Point p1,Point p2) {
     return 0;
 }
@@ -27,22 +29,32 @@ class Point:public Shapes{
     public:
     double x;
     double y;
+    string tag;
+    bool show;
+    
 
     Point() {
-
+    
     }
 
     Point(double a,double b) {
         x = a;
         y = b;
+        show = true;
+    }
+
+    Point(double a,double b,bool sh) {
+        x = a;
+        y = b;
+        show = sh;
     }
 
     double Area() override {
-        // Implementation for Point Area
+        return 0;
     }
 
     double Perimeter() override {
-        // Implementation for Point Perimeter
+        return 0;
     }
 
 };
@@ -64,15 +76,34 @@ class Tri:public Shapes{
     Point p1;
     Point p2;
     Point p3;
+    string tag;
+    bool show;
 
     Tri() {
-
+        
     }
 
     Tri(Point point1,Point point2,Point point3) {
         p1 = point1;
         p2 = point2;
         p3 = point3;
+        show = true;
+
+        glColor3b(0,0,0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+
+        glEnd();
+
+    }
+
+    Tri(Point point1,Point point2,Point point3,bool sh) {
+        p1 = point1;
+        p2 = point2;
+        p3 = point3;
+        show = sh;
 
         glColor3b(0,0,0);
         glBegin(GL_TRIANGLES);
@@ -90,6 +121,24 @@ class Tri:public Shapes{
         double a = (s2*s2 + s1*s1 - s3*s3)/(2*s1);
         double b = sqrt(s2*s2 - a*a);
         p3 = Point(a,b);
+        show = true;
+
+        glColor3b(0,0,0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+
+        glEnd();
+    }
+
+    Tri(double s1,double s2,double s3,bool sh) {
+        p1 = Point(0,0);
+        p2 = Point(s1,0);
+        double a = (s2*s2 + s1*s1 - s3*s3)/(2*s1);
+        double b = sqrt(s2*s2 - a*a);
+        p3 = Point(a,b);
+        show = sh;
 
         glColor3b(0,0,0);
         glBegin(GL_TRIANGLES);
@@ -104,6 +153,22 @@ class Tri:public Shapes{
         p1 = Point(0,0);
         p2 = Point(s,0);
         p3 = Point(0,sqrt(h*h - s*s));
+        show = true;
+
+        glColor3b(0,0,0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+
+        glEnd();
+    }
+
+    Tri(double h,double s,bool sh) {
+        p1 = Point(0,0);
+        p2 = Point(s,0);
+        p3 = Point(0,sqrt(h*h - s*s));
+        show = sh;
 
         glColor3b(0,0,0);
         glBegin(GL_TRIANGLES);
@@ -140,17 +205,28 @@ class Tri:public Shapes{
     }
 
     Point EXCENTER(Point p) {
+        Line a = Line(p1,p2,false);
+        Line b = Line(p2,p3,false);
+        Line c = Line(p3,p1,false);
+
+        vector<Line> l1;
+        vector<Line> l2;
+        vector<Line> l3;
+
+        l1 = ANGLE_BISECTOR(a,b);
+        l2 = ANGLE_BISECTOR(b,c);
+        l3 = ANGLE_BISECTOR(c,a);
+        
         Point q;
+        
         if(p1.x==p.x && p1.y==p.y) {
-            return q;
+            return INTERSECTION(l2[1],l3[1]);   //Assuming 1st index will give external angle bisector
         }
         else if(p2.x==p.x && p2.y==p.y) {
-            //q = Point((p1.x+p3.x)/2,(p1.y+p3.y)/2);
-            return q;
+            return INTERSECTION(l3[1],l1[1]);
         }
         else if(p3.x==p.x && p3.y==p.y) {
-            //q = Point((p2.x+p1.x)/2,(p2.y+p1.y)/2);
-            return q;
+            return INTERSECTION(l1[1],l2[1]);
         }
         else {
             return q;
@@ -158,13 +234,15 @@ class Tri:public Shapes{
     }
 
     Point INCENTER() {
-        Line a = Line(p1,p2);
-        Line b = Line(p2,p3);
-        Line c = Line(p3,p1);
+        Line a = Line(p1,p2,false);
+        Line b = Line(p2,p3,false);
+        Line c = Line(p3,p1,false);
 
-        Line l1 = ANGLE_BISECTOR(a,b);
-        Line l2 = ANGLE_BISECTOR(b,c);
-        Point i = INTERSECTION(l1,l2);
+        vector<Line> l1;
+        vector<Line> l2;
+        l1 = ANGLE_BISECTOR(a,b);
+        l2 = ANGLE_BISECTOR(b,c);
+        Point i = INTERSECTION(l1[0],l2[0]);   //Assuming 1st angle bisector is internal angle bisector
 
         return i;
     }

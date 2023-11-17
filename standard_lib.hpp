@@ -10,16 +10,36 @@
 
 using namespace std;
 
-//Everyone add string tag for label and bool show to indicate show/hide.
+//Everyone add bool show to indicate show/hide.
 
 double norm(Point p1,Point p2) {
     return 0;
 }
 
+double angleBetweenPoints(Point p1,Point p2,Point p3,bool sh = true) {
+    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
+    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
+
+    double theta = atan((m2-m1)/(1 + m1*m2));
+
+    theta = theta * 180.0 / M_PI;
+
+    return theta;
+
+}
+
+bool isParallel(Line l1,Line l2) {
+    return true;
+}
+
+bool isPerpandicular(Line l1,Line l2) {
+    return true;
+}
+
 class Shapes{
 
 public:
-string label;
+string tag;
 virtual double  Area() = 0;
 virtual double Perimeter() = 0;
 
@@ -29,7 +49,6 @@ class Point:public Shapes{
     public:
     double x;
     double y;
-    string tag;
     bool show;
     
 
@@ -76,7 +95,6 @@ class Tri:public Shapes{
     Point p1;
     Point p2;
     Point p3;
-    string tag;
     bool show;
 
     Tri() {

@@ -319,6 +319,21 @@ class Para:public Shapes{
         glEnd();
     }
 
+    vector<class Line> DIAGONAL(){
+        vector<Line> l;
+        l.push_back(Line((0,0),(s2*cos(angle)+s1,s2*sin(angle))));
+        l.push_back(Line((s2*cos(angle),s2*sin(angle)),(s1,0)));
+        
+        glColor3b(0,0,0);
+        glBegin(GL_LINES);
+            glVertex2d(l[0].p1.x,l[0].p1.y);
+            glVertex2d(l[0].p2.x,l[0].p2.y);
+            glVertex2d(l[1].p1.x,l[1].p1.y);
+            glVertex2d(l[1].p2.x,l[1].p2.y);
+        glEnd();
+        return l;
+    }
+
     double Area() override {
         return s1*s2*sin(angle);
     }

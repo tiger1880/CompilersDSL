@@ -18,8 +18,8 @@ class Shapes{
 
 public:
 string label;
-virtual double  Area()=0;
-virtual double Perimeter()=0;
+virtual double  Area() = 0;
+virtual double Perimeter() = 0;
 
 };
 
@@ -249,7 +249,18 @@ class Circle:public Shapes{
         l = Line(p,q);
         return l;
     }
-
+    void tangents (class Point c, double r1, double r2, vector<class Line> & ans) {
+    double r = r2 - r1;
+    double z = sqrt(c.x) + sqrt(c.y);
+    double d = z - sqrt(r);
+    if (d < -EPS)  return;
+    d = sqrt (abs (d));
+    Line l;
+    l.a = (c.x * r + c.y * d) / z;
+    l.b = (c.y * r - c.x * d) / z;
+    l.c = r1;
+    ans.push_back (l);
+}
     vector<class Point> INTERSECTION(class Circle c1, class Circle c2){
         vector<class Point> p;
         //Finding quadratic equation and then sove it.
@@ -278,9 +289,92 @@ class Circle:public Shapes{
         return p;
     }
 
-    class Line COMMON_TANGENT(class Circle c1, class Circle c2){
 
+    vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2){
+        
+        double d = sqrt(pow((c1.center.x-c2.center.x),2) + pow((c1.center.y-c2.center.y),2));
+        vector<class Line> ans;
+        // for (int i=-1; i<=1; i+=2)
+        // {   for (int j=-1; j<=1; j+=2)
+        //         tangents (c2-c1, c1.radius*i, c2.radius*j, ans);
+        // }
+        // for (size_t i=0; i<ans.size(); ++i)
+        //     ans[i].c -= ans[i].a * a.x + ans[i].b * a.y;
+        // return ans;
+        class Point p,q,r,s;
+
+        if(c1.radius + c2.radius < d)
+        {
+            p.x = (c1.radius*c2.center.x +  c2.radius*c1.center.x)/c1.radius+c2.radius;
+            p.y = (c1.radius*c2.center.y +  c2.radius*c1.center.y)/c1.radius+c2.radius;
+            q.x = (c2.radius*c1.center.x - c1.radius*c2.center.x )/c2.radius-c1.radius;
+            q.y = (c2.radius*c1.center.y - c1.radius*c2.center.y  )/c2.radius-c1.radius;
+
+            double D1, D2 ;
+            vector<double> m;
+            D1 = pow((c1.center.x - p.x),2) - 4*(c1.radius)*(c1.radius)*(pow((c1.radius),2) + c1.center.y - p.y);
+
+            if(D1==0){
+                m.push_back((c1.center.x - p.x)/2*(c1.radius)*c1.radius);
+                double y;
+            }
+            else if(D1>0){
+                m.push_back((c1.center.x - p.x+ D1)/2*(c1.radius)*c1.radius);
+                m.push_back((c1.center.x - p.x- D1)/2*(c1.radius)*c1.radius);
+            }
+
+            for(int i=0;i<m.size();i++){
+                r.x =0;
+                r.y = p.y - m[0]*p.x;
+                class Line l;
+                l = Line(p,r);
+                ans.push_back(l);
+            }
+            m.clear();
+
+            D2 = pow((c1.center.x - q.x),2) - 4*(c1.radius)*(c1.radius)*(pow((c1.radius),2) + c1.center.y - q.y);
+            if(D2 == 0){
+                m.push_back((c1.center.x - q.x)/2*(c1.radius)*c1.radius);
+            }
+            else if( D2 > 0){
+                m.push_back((c1.center.x - q.x+ D2)/2*(c1.radius)*c1.radius);
+                m.push_back((c1.center.x - q.x- D2)/2*(c1.radius)*c1.radius);
+            }
+
+            for(int i=0;i<m.size();i++){
+                r.x =0;
+                r.y = q.y - m[0]*q.x;
+                class Line l;
+                l = Line(q,r);
+                ans.push_back(l);
+            }
+            
+            return ans;
+        }
+        else if (c1.radius + c2.radius == d)
+        {
+        //3
+            return l;
+        }
+        else if (abs(c1.radius - c2.radius) < d < c1.radius + c2.radius)
+        {
+        //2
+            return l;
+
+        }
+        else if(abs(c1.radius - c2.radius) == d)
+        {
+        //1
+            return l;
+        }
+        else if(d <abs(c1.radius - c2.radius) )
+        {
+            return l;
+        }
     }
+
+        
+    
 
     double Area(){
         return 3.14*radius*radius;

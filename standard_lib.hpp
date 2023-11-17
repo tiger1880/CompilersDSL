@@ -322,6 +322,10 @@ class Para:public Shapes{
     double Area() override {
         return s1*s2*sin(angle);
     }
+
+    double Perimeter() override {
+        return 2*(s1+s2);
+    }
 };
 
 class RegPoly:public Shapes{

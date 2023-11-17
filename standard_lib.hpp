@@ -388,7 +388,53 @@ class Circle:public Shapes{
 };
 
 class Para:public Shapes{
+    public:
+        Point s1;
+        real angle;
+        Point s2;
+    
+    Para(Point point1, real ang, Point point2){
+        s1 = point1;
+        angle = ang;
+        s2 = point2;
 
+        Point p1,p2,p3,p4;
+        p1 = Point(0,0);
+        p2 = Point(s1,0);
+        p3 = Point(s2*cos(angle)+s1,s2*sin(angle));
+        p4 = Point(s2*cos(angle),s2*sin(angle));
+
+        glColor3b(0,0,0);
+        glBegin(GL_QUADS);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+            glVertex2d(p4.x,p4.y);
+        glEnd();
+    }
+
+    vector<class Line> DIAGONAL(){
+        vector<Line> l;
+        l.push_back(Line((0,0),(s2*cos(angle)+s1,s2*sin(angle))));
+        l.push_back(Line((s2*cos(angle),s2*sin(angle)),(s1,0)));
+        
+        glColor3b(0,0,0);
+        glBegin(GL_LINES);
+            glVertex2d(l[0].p1.x,l[0].p1.y);
+            glVertex2d(l[0].p2.x,l[0].p2.y);
+            glVertex2d(l[1].p1.x,l[1].p1.y);
+            glVertex2d(l[1].p2.x,l[1].p2.y);
+        glEnd();
+        return l;
+    }
+
+    double Area() override {
+        return s1*s2*sin(angle);
+    }
+
+    double Perimeter() override {
+        return 2*(s1+s2);
+    }
 };
 
 class RegPoly:public Shapes{

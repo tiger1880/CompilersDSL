@@ -318,6 +318,10 @@ class Para:public Shapes{
             glVertex2d(p4.x,p4.y);
         glEnd();
     }
+
+    double Area() override {
+        return s1*s2*sin(angle);
+    }
 };
 
 class RegPoly:public Shapes{

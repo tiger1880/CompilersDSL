@@ -375,15 +375,13 @@ class Circle : public Shapes
     {
         this->radius = radius;
         this->center = center;
-        glBegin(GL_TRIANGLE_FAN);
-        glColor3f(0.0f, 1.0f, 1.0f);    // Blue
-        glVertex2f(center.x, center.y); // Center of circle
-        int numSegments = 100;
+        glBegin(GL_LINE_LOOP);
+        glColor3f(0.0f, 1.0f, 1.0f); // Blue
         GLfloat angle;
-        for (int i = 0; i <= numSegments; i++)
-        {                                        // Last vertex same as first vertex
-            angle = i * 2.0f * PI / numSegments; // 360 deg for all segments
-            glVertex2f(center.x + cos(angle) * this->radius, center.y + sin(angle) * this->radius);
+        for (int i = 0; i <= 360; i++)
+        {                                      
+            angle = i * PI /180; // 360 deg for all segments
+            glVertex2f( cos(angle) * this->radius, sin(angle) * this->radius);
         }
         glEnd();
     }
@@ -580,7 +578,7 @@ class RegPoly : public Shapes
             angle += (PI/180)*(360/num);
         }
         glEnd();
-        
+
     }
 
     double Area()

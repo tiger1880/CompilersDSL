@@ -504,11 +504,11 @@ class Circle : public Shapes
 class Para : public Shapes
 {
 public:
-    Point s1;
+    double s1;
     double angle;
-    Point s2;
+    double s2;
 
-    Para(Point point1, double ang, Point point2)
+    Para(double point1, double ang, double point2)
     {
         s1 = point1;
         angle = ang;

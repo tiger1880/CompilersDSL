@@ -294,21 +294,15 @@ class Circle:public Shapes{
         
         double d = sqrt(pow((c1.center.x-c2.center.x),2) + pow((c1.center.y-c2.center.y),2));
         vector<class Line> ans;
-        // for (int i=-1; i<=1; i+=2)
-        // {   for (int j=-1; j<=1; j+=2)
-        //         tangents (c2-c1, c1.radius*i, c2.radius*j, ans);
-        // }
-        // for (size_t i=0; i<ans.size(); ++i)
-        //     ans[i].c -= ans[i].a * a.x + ans[i].b * a.y;
-        // return ans;
+       
         class Point p,q,r,s;
 
         if(c1.radius + c2.radius < d)
         {
-            p.x = (c1.radius*c2.center.x +  c2.radius*c1.center.x)/c1.radius+c2.radius;
-            p.y = (c1.radius*c2.center.y +  c2.radius*c1.center.y)/c1.radius+c2.radius;
-            q.x = (c2.radius*c1.center.x - c1.radius*c2.center.x )/c2.radius-c1.radius;
-            q.y = (c2.radius*c1.center.y - c1.radius*c2.center.y  )/c2.radius-c1.radius;
+            p.x = (c1.radius*c2.center.x +  c2.radius*c1.center.x)/(c1.radius+c2.radius);
+            p.y = (c1.radius*c2.center.y +  c2.radius*c1.center.y)/(c1.radius+c2.radius);
+            q.x = (c2.radius*c1.center.x - c1.radius*c2.center.x )/(c2.radius-c1.radius);
+            q.y = (c2.radius*c1.center.y - c1.radius*c2.center.y  )/(c2.radius-c1.radius);
 
             double D1, D2 ;
             vector<double> m;
@@ -374,7 +368,6 @@ class Circle:public Shapes{
     }
 
         
-    
 
     double Area(){
         return 3.14*radius*radius;

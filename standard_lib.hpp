@@ -9,6 +9,7 @@
 #include <GL/glut.h>
 
 using namespace std;
+#define PI 3.14
 
 // Everyone add bool show to indicate show/hide.
 
@@ -372,6 +373,16 @@ class Circle : public Shapes
     {
         this->radius = radius;
         this->center = center;
+        glBegin(GL_TRIANGLE_FAN);
+        glColor3f(0.0f, 1.0f, 1.0f);  // Blue
+        glVertex2f(center.x, center.y);       // Center of circle
+        int numSegments = 100;
+        GLfloat angle;
+        for (int i = 0; i <= numSegments; i++) { // Last vertex same as first vertex
+            angle = i * 2.0f * PI / numSegments;  // 360 deg for all segments
+            glVertex2f(center.x + cos(angle) * this->radius, center.y + sin(angle) * this->radius);
+        }
+        glEnd();
     }
 
     class Line TANGENT(class Point q)

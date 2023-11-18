@@ -14,12 +14,14 @@ using namespace std;
 // Everyone add bool show to indicate show/hide.
 
 double norm(Point p1, Point p2)
-{  double res =sqrt(pow((p1.x-p2.x),2) + pow((p1.y-p2.y),2));
+{
+    double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
     return res;
 }
 
-double norm(Point p1){
-    double res =sqrt(pow((p1.x),2) + pow((p1.y),2));
+double norm(Point p1)
+{
+    double res = sqrt(pow((p1.x), 2) + pow((p1.y), 2));
     return res;
 }
 
@@ -374,12 +376,13 @@ class Circle : public Shapes
         this->radius = radius;
         this->center = center;
         glBegin(GL_TRIANGLE_FAN);
-        glColor3f(0.0f, 1.0f, 1.0f);  // Blue
-        glVertex2f(center.x, center.y);       // Center of circle
+        glColor3f(0.0f, 1.0f, 1.0f);    // Blue
+        glVertex2f(center.x, center.y); // Center of circle
         int numSegments = 100;
         GLfloat angle;
-        for (int i = 0; i <= numSegments; i++) { // Last vertex same as first vertex
-            angle = i * 2.0f * PI / numSegments;  // 360 deg for all segments
+        for (int i = 0; i <= numSegments; i++)
+        {                                        // Last vertex same as first vertex
+            angle = i * 2.0f * PI / numSegments; // 360 deg for all segments
             glVertex2f(center.x + cos(angle) * this->radius, center.y + sin(angle) * this->radius);
         }
         glEnd();
@@ -558,18 +561,31 @@ class RegPoly : public Shapes
 {
     class Point center;
     int numOfSides;
-    float sideLength;
+    double sideLength;
 
-    RegPoly(int numOfSides, float sideLength, class Point center)
+    RegPoly(int numOfSides, double sideLength, class Point center)
     {
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
         this->center = center;
+        glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
+
+        glBegin(GL_LINE_LOOP);   
+        glColor3f(1.0f, 0.0f, 1.0f); // Yellow
+        int num = 5;
+        double len = 0.6f/2;
+        GLfloat angle = 0;
+        for(int i=0;i<num;i++){
+            glVertex2f(len*cos(angle),len*sin(angle));
+            angle += (PI/180)*(360/num);
+        }
+        glEnd();
+        
     }
 
     double Area()
     {
-        return ((numOfSides * sideLength * sideLength) / (4 * tan(3.14 / numOfSides)));
+        return ((numOfSides * sideLength * sideLength) / (4 * tan(PI / numOfSides)));
     }
 
     double Perimeter()

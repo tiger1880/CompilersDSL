@@ -386,22 +386,6 @@ class Circle : public Shapes
         return l;
     }
 
-    void
-    tangents(class Point c, double r1, double r2, vector<class Line> &ans)
-    {
-        double r = r2 - r1;
-        double z = sqrt(c.x) + sqrt(c.y);
-        double d = z - sqrt(r);
-        if (d < -EPS)
-            return;
-        d = sqrt(abs(d));
-        Line l;
-        l.a = (c.x * r + c.y * d) / z;
-        l.b = (c.y * r - c.x * d) / z;
-        l.c = r1;
-        ans.push_back(l);
-    }
-
     vector<class Point> INTERSECTION(class Circle c1, class Circle c2)
     {
         vector<class Point> p;

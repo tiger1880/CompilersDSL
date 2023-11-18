@@ -17,7 +17,10 @@ double norm(Point p1, Point p2)
     return res;
 }
 
-
+double norm(Point p1){
+    double res =sqrt(pow((p1.x),2) + pow((p1.y),2));
+    return res;
+}
 
 double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
 {

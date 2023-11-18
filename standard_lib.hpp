@@ -32,7 +32,7 @@ bool isParallel(Line l1,Line l2) {
     return true;
 }
 
-bool isPerpandicular(Line l1,Line l2) {
+bool isPerpendicular(Line l1,Line l2) {
     return true;
 }
 

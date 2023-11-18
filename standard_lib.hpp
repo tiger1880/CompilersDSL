@@ -10,14 +10,36 @@
 
 using namespace std;
 
+//Everyone add bool show to indicate show/hide.
+
 double norm(Point p1,Point p2) {
     return 0;
+}
+
+double angleBetweenPoints(Point p1,Point p2,Point p3,bool sh = true) {
+    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
+    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
+
+    double theta = atan((m2-m1)/(1 + m1*m2));
+
+    theta = theta * 180.0 / M_PI;
+
+    return theta;
+
+}
+
+bool isParallel(Line l1,Line l2) {
+    return true;
+}
+
+bool isPerpendicular(Line l1,Line l2) {
+    return true;
 }
 
 class Shapes{
 
 public:
-string label;
+string tag;
 virtual double  Area() = 0;
 virtual double Perimeter() = 0;
 
@@ -27,22 +49,31 @@ class Point:public Shapes{
     public:
     double x;
     double y;
+    bool show;
+    
 
     Point() {
-
+    
     }
 
     Point(double a,double b) {
         x = a;
         y = b;
+        show = true;
+    }
+
+    Point(double a,double b,bool sh) {
+        x = a;
+        y = b;
+        show = sh;
     }
 
     double Area() override {
-        // Implementation for Point Area
+        return 0;
     }
 
     double Perimeter() override {
-        // Implementation for Point Perimeter
+        return 0;
     }
 
 };
@@ -64,15 +95,33 @@ class Tri:public Shapes{
     Point p1;
     Point p2;
     Point p3;
+    bool show;
 
     Tri() {
-
+        
     }
 
     Tri(Point point1,Point point2,Point point3) {
         p1 = point1;
         p2 = point2;
         p3 = point3;
+        show = true;
+
+        glColor3b(0,0,0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+
+        glEnd();
+
+    }
+
+    Tri(Point point1,Point point2,Point point3,bool sh) {
+        p1 = point1;
+        p2 = point2;
+        p3 = point3;
+        show = sh;
 
         glColor3b(0,0,0);
         glBegin(GL_TRIANGLES);
@@ -90,6 +139,24 @@ class Tri:public Shapes{
         double a = (s2*s2 + s1*s1 - s3*s3)/(2*s1);
         double b = sqrt(s2*s2 - a*a);
         p3 = Point(a,b);
+        show = true;
+
+        glColor3b(0,0,0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+
+        glEnd();
+    }
+
+    Tri(double s1,double s2,double s3,bool sh) {
+        p1 = Point(0,0);
+        p2 = Point(s1,0);
+        double a = (s2*s2 + s1*s1 - s3*s3)/(2*s1);
+        double b = sqrt(s2*s2 - a*a);
+        p3 = Point(a,b);
+        show = sh;
 
         glColor3b(0,0,0);
         glBegin(GL_TRIANGLES);
@@ -104,6 +171,22 @@ class Tri:public Shapes{
         p1 = Point(0,0);
         p2 = Point(s,0);
         p3 = Point(0,sqrt(h*h - s*s));
+        show = true;
+
+        glColor3b(0,0,0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(p1.x,p1.y);
+            glVertex2d(p2.x,p2.y);
+            glVertex2d(p3.x,p3.y);
+
+        glEnd();
+    }
+
+    Tri(double h,double s,bool sh) {
+        p1 = Point(0,0);
+        p2 = Point(s,0);
+        p3 = Point(0,sqrt(h*h - s*s));
+        show = sh;
 
         glColor3b(0,0,0);
         glBegin(GL_TRIANGLES);
@@ -140,17 +223,28 @@ class Tri:public Shapes{
     }
 
     Point EXCENTER(Point p) {
+        Line a = Line(p1,p2,false);
+        Line b = Line(p2,p3,false);
+        Line c = Line(p3,p1,false);
+
+        vector<Line> l1;
+        vector<Line> l2;
+        vector<Line> l3;
+
+        l1 = ANGLE_BISECTOR(a,b);
+        l2 = ANGLE_BISECTOR(b,c);
+        l3 = ANGLE_BISECTOR(c,a);
+        
         Point q;
+        
         if(p1.x==p.x && p1.y==p.y) {
-            return q;
+            return INTERSECTION(l2[1],l3[1]);   //Assuming 1st index will give external angle bisector
         }
         else if(p2.x==p.x && p2.y==p.y) {
-            //q = Point((p1.x+p3.x)/2,(p1.y+p3.y)/2);
-            return q;
+            return INTERSECTION(l3[1],l1[1]);
         }
         else if(p3.x==p.x && p3.y==p.y) {
-            //q = Point((p2.x+p1.x)/2,(p2.y+p1.y)/2);
-            return q;
+            return INTERSECTION(l1[1],l2[1]);
         }
         else {
             return q;
@@ -158,13 +252,15 @@ class Tri:public Shapes{
     }
 
     Point INCENTER() {
-        Line a = Line(p1,p2);
-        Line b = Line(p2,p3);
-        Line c = Line(p3,p1);
+        Line a = Line(p1,p2,false);
+        Line b = Line(p2,p3,false);
+        Line c = Line(p3,p1,false);
 
-        Line l1 = ANGLE_BISECTOR(a,b);
-        Line l2 = ANGLE_BISECTOR(b,c);
-        Point i = INTERSECTION(l1,l2);
+        vector<Line> l1;
+        vector<Line> l2;
+        l1 = ANGLE_BISECTOR(a,b);
+        l2 = ANGLE_BISECTOR(b,c);
+        Point i = INTERSECTION(l1[0],l2[0]);   //Assuming 1st angle bisector is internal angle bisector
 
         return i;
     }
@@ -230,15 +326,16 @@ class Tri:public Shapes{
 
 };
 
-class Circle:public Shapes{
+class Circle:public Shapes {
     float radius;
     class Point center ;
 
-    Circle(float radius, class Point center){
+    Circle(float radius, class Point center) {
         this->radius = radius;
         this->center = center;
     }
 
+    
     class Line  TANGENT(class Point q){
         double m;
         m = (center.y - q.y)/(center.x-q.x);
@@ -249,18 +346,21 @@ class Circle:public Shapes{
         l = Line(p,q);
         return l;
     }
+    
+    
     void tangents (class Point c, double r1, double r2, vector<class Line> & ans) {
-    double r = r2 - r1;
-    double z = sqrt(c.x) + sqrt(c.y);
-    double d = z - sqrt(r);
-    if (d < -EPS)  return;
-    d = sqrt (abs (d));
-    Line l;
-    l.a = (c.x * r + c.y * d) / z;
-    l.b = (c.y * r - c.x * d) / z;
-    l.c = r1;
-    ans.push_back (l);
-}
+        double r = r2 - r1;
+        double z = sqrt(c.x) + sqrt(c.y);
+        double d = z - sqrt(r);
+        if (d < -EPS)  return;
+        d = sqrt (abs (d));
+        Line l;
+        l.a = (c.x * r + c.y * d) / z;
+        l.b = (c.y * r - c.x * d) / z;
+        l.c = r1;
+        ans.push_back (l);
+    }
+    
     vector<class Point> INTERSECTION(class Circle c1, class Circle c2){
         vector<class Point> p;
         //Finding quadratic equation and then sove it.
@@ -275,11 +375,11 @@ class Circle:public Shapes{
         c = (c1.radius*c1.radius- (c2.radius*c2.radius) + (c2.center.x*c2.center.x + c2.center.y*c2.center.y) - (c1.center.x*c1.center.x+ c1.center.x*c1.center.x))/(2*(c2.center.x-c1.center.x)) ;
         k =  (c1.center.y-c2.center.y)/(c2.center.x-c1.center.x);
         double D = (pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)) - 4*(k*k+1)*(c1.center.x*c1.center.x+c1.center.y*c1.center.y+c*c-c1.radius*c1.radius-2*c*c1.radius);
-        if(D == 0){
+        if(D == 0) {
             p[0].y = -1*(pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)/2*(k*k+1));
             p[0].x = k*p[0].y + c;
         }
-        else{
+        else {
             p[0].y = -1*(pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)/2*(k*k+1)) + sqrt(D);
             p[1].y = -1*(pow((2*c*k - 2*c1.center.x*k-2*c1.center.y),2)/2*(k*k+1)) + sqrt(D);
             p[0].x = k*p[0].y + c ;
@@ -383,10 +483,10 @@ class Circle:public Shapes{
 class Para:public Shapes{
     public:
         Point s1;
-        real angle;
+        double angle;
         Point s2;
     
-    Para(Point point1, real ang, Point point2){
+    Para(Point point1, double ang, Point point2){
         s1 = point1;
         angle = ang;
         s2 = point2;
@@ -406,20 +506,20 @@ class Para:public Shapes{
         glEnd();
     }
 
-    vector<class Line> DIAGONAL(){
-        vector<Line> l;
-        l.push_back(Line((0,0),(s2*cos(angle)+s1,s2*sin(angle))));
-        l.push_back(Line((s2*cos(angle),s2*sin(angle)),(s1,0)));
+    // vector<class Line> DIAGONAL(){
+    //     vector<Line> l;
+    //     l.push_back(Line((0,0),(s2*cos(angle)+s1,s2*sin(angle))));
+    //     l.push_back(Line((s2*cos(angle),s2*sin(angle)),(s1,0)));
         
-        glColor3b(0,0,0);
-        glBegin(GL_LINES);
-            glVertex2d(l[0].p1.x,l[0].p1.y);
-            glVertex2d(l[0].p2.x,l[0].p2.y);
-            glVertex2d(l[1].p1.x,l[1].p1.y);
-            glVertex2d(l[1].p2.x,l[1].p2.y);
-        glEnd();
-        return l;
-    }
+    //     glColor3b(0,0,0);
+    //     glBegin(GL_LINES);
+    //         glVertex2d(l[0].p1.x,l[0].p1.y);
+    //         glVertex2d(l[0].p2.x,l[0].p2.y);
+    //         glVertex2d(l[1].p1.x,l[1].p1.y);
+    //         glVertex2d(l[1].p2.x,l[1].p2.y);
+    //     glEnd();
+    //     return l;
+    // }
 
     double Area() override {
         return s1*s2*sin(angle);

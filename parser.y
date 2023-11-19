@@ -8,6 +8,7 @@
 #include<algorithm>
 #include <vector>
 #include <map>
+#include<deque>
 
 extern FILE *yyin; 
 FILE* fout_token;
@@ -28,16 +29,13 @@ void print(vector<T>& v){
     cout << "\n";
 }
 
+deque <string> collection;
+
 extern int yydebug;
 
 #define YYDEBUG 1
-/*     ONLY FOR  DEBUGGING    
 
-Problems: 1.) linearr should have dimension 1. Hence dimension not matching
-          2.) label s := "LABEL" showing  Error: types don't match in declaration and initialisation  
-          3.) Error Handling
-          4.) figure call
-*/
+/* Linearr left */
 
 
 int ret_flag = 0;
@@ -712,6 +710,16 @@ void yyerror(const char * s)
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
 
+string function_translation(string text) {
+
+}
+
+string fig_translation(string text) {
+       
+}
+
+
+
 
 int main(int argc, char*argv[])
 {    
@@ -742,6 +750,27 @@ int main(int argc, char*argv[])
       fprintf(stderr, "%s file could not be opened\n", tokenFilename);
       exit(1);
     }
+
+    /*For translation */
+
+    const char* translatedFilename = "translated.cpp";
+    fout_translated = fopen(translatedFilename, "w");
+
+    if (fout_translated == NULL)
+    {
+      fprintf(stderr, "%s file could not be opened\n", translatedFilename);
+      exit(1);
+    }
+
+    fprintf(translatedFilename,"#include<iostream>\n");
+    fprintf(translatedFilename,"#include<vector>\n");
+    fprintf(translatedFilename,"#include<GL/glut.h>\n");
+    fprintf(translatedFilename,"#include<string>\n");
+    fprintf(translatedFilename,"#include<stdlib.h>\n");
+    fprintf(translatedFilename,"#include<math.h>\n");
+    fprintf(translatedFilename,"#include<dequeue>\n");
+    fprintf(translatedFilename,"#include standard_lib.hpp\n");
+
 
     insertConstructTab();
 

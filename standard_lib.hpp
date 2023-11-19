@@ -118,23 +118,7 @@ public:
     {
     }
 
-    Tri(Point point1, Point point2, Point point3)
-    {
-        p1 = point1;
-        p2 = point2;
-        p3 = point3;
-        show = true;
-
-        glColor3b(0, 0, 0);
-        glBegin(GL_TRIANGLES);
-        glVertex2d(p1.x, p1.y);
-        glVertex2d(p2.x, p2.y);
-        glVertex2d(p3.x, p3.y);
-
-        glEnd();
-    }
-
-    Tri(Point point1, Point point2, Point point3, bool sh)
+    Tri(Point point1, Point point2, Point point3, bool sh = true)
     {
         p1 = point1;
         p2 = point2;
@@ -150,25 +134,8 @@ public:
         glEnd();
     }
 
-    Tri(double s1, double s2, double s3)
-    {
-        p1 = Point(0, 0);
-        p2 = Point(s1, 0);
-        double a = (s2 * s2 + s1 * s1 - s3 * s3) / (2 * s1);
-        double b = sqrt(s2 * s2 - a * a);
-        p3 = Point(a, b);
-        show = true;
 
-        glColor3b(0, 0, 0);
-        glBegin(GL_TRIANGLES);
-        glVertex2d(p1.x, p1.y);
-        glVertex2d(p2.x, p2.y);
-        glVertex2d(p3.x, p3.y);
-
-        glEnd();
-    }
-
-    Tri(double s1, double s2, double s3, bool sh)
+    Tri(double s1, double s2, double s3, bool sh = true)
     {
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
@@ -186,23 +153,7 @@ public:
         glEnd();
     }
 
-    Tri(double h, double s)
-    {
-        p1 = Point(0, 0);
-        p2 = Point(s, 0);
-        p3 = Point(0, sqrt(h * h - s * s));
-        show = true;
-
-        glColor3b(0, 0, 0);
-        glBegin(GL_TRIANGLES);
-        glVertex2d(p1.x, p1.y);
-        glVertex2d(p2.x, p2.y);
-        glVertex2d(p3.x, p3.y);
-
-        glEnd();
-    }
-
-    Tri(double h, double s, bool sh)
+    Tri(double h, double s, bool sh = true)
     {
         p1 = Point(0, 0);
         p2 = Point(s, 0);
@@ -501,24 +452,21 @@ class Circle : public Shapes
     }
 };
 
-class Para : public Shapes
+class Para : public Shapes   
 {
 public:
-    double s1;
-    double angle;
-    double s2;
+    Point p1;    //p1,p2,p3,p4 are attributes 
+    Point p2;
+    Point p3;
+    Point p4;
 
-    Para(double point1, double ang, double point2)
+    Para(double s1, double ang, double s2)
     {
-        s1 = point1;
-        angle = ang;
-        s2 = point2;
-
-        Point p1, p2, p3, p4;
+        
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
-        p3 = Point(s2 * cos(angle) + s1, s2 * sin(angle));
-        p4 = Point(s2 * cos(angle), s2 * sin(angle));
+        p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
+        p4 = Point(s2 * cos(ang), s2 * sin(ang));
 
         glColor3b(0, 0, 0);
         glBegin(GL_QUADS);
@@ -546,11 +494,16 @@ public:
 
     double Area() override
     {
+        double s1 = norm(p1,p2);
+        double s2 = norm(p2,p3);
+        double angle = angleBetweenPoints(p1,p2,p3);
         return s1 * s2 * sin(angle);
     }
 
     double Perimeter() override
     {
+        double s1 = norm(p1,p2);
+        double s2 = norm(p2,p3);
         return 2 * (s1 + s2);
     }
 };

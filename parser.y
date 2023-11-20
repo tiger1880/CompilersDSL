@@ -96,33 +96,33 @@ vector<ParamList> func_paramlist;
 }
 
 
-%token <main.constExp> INTEGERS BOOLEAN FLOATS
-%token LINE_OP  
-%token IF
-%token ELIF
-%token ELSE
-%token FOR
-%token WHILE
-%token RETURN
-%token <main.eletype> VOID
-%token CONTINUE
-%token BREAK
-%token PARALLEL
-%token PERPENDICULAR
+%token <main> INTEGERS BOOLEAN FLOATS
+%token <main.text> LINE_OP  
+%token <main.text> IF
+%token <main.text> ELIF
+%token <main.text> ELSE
+%token <main.text> FOR
+%token <main.text> WHILE
+%token <main.text> RETURN
+%token <main> VOID
+%token <main.text> CONTINUE
+%token <main.text> BREAK
+%token <main.text> PARALLEL
+%token <main.text> PERPENDICULAR
 %token FUNC
 %token FIG
-%token UNARY
-%token <main.eletype> DATATYPE
-%token CMP_OP EQ_CMP_OP
-%token ASSIGN_OP
-%token SUM_ASSIGN_OP
-%token SUB_ASSIGN_OP
-%token EQUAL
-%token <main.eletype> STRING_TOKEN
+%token <main.text> UNARY
+%token <main> DATATYPE
+%token <main.text> CMP_OP EQ_CMP_OP
+%token <main.text> ASSIGN_OP
+%token <main.text> SUM_ASSIGN_OP
+%token <main.text> SUB_ASSIGN_OP
+%token <main.text> EQUAL
+%token <main> STRING_TOKEN
 %token ENDLINE
 %token <main.name> ID
-%token <main.eletype> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
-%token NOT AND OR 
+%token <main> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
+%token <main.text> NOT AND OR 
 %token SCALE CENTER
 
 
@@ -176,7 +176,7 @@ program: program func
  
 
  /* Function Definition */
-func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
+func:  FUNC DATATYPE  ID { insertType($3, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
@@ -186,7 +186,7 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
                      if (ret_flag == 0) {
                             cerr<<"Error: Semantic error no return statement"<<endl;
                      }
-                     else if ($DATATYPE != ret_type) {
+                     else if ($DATATYPE.eletype != ret_type) {
                             cerr<<"Error: Semantic error return type not matching"<<endl; 
                      }
                      
@@ -201,7 +201,7 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2); addSymTabPtr(); } '(' arg_l
                      delete $ID;
                      delSymTabPtr();
               }
-              |  FUNC VOID ID { insertType($3, Func, $2);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
+              |  FUNC VOID ID { insertType($3, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
@@ -233,7 +233,7 @@ list1: list1 ',' argument | argument ;
 
 argument : DATATYPE ID check_arr {
               ParamList param;
-              param.Eletype = $1;
+              param.Eletype = $1.eletype;
               param.name = $2;
               param.dim = *$3;
               param.Type = Array;
@@ -242,7 +242,7 @@ argument : DATATYPE ID check_arr {
        }
        | DATATYPE ID {
               ParamList param;
-              param.Eletype = $1;
+              param.Eletype = $1.eletype;
               param.name = $2;
               vector<int> dim;
               param.dim = dim;
@@ -336,10 +336,10 @@ construct :  constructor '(' construct_param_list ')' {$$ = $1; construct_params
           | constructor '(' ')' {$$ = $1;} 
           ; 
 
-constructor : TRICONSTRUCT { $$ = $1;} 
-            | CIRCLECONSTRUCT { $$ = $1;} 
-            | PARACONSTRUCT { $$ = $1;} 
-            | REGPOLYCONSTRUCT { $$ = $1;}
+constructor : TRICONSTRUCT { $$ = $1.eletype;} 
+            | CIRCLECONSTRUCT { $$ = $1.eletype;} 
+            | PARACONSTRUCT { $$ = $1.eletype;} 
+            | REGPOLYCONSTRUCT { $$ = $1.eletype;}
             ;
 
 valid_arg: construct {$$ = $1;}
@@ -428,10 +428,10 @@ expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1) && arithCompatible($3)) || ($1 == $3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
             | member_access {$$ = $1;}
             | '(' expression ')' {$$ = $2;}
-            | FLOATS {$$ = $1.eletype;} 
-            | INTEGERS {$$ = $1.eletype;}
-            | BOOLEAN {$$ = $1.eletype;}
-            | STRING_TOKEN {$$ = $1;}
+            | FLOATS {$$ = $1.constExp.eletype;} 
+            | INTEGERS {$$ = $1.constExp.eletype;}
+            | BOOLEAN {$$ = $1.constExp.eletype;}
+            | STRING_TOKEN {$$ = $1.eletype;}
             | func_call {$$ = $1;}
             | point {$$ = $1;}
             | angle {$$ = $1;}            
@@ -450,7 +450,7 @@ assign:  EQUAL expression {$$ = $2;}
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1);lineArrNo = 0;}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1.eletype);lineArrNo = 0;}
           | constructor id_list ENDLINE {typeUpdate($2, $1);lineArrNo = 0;}
           ;
 
@@ -598,9 +598,9 @@ const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.
                                    else 
                                           $$.i = $2.i;
                             } 
-       | FLOATS {$$.eletype = $1.eletype;$$.d = $1.d;} 
-       | INTEGERS {$$.eletype = $1.eletype;$$.i = $1.i;}
-       | BOOLEAN {$$.eletype = INT;$$.i = $1.i;}
+       | FLOATS {$$.eletype = $1.constExp.eletype;$$.d = $1.constExp.d;} 
+       | INTEGERS {$$.eletype = $1.constExp.eletype;$$.i = $1.constExp.i;}
+       | BOOLEAN {$$.eletype = INT;$$.i = $1.constExp.i;}
        ;          
 
 
@@ -695,7 +695,7 @@ loop : for_loop
      | while_loop
      ;
 
-for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE);delete $ID;}
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE.eletype);delete $ID;}
               | { addSymTabPtr(); } ID EQUAL expression { delete $ID; }
               | { addSymTabPtr(); } 
               ;
@@ -776,8 +776,8 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<string>\n");
     fprintf(fout_translated,"#include<stdlib.h>\n");
     fprintf(fout_translated,"#include<math.h>\n");
-    fprintf(fout_translated,"#include<dequeue>\n");
-    fprintf(fout_translated,"#include standard_lib.hpp\n");
+    fprintf(fout_translated,"#include<deque>\n");
+    fprintf(fout_translated,"#include \"standard_lib.hpp \" \n");
 
 
     insertConstructTab();

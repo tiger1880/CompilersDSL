@@ -34,32 +34,32 @@ id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 {floats} {
-    yylval.constExp.eletype = REAL;
-    yylval.constExp.d = atof(yytext);
+    yylval.main.constExp.eletype = REAL;
+    yylval.main.constExp.d = atof(yytext);
     fprintf(fout_token, "FLOATS: %s\n", yytext);
     return FLOATS;
 }
 
 {triConstruct} {
-    yylval.eletype = TRI;
+    yylval.main.eletype = TRI;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
     return TRICONSTRUCT;
 }
 
 {circleConstruct} {
-    yylval.eletype = CIRCLE;
+    yylval.main.eletype = CIRCLE;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
     return CIRCLECONSTRUCT;
 }
 
 {regPolyConstruct} {
-    yylval.eletype = REGPOLY;
+    yylval.main.eletype = REGPOLY;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
     return REGPOLYCONSTRUCT;
 }
 
 {paraConstruct} {
-    yylval.eletype = PARA;
+    yylval.main.eletype = PARA;
     fprintf(fout_token, "CONSTRUCTOR: %s\n", yytext);
     return PARACONSTRUCT;
 }
@@ -89,8 +89,8 @@ center {
 }
 
 {integers} {
-    yylval.constExp.i = atoi(yytext);
-    yylval.constExp.eletype = INT;
+    yylval.main.constExp.i = atoi(yytext);
+    yylval.main.constExp.eletype = INT;
     fprintf(fout_token, "INTEGERS: %s\n", yytext);
     return INTEGERS;
 }
@@ -137,7 +137,7 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 
 "void" {
     if (strcmp(yytext, "void") == 0) {
-        yylval.eletype = Void;
+        yylval.main.eletype = Void;
     } 
     fprintf(fout_token, "VOID: %s\n", yytext);
     return VOID;
@@ -179,15 +179,15 @@ or {
 }
 
 "true" {
-    yylval.constExp.eletype = BOOL;
-    yylval.constExp.i = true;
+    yylval.main.constExp.eletype = BOOL;
+    yylval.main.constExp.i = true;
     fprintf(fout_token, "BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }
 
 "false" {
-    yylval.constExp.eletype = BOOL;
-    yylval.constExp.i = false;
+    yylval.main.constExp.eletype = BOOL;
+    yylval.main.constExp.i = false;
     fprintf(fout_token, "BOOLEAN: %s\n", yytext);
     return BOOLEAN;
 }
@@ -215,41 +215,41 @@ or {
 {datatype} {
     
     if (strcmp(yytext, "int") == 0) {
-        yylval.eletype = INT;
+        yylval.main.eletype = INT;
     } 
     else if (strcmp(yytext, "real") == 0) {
-        yylval.eletype = REAL;
+        yylval.main.eletype = REAL;
     } 
     else if (strcmp(yytext, "bool") == 0) {
-        yylval.eletype = BOOL;
+        yylval.main.eletype = BOOL;
     } 
     else if (strcmp(yytext, "label") == 0) {
-        yylval.eletype = LABEL;
+        yylval.main.eletype = LABEL;
     } 
     else if (strcmp(yytext, "tri") == 0) {
-        yylval.eletype = TRI;
+        yylval.main.eletype = TRI;
     } 
     else if (strcmp(yytext, "circle") == 0) {
-        yylval.eletype = CIRCLE;
+        yylval.main.eletype = CIRCLE;
     } 
     else if (strcmp(yytext, "para") == 0) {
-        yylval.eletype = PARA;
+        yylval.main.eletype = PARA;
     } 
     else if (strcmp(yytext, "regPoly") == 0) {
-        yylval.eletype = REGPOLY;
+        yylval.main.eletype = REGPOLY;
     } 
     else if (strcmp(yytext, "point") == 0) {
-        yylval.eletype = POINT;
+        yylval.main.eletype = POINT;
     } 
     else if (strcmp(yytext, "line") == 0) {
-        yylval.eletype = LINE;
+        yylval.main.eletype = LINE;
     } 
     else if (strcmp(yytext, "linearr") == 0) {
         // yylval.eletype = LINEARR;
-        yylval.eletype = UNDEF;
+        yylval.main.eletype = UNDEF;
     }
     else if (strcmp(yytext, "angle") == 0) {
-        yylval.eletype = ANGLE;
+        yylval.main.eletype = ANGLE;
     } 
     
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
@@ -295,14 +295,14 @@ or {
     return ASSIGN_OP;
 }
 {string_literal}  {
-    yylval.eletype = LABEL;
+    yylval.main.eletype = LABEL;
     fprintf(fout_token, "STRING_LITERAL: %s\n", yytext);
     return STRING_TOKEN;
 }
 
 {id} { 
 
-    yylval.name = dupString(yytext); // have to free !
+    yylval.main.name = dupString(yytext); // have to free !
 
     fprintf(fout_token, "IDENTIFIER: %s\n", yytext);
     return ID;

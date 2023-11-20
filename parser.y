@@ -12,6 +12,7 @@
 
 extern FILE *yyin; 
 FILE* fout_token;
+FILE* fout_translated;
 void yyerror(const char *s);
 int yylex();
 extern int yylineno;
@@ -59,36 +60,43 @@ vector<ParamList> func_paramlist;
 
 
 %union {
-    char* name; 
-    int count;
-    enum eletype eletype;  
-    vector<char*>* nameList;
-    vector<int>* dimList;
-    struct ConstExp {
-       enum eletype eletype;  
-       union {
-              int i;
-              double d;
-       };
-    } constExp;
-    struct {
-       int count;
-       enum eletype eletype;  
-    } countAndType;
-    struct {
-       vector<int>* dimList;
-       enum eletype eletype;  
-    } listAndType;
-    
-    vector<cntAndType>* dimCount;
 
-    bool stopAdvanceFound; // true for a non-nullified stop/advance
-   
+    struct {
+       union {
+              char* name; 
+              int count;
+              enum eletype eletype;  
+              vector<char*>* nameList;
+              vector<int>* dimList;
+              struct {
+                     enum eletype eletype;  
+                     union {
+                            int i;
+                            double d;
+                     };
+              } constExp;
+              struct {
+                     int count;
+                     enum eletype eletype;  
+              } countAndType;
+              struct {
+                     vector<int>* dimList;
+                     enum eletype eletype;  
+              } listAndType;
+              
+              vector<cntAndType>* dimCount;
+
+              bool stopAdvanceFound; // true for a non-nullified stop/advance
+       };
+
+       char* text;
+       
+    } main;
     
 }
 
 
-%token <constExp> INTEGERS BOOLEAN FLOATS
+%token <main.constExp> INTEGERS BOOLEAN FLOATS
 %token LINE_OP  
 %token IF
 %token ELIF
@@ -96,7 +104,7 @@ vector<ParamList> func_paramlist;
 %token FOR
 %token WHILE
 %token RETURN
-%token <eletype> VOID
+%token <main.eletype> VOID
 %token CONTINUE
 %token BREAK
 %token PARALLEL
@@ -104,36 +112,36 @@ vector<ParamList> func_paramlist;
 %token FUNC
 %token FIG
 %token UNARY
-%token <eletype> DATATYPE
+%token <main.eletype> DATATYPE
 %token CMP_OP EQ_CMP_OP
 %token ASSIGN_OP
 %token SUM_ASSIGN_OP
 %token SUB_ASSIGN_OP
 %token EQUAL
-%token <eletype> STRING_TOKEN
+%token <main.eletype> STRING_TOKEN
 %token ENDLINE
-%token <name> ID
-%token <eletype> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
+%token <main.name> ID
+%token <main.eletype> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
 %token NOT AND OR 
 %token SCALE CENTER
 
 
 // non-terminals
-%nterm <eletype> construct constructor
-%nterm <eletype> point angle expression member_access 
-%nterm <eletype> assign func_call
-%nterm <nameList> id_list
-%nterm <countAndType> mult_elements arr1d_in_list
-%nterm <constExp> const_expr 
-%nterm <dimList> check_arr dim 
-%nterm <listAndType> arr_assign comma_arr_assign arr_assign_line
-%nterm <eletype> decl_token decl_assign
-%nterm <eletype> ret_var 
-%nterm <eletype> optional_arg valid_arg
-%nterm <count> arr_access
-%nterm <dimCount> memb_access
-%nterm <stopAdvanceFound> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
-%nterm <eletype> opt_exp
+%nterm <main.eletype> construct constructor
+%nterm <main.eletype> point angle expression member_access 
+%nterm <main.eletype> assign func_call
+%nterm <main.nameList> id_list
+%nterm <main.countAndType> mult_elements arr1d_in_list
+%nterm <main.constExp> const_expr 
+%nterm <main.dimList> check_arr dim 
+%nterm <main.listAndType> arr_assign comma_arr_assign arr_assign_line
+%nterm <main.eletype> decl_token decl_assign
+%nterm <main.eletype> ret_var 
+%nterm <main.eletype> optional_arg valid_arg
+%nterm <main.count> arr_access
+%nterm <main.dimCount> memb_access
+%nterm <main.stopAdvanceFound> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
+%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
 
 
@@ -711,11 +719,11 @@ void yyerror(const char * s)
 }
 
 string function_translation(string text) {
-
+       return "true";
 }
 
 string fig_translation(string text) {
-       
+       return "true";
 }
 
 
@@ -762,14 +770,14 @@ int main(int argc, char*argv[])
       exit(1);
     }
 
-    fprintf(translatedFilename,"#include<iostream>\n");
-    fprintf(translatedFilename,"#include<vector>\n");
-    fprintf(translatedFilename,"#include<GL/glut.h>\n");
-    fprintf(translatedFilename,"#include<string>\n");
-    fprintf(translatedFilename,"#include<stdlib.h>\n");
-    fprintf(translatedFilename,"#include<math.h>\n");
-    fprintf(translatedFilename,"#include<dequeue>\n");
-    fprintf(translatedFilename,"#include standard_lib.hpp\n");
+    fprintf(fout_translated,"#include<iostream>\n");
+    fprintf(fout_translated,"#include<vector>\n");
+    fprintf(fout_translated,"#include<GL/glut.h>\n");
+    fprintf(fout_translated,"#include<string>\n");
+    fprintf(fout_translated,"#include<stdlib.h>\n");
+    fprintf(fout_translated,"#include<math.h>\n");
+    fprintf(fout_translated,"#include<dequeue>\n");
+    fprintf(fout_translated,"#include standard_lib.hpp\n");
 
 
     insertConstructTab();

@@ -127,21 +127,21 @@ vector<ParamList> func_paramlist;
 
 
 // non-terminals
-%nterm <main.eletype> construct constructor
-%nterm <main.eletype> point angle expression member_access 
-%nterm <main.eletype> assign func_call
-%nterm <main.nameList> id_list
-%nterm <main.countAndType> mult_elements arr1d_in_list
-%nterm <main.constExp> const_expr 
-%nterm <main.dimList> check_arr dim 
-%nterm <main.listAndType> arr_assign comma_arr_assign arr_assign_line
-%nterm <main.eletype> decl_token decl_assign
-%nterm <main.eletype> ret_var 
-%nterm <main.eletype> optional_arg valid_arg
-%nterm <main.count> arr_access
-%nterm <main.dimCount> memb_access
-%nterm <main.stopAdvanceFound> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
-%nterm <main.eletype> opt_exp
+%nterm <main> construct constructor
+%nterm <main> point angle expression member_access 
+%nterm <main> assign func_call
+%nterm <main> id_list
+%nterm <main> mult_elements arr1d_in_list
+%nterm <main> const_expr 
+%nterm <main> check_arr dim 
+%nterm <main> arr_assign comma_arr_assign arr_assign_line
+%nterm <main> decl_token decl_assign
+%nterm <main> ret_var 
+%nterm <main> optional_arg valid_arg
+%nterm <main> arr_access
+%nterm <main> memb_access
+%nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
+//%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
 
 
@@ -166,7 +166,7 @@ vector<ParamList> func_paramlist;
 /* a program is a series of functions, figures and statements */
 program: program func 
        | program fig 
-       | program stmt  {if ($stmt) semanticError("stop/advance cannot be outside the loop");}
+       | program stmt  {if ($stmt.stopAdvanceFound) semanticError("stop/advance cannot be outside the loop");}
        | /* empty */ {
               if(ret_flag) {
                      cerr << "Error: Return statement not allowed outside function" << endl;
@@ -194,7 +194,7 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2.eletype); addSymTabPtr(); } '
                      ret_fig_flag = 0;
                      ret_type = UNDEF;
 
-                     if ($[stmt_block]){
+                     if ($[stmt_block].stopAdvanceFound){
                             semanticError("stop/advance cannot be outside the loop");
                      }
 
@@ -216,13 +216,13 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2.eletype); addSymTabPtr(); } '
                      ret_fig_flag = 0;
                      ret_type = UNDEF;
 
-                     if ($[stmt_block]){
+                     if ($[stmt_block].stopAdvanceFound){
                             semanticError("stop/advance cannot be outside the loop");
                      }
 
                      delete $ID;
                      delSymTabPtr();
-              }   //Need to do testing
+              } 
               ;
 
 arg_list : list1 
@@ -235,7 +235,7 @@ argument : DATATYPE ID check_arr {
               ParamList param;
               param.Eletype = $1.eletype;
               param.name = $2;
-              param.dim = *$3;
+              param.dim = *$3.dimList;
               param.Type = Array;
               paramslist.push_back(param);
               delete $ID;
@@ -261,35 +261,35 @@ fig: FIG ID {insertType($ID, Fig, UNDEF); addSymTabPtr();}  '(' params ')' empty
                                                         ret_fig_flag = 0;
                                                         
 
-                                                        if ($[stmt_block])
+                                                        if ($[stmt_block].stopAdvanceFound)
                                                                semanticError("stop/advance cannot be outside the loop");
 
                                                         delSymTabPtr();
                                                         delete $ID;
                                                         } 
 
-params : expression ',' expression { if(!(arithCompatible($1) && $3 == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
-       | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3) && $7 == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
+params : expression ',' expression { if(!(arithCompatible($1.eletype) && $3.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
+       | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 
  /* Statements */
-stmt : cond_stmt {$$ = $1;}
-     | loop     {$$ = false;}
-     | decl_stmt {$$ = false;}
-     | assign_stmt {$$ = false;}
-     | return_stmt {$$ = false;}
-     | ENDLINE    {$$ = false;}
-     | stmt_block {$$ = $1;}
-     | break_stmt {$$ = true;}
+stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound;}
+     | loop     {$$.stopAdvanceFound = false;}
+     | decl_stmt {$$.stopAdvanceFound = false;}
+     | assign_stmt {$$.stopAdvanceFound = false;}
+     | return_stmt {$$.stopAdvanceFound = false;}
+     | ENDLINE    {$$.stopAdvanceFound = false;}
+     | stmt_block {$$.stopAdvanceFound = $1.stopAdvanceFound;}
+     | break_stmt {$$.stopAdvanceFound = true;}
      ;
 
-stmt_list: stmt_list stmt {$$ = $1 || $2;}
-         |  /* empty */ {$$ = false;}
+stmt_list: stmt_list stmt {$$.stopAdvanceFound = $1.stopAdvanceFound || $2.stopAdvanceFound;}
+         |  /* empty */ {$$.stopAdvanceFound = false;}
          ;
 
-stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' { $$ = $3; delSymTabPtr(); }
+stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' { $$.stopAdvanceFound = $3.stopAdvanceFound; delSymTabPtr(); }
           ;
 
-stmt_block_for: '{'  stmt_list '}' { $$ = $2; delSymTabPtr(); } // addSymTabPtr before for decl
+stmt_block_for: '{'  stmt_list '}' { $$.stopAdvanceFound = $2.stopAdvanceFound; delSymTabPtr(); } // addSymTabPtr before for decl
           ;
 
 break_stmt : BREAK ENDLINE 
@@ -297,9 +297,9 @@ break_stmt : BREAK ENDLINE
            ;
 
        /* Return Statement */
-return_stmt : RETURN ret_var ENDLINE {ret_type = $2; ret_flag = 1; ret_fig_flag = 1;};
+return_stmt : RETURN ret_var ENDLINE {ret_type = $2.eletype; ret_flag = 1; ret_fig_flag = 1;};
 
-ret_var : construct {$$ = $1;} | expression {$$ = $1;} | {$$ = Void;}; 
+ret_var : construct {$$.eletype = $1.eletype;} | expression {$$.eletype = $1.eletype;} | {$$.eletype = Void;}; 
 
        /* Assignment Statement */
 assign_stmt : expression ENDLINE {lineArrNo = 0;}
@@ -307,8 +307,8 @@ assign_stmt : expression ENDLINE {lineArrNo = 0;}
             /* | fig_call ENDLINE */
             ;
 
-opt_exp: expression {$$ = $1;}
-       | /* empty */ {$$ = UNDEF;}
+/* opt_exp: expression {$$ = $1;}
+       | {$$ = UNDEF;}
        ;
 
 fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
@@ -330,20 +330,20 @@ fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
               semanticError("fig not defined");
 
        delete $ID;
-}
+} */
 
-construct :  constructor '(' construct_param_list ')' {$$ = $1; construct_params.clear(); } 
-          | constructor '(' ')' {$$ = $1;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); } 
+          | constructor '(' ')' {$$.eletype = $1.eletype;} 
           ; 
 
-constructor : TRICONSTRUCT { $$ = $1.eletype;} 
-            | CIRCLECONSTRUCT { $$ = $1.eletype;} 
-            | PARACONSTRUCT { $$ = $1.eletype;} 
-            | REGPOLYCONSTRUCT { $$ = $1.eletype;}
+constructor : TRICONSTRUCT { $$.eletype = $1.eletype;} 
+            | CIRCLECONSTRUCT { $$.eletype = $1.eletype;} 
+            | PARACONSTRUCT { $$.eletype = $1.eletype;} 
+            | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;}
             ;
 
-valid_arg: construct {$$ = $1;}
-         | expression {$$ = $1;}
+valid_arg: construct {$$.eletype = $1.eletype;}
+         | expression {$$.eletype = $1.eletype;}
          ;
 
 param_list: param_list ',' valid_arg {
@@ -353,7 +353,7 @@ param_list: param_list ',' valid_arg {
               }
               else {
                      vector<int> dim;
-                     params.push_back({$3,Var,dim});   
+                     params.push_back({$3.eletype,Var,dim});   
               }
           }
           | valid_arg {
@@ -363,7 +363,7 @@ param_list: param_list ',' valid_arg {
               }
               else {
                      vector<int> dim;
-                     params.push_back({$1,Var,dim});   
+                     params.push_back({$1.eletype,Var,dim});   
               }
           }
           ;
@@ -375,7 +375,7 @@ construct_param_list: construct_param_list ',' valid_arg {
               }
               else {
                      vector<int> dim;
-                     construct_params.push_back({$3,Var,dim});   
+                     construct_params.push_back({$3.eletype,Var,dim});   
               }
           }
           | valid_arg {
@@ -386,55 +386,55 @@ construct_param_list: construct_param_list ',' valid_arg {
               }
               else {
                      vector<int> dim;
-                     construct_params.push_back({$1,Var,dim});   
+                     construct_params.push_back({$1.eletype,Var,dim});   
               }
           }
           ;
 
-point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$ = pointCheck($2, $4); }
-       |  '(' expression ','  expression  ')'  {  $$ = pointCheck($2, $4);}
+point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$.eletype = pointCheck($2.eletype, $4.eletype); }
+       |  '(' expression ','  expression  ')'  {  $$.eletype = pointCheck($2.eletype, $4.eletype);}
        ; 
 
 // NOT TESTED
-vertex: member_access { if ($1 != POINT) semanticError("Error: vertex has to be a point");}
+vertex: member_access { if ($1.eletype != POINT) semanticError("Error: vertex has to be a point");}
       /* | func_call { if ($1 != POINT) semanticError("Error: vertex has to be a point");} */
       | point 
       ;
 
-angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$ = ANGLE;}
-       | '<' vertex vertex vertex '>' {$$ = ANGLE;}
+angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE;}
+       | '<' vertex vertex vertex '>' {$$.eletype = ANGLE;}
        ;
 
-expression:   expression '+' expression {$$ = sumTypeCheck($1, $3);}
-            | expression '-' expression {$$ = diffTypeCheck($1, $3);} 
-            | expression '*' expression {$$ = mulTypeCheck($1, $3);}
-            | expression '/' expression {$$ = mulTypeCheck($1, $3);}
-            | expression '%' expression {if ($1 != INT || $3 != INT) semanticError("Error: Semantic error incompatible datatype"); $$ = INT;}
-            | expression '^' expression {$$ = mulTypeCheck($1, $3);}
-            | expression LINE_OP expression {if(($1 == POINT || $1 == LINEARR) && $3 == POINT) {$$ = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
-            | expression PARALLEL expression {$$ = parallelCheck($1, $3);}
-            | expression PERPENDICULAR expression  {$$ = perpendicularCheck($1, $3);}
-            | PARALLEL inside_norm PARALLEL  {$$ = REAL;}
-            | '-' expression %prec NEG {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; } 
-            | UNARY member_access {if(!($2 == INT || $2 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;  }
-            | member_access UNARY {if(!($1 == INT || $1 == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$ = $1;  }
-            | NOT expression {if (!arithCompatible($2)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | expression AND expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | expression OR expression {if(!(arithCompatible($1) && arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;  }
-            | member_access assign       {if (!(($1 == $2) || coercible($1, $2) || ($1 == LINE && $2 == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$ = $1; }
-            | expression CMP_OP expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;} 
-            | expression '<' expression {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | expression '>' expression  {if(!(arithCompatible($1) && arithCompatible($3)) && ($1!=LABEL || $3 != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | expression EQ_CMP_OP expression {if(!((arithCompatible($1) && arithCompatible($3)) || ($1 == $3))) semanticError("Error: Semantic error incompatible datatype"); $$ = BOOL;}
-            | member_access {$$ = $1;}
-            | '(' expression ')' {$$ = $2;}
-            | FLOATS {$$ = $1.constExp.eletype;} 
-            | INTEGERS {$$ = $1.constExp.eletype;}
-            | BOOLEAN {$$ = $1.constExp.eletype;}
-            | STRING_TOKEN {$$ = $1.eletype;}
-            | func_call {$$ = $1;}
-            | point {$$ = $1;}
-            | angle {$$ = $1;}            
+expression:   expression '+' expression {$$.eletype = sumTypeCheck($1.eletype, $3.eletype);}
+            | expression '-' expression {$$.eletype = diffTypeCheck($1.eletype, $3.eletype);} 
+            | expression '*' expression {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);}
+            | expression '/' expression {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);}
+            | expression '%' expression {if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
+            | expression '^' expression {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);}
+            | expression LINE_OP expression {if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
+            | expression PARALLEL expression {$$.eletype = parallelCheck($1.eletype, $3.eletype);}
+            | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
+            | PARALLEL inside_norm PARALLEL  {$$.eletype = REAL;}
+            | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; } 
+            | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  }
+            | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  }
+            | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
+            | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;  }
+            | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;  }
+            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype) || ($1.eletype == LINE && $2.eletype == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype; }
+            | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;} 
+            | expression '<' expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
+            | expression '>' expression  {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
+            | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
+            | member_access {$$.eletype = $1.eletype;}
+            | '(' expression ')' {$$.eletype = $2.eletype;}
+            | FLOATS {$$.eletype = $1.constExp.eletype;} 
+            | INTEGERS {$$.eletype = $1.constExp.eletype;}
+            | BOOLEAN {$$.eletype = $1.constExp.eletype;}
+            | STRING_TOKEN {$$.eletype = $1.eletype;}
+            | func_call {$$.eletype = $1.eletype;}
+            | point {$$.eletype = $1.eletype;}
+            | angle {$$.eletype = $1.eletype;}            
             ; 
 
 inside_norm: inside_norm '+' vertex 
@@ -443,198 +443,198 @@ inside_norm: inside_norm '+' vertex
            /* | memb_access assign   will := add in || ||  later*/
            ; // norm cannot be empty
 
-assign:  EQUAL expression {$$ = $2;}
-       | ASSIGN_OP  expression  {if(!(arithCompatible($2))) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }  
-       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2) || $2 == LABEL || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2; }
-       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2) || $2 == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$ = $2;}
+assign:  EQUAL expression {$$.eletype = $2.eletype;}
+       | ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; }  
+       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype) || $2.eletype == LABEL || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; }
+       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2.eletype) || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;}
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2, $1.eletype);lineArrNo = 0;}
-          | constructor id_list ENDLINE {typeUpdate($2, $1);lineArrNo = 0;}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0;}
+          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0;}
           ;
 
-id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$ = $1;$$->push_back($3);compareAndInsertArray($3, $4, $6.eletype, $6.dimList);}
-       | id_list ',' ID check_arr  {$$ = $1;$$->push_back($3);insertArray($3, $4);}       
-       | id_list ',' ID decl_assign {$$ = $1;$$->push_back($3);insertType($3, Var, $4);}
-       | ID check_arr  {$$ = new vector<char*>;$$->push_back($1);insertArray($1, $2);}
-       | ID check_arr EQUAL arr_assign_line {$$ = new vector<char*>;$$->push_back($1);compareAndInsertArray($1, $2, $4.eletype, $4.dimList);}
-       | ID decl_assign {$$ = new vector<char*>;$$->push_back($1);insertType($1, Var, $2);}
+id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$.nameList = $1.nameList;$$.nameList->push_back($3);compareAndInsertArray($3, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);}
+       | id_list ',' ID check_arr  {$$.nameList = $1.nameList;$$.nameList->push_back($3);insertArray($3, $4.dimList);}       
+       | id_list ',' ID decl_assign {$$.nameList = $1.nameList;$$.nameList->push_back($3);insertType($3, Var, $4.eletype);}
+       | ID check_arr  {$$.nameList = new vector<char*>;$$.nameList->push_back($1);insertArray($1, $2.dimList);}
+       | ID check_arr EQUAL arr_assign_line {$$.nameList = new vector<char*>;$$.nameList->push_back($1);compareAndInsertArray($1, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);}
+       | ID decl_assign {$$.nameList = new vector<char*>;$$.nameList->push_back($1);insertType($1, Var, $2.eletype);}
        ;
 
-decl_assign: EQUAL decl_token {$$ = $2;}
-       | /* empty */  {$$ = UNDEF;}
+decl_assign: EQUAL decl_token {$$.eletype = $2.eletype;}
+       | /* empty */  {$$.eletype = UNDEF;}
        ; 
 
-decl_token: construct  {$$ = $1;}
-       | expression {$$ = $1;}
+decl_token: construct  {$$.eletype = $1.eletype;}
+       | expression {$$.eletype = $1.eletype;}
        ;
 
 /* Arrays */
-check_arr: dim {$$ = $1;}
-         | '['']' {$$ = new vector<int>;$$->push_back(-1);}
-         | '['']' dim {$$ = new vector<int>;addFrontAndCopy($$, $3, -1);delete $3;}
+check_arr: dim {$$.dimList = $1.dimList;}
+         | '['']' {$$.dimList = new vector<int>;$$.dimList->push_back(-1);}
+         | '['']' dim {$$.dimList = new vector<int>;addFrontAndCopy($$.dimList, $3.dimList, -1);delete $3.dimList;}
          ;
          
-dim : dim '[' const_expr ']' {$$ = $1;
+dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
                               
-                            if ($3.eletype == REAL)
-                                   $$->push_back($3.d);
+                            if ($3.constExp.eletype == REAL)
+                                   $$.dimList->push_back($3.constExp.d);
                             else              
-                                   $$->push_back($3.i);
+                                   $$.dimList->push_back($3.constExp.i);
                             
                             }
-    | '[' const_expr ']' {$$ = new vector<int>; 
+    | '[' const_expr ']' {$$.dimList = new vector<int>; 
 
-                            if ($2.eletype == REAL)
-                                   $$->push_back($2.d);
+                            if ($2.constExp.eletype == REAL)
+                                   $$.dimList->push_back($2.constExp.d);
                             else              
-                                   $$->push_back($2.i);
+                                   $$.dimList->push_back($2.constExp.i);
                          }
     ;
 
 /* NEED TO ADD EMPTY SPACE WHEREEVER POSSIBLE IN ARRAY ASSIGN */
 
-arr_assign_line : arr_assign {$$.dimList = $1.dimList;$$.eletype = $1.eletype;}
+arr_assign_line : arr_assign {$$.listAndType.dimList = $1.listAndType.dimList;$$.listAndType.eletype = $1.listAndType.eletype;}
                 | expression {
-                            if ($1 != LINEARR) 
+                            if ($1.eletype != LINEARR) 
                                    semanticError("Error: Invalid Datatypes\n");
-                            $$.dimList = new vector<int>;
-                            $$.dimList->push_back(lineArrNo);
+                            $$.listAndType.dimList = new vector<int>;
+                            $$.listAndType.dimList->push_back(lineArrNo);
                             lineArrNo = 0;
                      }
                 ;
 
-arr_assign : '{'  arr1d_in_list '}' {$$.dimList = new vector<int>; $$.dimList->push_back($2.count); $$.eletype = $2.eletype;}
-           | '{' comma_arr_assign '}' {$$.dimList = $2.dimList;$$.eletype = $2.eletype;}
+arr_assign : '{'  arr1d_in_list '}' {$$.listAndType.dimList = new vector<int>; $$.listAndType.dimList->push_back($2.countAndType.count); $$.listAndType.eletype = $2.countAndType.eletype;}
+           | '{' comma_arr_assign '}' {$$.listAndType.dimList = $2.listAndType.dimList;$$.listAndType.eletype = $2.listAndType.eletype;}
            ; // { {1, 2}, {2, 3}}
 
-comma_arr_assign: comma_arr_assign ',' arr_assign  {updateMaxDim($1.dimList, $3.dimList); delete $3.dimList;$$.dimList = $1.dimList;if (!coercible($1.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");else $$.eletype = $1.eletype;}
-                | arr_assign {$$.dimList = new vector<int>; addFrontAndCopy($$.dimList, $1.dimList, 1);delete $1.dimList;$$.eletype = $1.eletype;}
+comma_arr_assign: comma_arr_assign ',' arr_assign  {updateMaxDim($1.listAndType.dimList, $3.listAndType.dimList); delete $3.listAndType.dimList;$$.listAndType.dimList = $1.listAndType.dimList;if (!coercible($1.listAndType.eletype, $3.listAndType.eletype)) semanticError("arrays should be initialized with same datatype");else $$.listAndType.eletype = $1.listAndType.eletype;}
+                | arr_assign {$$.listAndType.dimList = new vector<int>; addFrontAndCopy($$.listAndType.dimList, $1.listAndType.dimList, 1);delete $1.listAndType.dimList;$$.listAndType.eletype = $1.listAndType.eletype;}
                 ;
 
-arr1d_in_list: mult_elements {$$.count = $1.count;$$.eletype = $1.eletype;}
-             | /* empty */ {$$.count = 0;$$.eletype = UNDEF;}
+arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.eletype = $1.countAndType.eletype;}
+             | /* empty */ {$$.countAndType.count = 0;$$.eletype = UNDEF;}
              ;
 
-mult_elements : mult_elements ',' expression  {$$.count = $1.count + 1; if (!coercible($1.eletype, $3)) semanticError("arrays should be initialized with same datatype");else $$.eletype = $3;} //double to int only checked at decl_stmt 
-              | expression {$$.count = 1;$$.eletype = $1;}
+mult_elements : mult_elements ',' expression  {$$.count = $1.countAndType.count + 1; if (!coercible($1.countAndType.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");else $$.countAndType.eletype = $3.eletype;} //double to int only checked at decl_stmt 
+              | expression {$$.countAndType.count = 1;$$.countAndType.eletype = $1.eletype;}
               ;
 
-const_expr: const_expr '+' const_expr {$$.eletype = sumTypeCheck($1.eletype, $3.eletype);
+const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
-                                          if ($1.eletype == REAL && $3.eletype == REAL)
-                                                 $$.d = $1.d + $3.d;
-                                          else if ($1.eletype == INT && $3.eletype == REAL)
-                                                 $$.d = $1.i + $3.d;  
-                                          else if ($1.eletype == REAL && $3.eletype == INT)
-                                                 $$.d = $1.d + $3.i;
+                                          if ($1.constExp.eletype == REAL && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.d + $3.constExp.d;
+                                          else if ($1.constExp.eletype == INT && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.i + $3.constExp.d;  
+                                          else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
+                                                 $$.constExp.d = $1.constExp.d + $3.constExp.i;
                                           else 
-                                                 $$.i = $1.i + $3.i;                           
+                                                 $$.constExp.i = $1.constExp.i + $3.constExp.i;                           
                                           
 
                                       }
-       | const_expr '-' const_expr {$$.eletype = diffTypeCheck($1.eletype, $3.eletype);
+       | const_expr '-' const_expr {$$.constExp.eletype = diffTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
-                                          if ($1.eletype == REAL && $3.eletype == REAL)
-                                                 $$.d = $1.d - $3.d;
-                                          else if ($1.eletype == INT && $3.eletype == REAL)
-                                                 $$.d = $1.i - $3.d;  
-                                          else if ($1.eletype == REAL && $3.eletype == INT)
-                                                 $$.d = $1.d - $3.i;
+                                          if ($1.constExp.eletype == REAL && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.d - $3.constExp.d;
+                                          else if ($1.constExp.eletype == INT && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.i - $3.constExp.d;  
+                                          else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
+                                                 $$.constExp.d = $1.constExp.d - $3.constExp.i;
                                           else
-                                                 $$.i = $1.i - $3.i;
+                                                 $$.constExp.i = $1.constExp.i - $3.constExp.i;
                                    
                                    }
-       | const_expr '*' const_expr {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);
+       | const_expr '*' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
-                                          if ($1.eletype == REAL && $3.eletype == REAL)
-                                                 $$.d = $1.d * $3.d;
-                                          else if ($1.eletype == INT && $3.eletype == REAL)
-                                                 $$.d = $1.i * $3.d;  
-                                          else if ($1.eletype == REAL && $3.eletype == INT)
-                                                 $$.d = $1.d * $3.i;
+                                          if ($1.constExp.eletype == REAL && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.d * $3.constExp.d;
+                                          else if ($1.constExp.eletype == INT && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.i * $3.constExp.d;  
+                                          else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
+                                                 $$.constExp.d = $1.constExp.d * $3.constExp.i;
                                           else
-                                                 $$.i = $1.i * $3.i;
+                                                 $$.constExp.i = $1.constExp.i * $3.constExp.i;
                                           
                                    }
-       | const_expr '/' const_expr {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);
+       | const_expr '/' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
-                                          if ($1.eletype == REAL && $3.eletype == REAL)
-                                                 $$.d = $1.d / $3.d;
-                                          else if ($1.eletype == INT && $3.eletype == REAL)
-                                                 $$.d = $1.i / $3.d;  
-                                          else if ($1.eletype == REAL && $3.eletype == INT)
-                                                 $$.d = $1.d / $3.i;
+                                          if ($1.constExp.eletype == REAL && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.d / $3.constExp.d;
+                                          else if ($1.constExp.eletype == INT && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = $1.constExp.i / $3.constExp.d;  
+                                          else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
+                                                 $$.constExp.d = $1.constExp.d / $3.constExp.i;
                                           else
-                                                 $$.i = $1.i / $3.i;
+                                                 $$.constExp.i = $1.constExp.i / $3.constExp.i;
                                    }
-       | const_expr '%' const_expr {if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype");$$.eletype = INT;
-                                          $$.i = $1.i % $3.i;
+       | const_expr '%' const_expr {if ($1.constExp.eletype != INT || $3.constExp.eletype != INT) semanticError("Error: Semantic error incompatible datatype");$$.constExp.eletype = INT;
+                                          $$.constExp.i = $1.constExp.i % $3.constExp.i;
                                    }
-       | const_expr '^' const_expr {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);
+       | const_expr '^' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
-                                          if ($1.eletype == REAL && $3.eletype == REAL)
-                                                 $$.d = pow($1.d, $3.d);
-                                          else if ($1.eletype == INT && $3.eletype == REAL)
-                                                 $$.d = pow($1.i, $3.d);  
-                                          else if ($1.eletype == REAL && $3.eletype == INT)
-                                                 $$.d = pow($1.d, $3.i);
+                                          if ($1.constExp.eletype == REAL && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = pow($1.constExp.d, $3.constExp.d);
+                                          else if ($1.constExp.eletype == INT && $3.constExp.eletype == REAL)
+                                                 $$.constExp.d = pow($1.constExp.i, $3.constExp.d);  
+                                          else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
+                                                 $$.constExp.d = pow($1.constExp.d, $3.constExp.i);
                                           else
-                                                 $$.i = pow($1.i, $3.i);
+                                                 $$.constExp.i = pow($1.constExp.i, $3.constExp.i);
 
                                    }
-       | '-' const_expr {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;
+       | '-' const_expr {if (!arithCompatible($2.constExp.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.constExp.eletype = $2.constExp.eletype;
 
-                            if ($$.eletype == REAL) 
-                                   $$.d = -$2.d; 
+                            if ($$.constExp.eletype == REAL) 
+                                   $$.constExp.d = -$2.constExp.d; 
                             else 
-                                   $$.i = -$2.i;
+                                   $$.constExp.i = -$2.constExp.i;
                         } 
        | '(' const_expr ')' {
-                                   $$.eletype = $2.eletype;
-                                   if ($$.eletype == REAL) 
-                                          $$.d = $2.d; 
+                                   $$.constExp.eletype = $2.constExp.eletype;
+                                   if ($$.constExp.eletype == REAL) 
+                                          $$.constExp.d = $2.constExp.d; 
                                    else 
-                                          $$.i = $2.i;
+                                          $$.constExp.i = $2.constExp.i;
                             } 
-       | FLOATS {$$.eletype = $1.constExp.eletype;$$.d = $1.constExp.d;} 
-       | INTEGERS {$$.eletype = $1.constExp.eletype;$$.i = $1.constExp.i;}
-       | BOOLEAN {$$.eletype = INT;$$.i = $1.constExp.i;}
+       | FLOATS {$$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
+       | INTEGERS {$$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
+       | BOOLEAN {$$.eletype = INT;$$.constExp.i = $1.constExp.i;}
        ;          
 
 
 
 member_access : memb_access {
-              if($1->empty()) {
+              if($1.dimCount->empty()) {
                      exit(1);
               }
-              typelist = returnType(*$1);
-              $$ = typelist.Eletype;
-              for (int i = 0;i < $1->size();i++){
-                     delete ($1->at(i)).name ;
+              typelist = returnType(*$1.dimCount);
+              $$.eletype = typelist.Eletype;
+              for (int i = 0;i < $1.dimCount->size();i++){
+                     delete ($1.dimCount->at(i)).name ;
               }
               is_member = 1;
        };
 
 memb_access: memb_access '.' ID  arr_access {
-                     $$ = $1; 
-                     int count = checkDims($3,$4);
+                     $$.dimCount = $1.dimCount; 
+                     int count = checkDims($3,$4.count);
                      if(count >= 0) {
-                            $$->push_back({count,$3});
+                            $$.dimCount->push_back({count,$3});
                      }
               }
               | ID arr_access {
-                     int count = checkDims($1,$2);
-                     $$ = new vector<cntAndType> ;   //free?
+                     int count = checkDims($1,$2.count);
+                     $$.dimCount = new vector<cntAndType> ;   //free?
                      if(count >= 0) {
-                            $$->push_back({count,$1});  
+                            $$.dimCount->push_back({count,$1});  
                      }     
               }
        ;  
 
-arr_access: arr_access '[' expression ']' {$$ = $1; $$ = $$ + 1;} 
-          | /* empty */ {$$ = 0;} 
+arr_access: arr_access '[' expression ']' {$$.count = $1.count; $$.count = $$.count + 1;} 
+          | /* empty */ {$$.count = 0;} 
           ;
 
 func_call : member_access {
@@ -654,14 +654,14 @@ func_call : member_access {
               if (is_fig){
                      figArgumentChecking(params);
                      params.clear();
-                     $$ = UNDEF;
+                     $$.eletype = UNDEF;
               }
               else {
 
                      argumentTypeChecking(func_paramlist, params);
                      params.clear();
 
-                     $$ = $1;              
+                     $$.eletype = $1.eletype;              
               }
 
               is_fig = 0;
@@ -678,14 +678,14 @@ empty_space: empty_space ENDLINE
 
 /* Conditional Statements */
 
-cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE {$$ = $6;if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
-        |   IF '(' expression ')' empty_space stmt_block ENDLINE  ELSE empty_space stmt_block ENDLINE {$$ = $6||$10;if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
-        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt ELSE empty_space stmt_block ENDLINE {$$ = $6||$8||$11;if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
-        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt {$$ = $6||$8;if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
+cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' empty_space stmt_block ENDLINE  ELSE empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound||$10.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt ELSE empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound||$11.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt {$$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
         ;
 
-elif_stmt : ELIF '(' expression ')' empty_space stmt_block ENDLINE  {$$ = $[stmt_block];if(!(arithCompatible($3))) semanticError("Error: Semantic error incompatible datatype");}
-          | elif_stmt ELIF '(' expression ')' empty_space stmt_block ENDLINE {$$ = $1||$[stmt_block];if(!(arithCompatible($4))) semanticError("Error: Semantic error incompatible datatype");}
+elif_stmt : ELIF '(' expression ')' empty_space stmt_block ENDLINE  {$$.stopAdvanceFound = $[stmt_block].stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
+          | elif_stmt ELIF '(' expression ')' empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $1.stopAdvanceFound||$[stmt_block].stopAdvanceFound;if(!(arithCompatible($4.eletype))) semanticError("Error: Semantic error incompatible datatype");}
           ;
 
 
@@ -700,11 +700,11 @@ for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($I
               | { addSymTabPtr(); } 
               ;
 
-optional_arg: expression  {$$ = $1;} 
-            | /* empty */ {$$ = UNDEF;} 
+optional_arg: expression  {$$.eletype = $1.eletype;} 
+            | /* empty */ {$$.eletype = UNDEF;} 
             ;
             
-for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' empty_space stmt_block_for {if(!(arithCompatible($5)) && $5 != UNDEF) semanticError("Error: Semantic error incompatible datatype11");}
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' empty_space stmt_block_for {if(!(arithCompatible($5.eletype)) && $5.eletype != UNDEF) semanticError("Error: Semantic error incompatible datatype11");}
 
 while_loop : WHILE '(' expression ')' empty_space stmt_block 
            ;

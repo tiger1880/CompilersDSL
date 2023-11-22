@@ -681,7 +681,9 @@ empty_space: empty_space ENDLINE  { *$$.text = *$1.text + *$2.text ;}
 
 cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE 
               {     
-
+                     *$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text ;
+                     // cout << *$$.text << endl;
+                     // fprintf(fout_translated, "%s", $$.text->c_str());
                      $$.stopAdvanceFound = $6.stopAdvanceFound;
                      if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");
               }

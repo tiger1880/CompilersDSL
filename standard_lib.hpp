@@ -63,9 +63,6 @@ public:
     double y;
     bool show;
 
-    Point()
-    {
-    }
 
     Point(double a, double b)
     {

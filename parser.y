@@ -723,14 +723,32 @@ int main(int argc, char*argv[])
         exit(1);
     }
 
+    /* Appending \n */ 
+    FILE* a = fopen(argv[1], "a");
+       
+       // test
+    if (a == NULL)
+    {
+       fprintf(stderr, "%s file could not be opened\n", argv[1]);
+       fclose(a);
+       exit(1);
+    }
+
+    fprintf(a, "\n");
+
+    fclose(a);
+
+
     FILE *fp;
     fp = fopen(argv[1], "r");
 
     if (fp == NULL)
     {
       fprintf(stderr, "%s file could not be opened\n", argv[1]);
+      fclose(fp);
       exit(1);
     }
+
     yyin = fp;
 
     /* For testing Lexer */
@@ -740,10 +758,15 @@ int main(int argc, char*argv[])
     if (fout_token == NULL)
     {
       fprintf(stderr, "%s file could not be opened\n", tokenFilename);
+      fclose(fout_token);
       exit(1);
     }
 
     insertConstructTab();
 
-    return yyparse();
+    int x = yyparse();
+
+    fclose(fp);
+    fclose(fout_token);
+    return x;
 } 

@@ -278,12 +278,12 @@ params : expression ',' expression { if(!(arithCompatible($1.eletype) && $3.elet
  /* Statements */
 stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound;}
      | loop     {$$.stopAdvanceFound = false;}
-     | decl_stmt {$$.stopAdvanceFound = false;}
+     | decl_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
      | assign_stmt {$$.stopAdvanceFound = false;}
      | return_stmt {$$.stopAdvanceFound = false; *$$.text= *$1.text ;}
      | ENDLINE    {$$.stopAdvanceFound = false;  *$$.text= *$1.text ;}
      | stmt_block {$$.stopAdvanceFound = $1.stopAdvanceFound;}
-     | break_stmt {$$.stopAdvanceFound = true;}
+     | break_stmt {$$.stopAdvanceFound = true; *$$.text= *$1.text ;}
      ;
 
 stmt_list: stmt_list stmt {$$.stopAdvanceFound = $1.stopAdvanceFound || $2.stopAdvanceFound;}

@@ -828,7 +828,7 @@ for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($I
               | { addSymTabPtr(); } 
               ;
 
-optional_arg: expression  {$$.eletype = $1.eletype;} 
+optional_arg: expression  {$$.eletype = $1.eletype; *$$.text = *$1.text;} 
             | /* empty */ {$$.eletype = UNDEF;} 
             ;
             

@@ -525,8 +525,15 @@ arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.e
              | /* empty */ {$$.countAndType.count = 0;$$.eletype = UNDEF;}
              ;
 
-mult_elements : mult_elements ',' expression  {$$.count = $1.countAndType.count + 1; if (!coercible($1.countAndType.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");else $$.countAndType.eletype = $3.eletype;} //double to int only checked at decl_stmt 
-              | expression {$$.countAndType.count = 1;$$.countAndType.eletype = $1.eletype;}
+mult_elements : mult_elements ',' expression  
+              {
+                     $$.count = $1.countAndType.count + 1; 
+                     if (!coercible($1.countAndType.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");
+                     else $$.countAndType.eletype = $3.eletype;
+                     //double to int only checked at decl_stmt 
+                     *$$.text = *$1.text + "," + *$3.text ;
+              } 
+              | expression {$$.countAndType.count = 1;$$.countAndType.eletype = $1.eletype; *$$.text = *$1.text;}
               ;
 
 const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.constExp.eletype, $3.constExp.eletype);

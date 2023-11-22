@@ -428,10 +428,10 @@ expression:   expression '+' expression {$$.eletype = sumTypeCheck($1.eletype, $
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
             | member_access {$$.eletype = $1.eletype;}
             | '(' expression ')' {$$.eletype = $2.eletype;}
-            | FLOATS {$$.eletype = $1.constExp.eletype;} 
-            | INTEGERS {$$.eletype = $1.constExp.eletype;}
-            | BOOLEAN {$$.eletype = $1.constExp.eletype;}
-            | STRING_TOKEN {$$.eletype = $1.eletype;}
+            | FLOATS { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;} 
+            | INTEGERS { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
+            | BOOLEAN { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
+            | STRING_TOKEN { *$$.text = *$1.text ; $$.eletype = $1.eletype;}
             | func_call {$$.eletype = $1.eletype;}
             | point {$$.eletype = $1.eletype;}
             | angle {$$.eletype = $1.eletype;}            

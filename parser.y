@@ -141,6 +141,8 @@ vector<ParamList> func_paramlist;
 %nterm <main> arr_access
 %nterm <main> memb_access
 %nterm <main> empty_space
+%nterm <main> inside_norm
+%nterm <main> vertex
 %nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
@@ -397,9 +399,9 @@ point : '(' expression ','  expression ',' STRING_TOKEN ')' {  *$$.text = "(" + 
        ; 
 
 // NOT TESTED
-vertex: member_access { if ($1.eletype != POINT) semanticError("Error: vertex has to be a point");}
+vertex: member_access { *$$.text = *$1.text; if ($1.eletype != POINT) semanticError("Error: vertex has to be a point");}
       /* | func_call { if ($1 != POINT) semanticError("Error: vertex has to be a point");} */
-      | point 
+      | point         { *$$.text = *$1.text; }
       ;
 
 angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE;}
@@ -415,7 +417,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression LINE_OP expression { *$$.text = *$1.text + *$2.text + *$3.text ; if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
             | expression PARALLEL expression { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = parallelCheck($1.eletype, $3.eletype);}
             | expression PERPENDICULAR expression  {  *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
-            | PARALLEL inside_norm PARALLEL  {$$.eletype = REAL;}
+            | PARALLEL inside_norm PARALLEL  { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = REAL;}
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
             | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
@@ -438,9 +440,9 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | angle {$$.eletype = $1.eletype; *$$.text = *$1.text;}            
             ; 
 
-inside_norm: inside_norm '+' vertex 
-           | inside_norm '-' vertex 
-           | vertex
+inside_norm: inside_norm '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
+           | inside_norm '-' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
+           | vertex                  { *$$.text = *$1.text;}
            /* | memb_access assign   will := add in || ||  later*/
            ; // norm cannot be empty
 

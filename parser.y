@@ -485,6 +485,8 @@ dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
                                    $$.dimList->push_back($3.constExp.d);
                             else              
                                    $$.dimList->push_back($3.constExp.i);
+
+                            *$$.text = *$1.text + "[" + *$3.text + "]";
                             
                             }
     | '[' const_expr ']' {$$.dimList = new vector<int>; 
@@ -493,6 +495,9 @@ dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
                                    $$.dimList->push_back($2.constExp.d);
                             else              
                                    $$.dimList->push_back($2.constExp.i);
+
+                            
+                            *$$.text =  "[" + *$2.text + "]";
                          }
     ;
 

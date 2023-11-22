@@ -161,6 +161,7 @@ public:
     void show()
     {   
         glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
         glBegin(GL_TRIANGLES);
         glVertex2d(p1.x, p1.y);
@@ -168,6 +169,8 @@ public:
         glVertex2d(p3.x, p3.y);
 
         glEnd();
+        glTranslatef(-center.x, -center.y, 0.0f);
+        glScalef((1.0/scale), (1.0/scale), 0.0f);
 
     }
 
@@ -334,6 +337,7 @@ class Circle : public Shapes
 
     void show()
     {   
+        glScalef(scale, scale, 0.0f);
         glTranslatef(center.x, center.y, 0.0f);
         glBegin(GL_LINE_LOOP);
         glColor3f(0.0f, 1.0f, 1.0f); // Blue
@@ -344,6 +348,8 @@ class Circle : public Shapes
             glVertex2f(cos(angle) * radius, sin(angle) * radius);
         }
         glEnd();
+        glTranslatef(-center.x, -center.y, 0.0f);
+        glScalef((1.0/scale), (1.0/scale), 0.0f);
 
     }
 
@@ -503,6 +509,7 @@ public:
     void show(){
         
         glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
         glBegin(GL_QUADS);
         glVertex2d(p1.x, p1.y);
@@ -510,6 +517,8 @@ public:
         glVertex2d(p3.x, p3.y);
         glVertex2d(p4.x, p4.y);
         glEnd();
+        glTranslatef(-center.x, -center.y, 0.0f);
+        glScalef((1.0/scale), (1.0/scale), 0.0f);
     }
 
     // vector<class Line> DIAGONAL(){
@@ -562,6 +571,7 @@ class RegPoly : public Shapes
     {
         glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
         glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
         glBegin(GL_LINE_LOOP);
         glColor3f(1.0f, 0.0f, 1.0f); // Yellow
 
@@ -572,6 +582,8 @@ class RegPoly : public Shapes
             angle += (PI / 180) *(360 / numOfSides);
         }
         glEnd();
+        glTranslatef(-center.x, -center.y, 0.0f);
+        glScalef((1.0/scale), (1.0/scale), 0.0f);
 
     }
 

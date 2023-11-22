@@ -89,7 +89,7 @@ vector<ParamList> func_paramlist;
               bool stopAdvanceFound; // true for a non-nullified stop/advance
        };
 
-       char* text;
+       string* text;
        
     } main;
     

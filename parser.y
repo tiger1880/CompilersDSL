@@ -792,9 +792,24 @@ cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE
                      // cout << *$$.text << endl;
                      // fprintf(fout_translated, "%s", $$.text->c_str());
               }
-        |   IF '(' expression ')' empty_space stmt_block ENDLINE  ELSE empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound||$10.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
-        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt ELSE empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound||$11.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
-        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt {$$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
+        |   IF '(' expression ')' empty_space stmt_block ENDLINE  ELSE empty_space stmt_block ENDLINE 
+              {
+                     $$.stopAdvanceFound = $6.stopAdvanceFound||$10.stopAdvanceFound;
+                     if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");
+                     // *$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text + *$9.text + *$10.text + *$11.text;
+              }
+        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt ELSE empty_space stmt_block ENDLINE 
+              {
+                     $$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound||$11.stopAdvanceFound;
+                     if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");
+                     // *$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text + *$8.text + *$9.text + *$10.text + *$11.text + *$12.text;
+              }
+        |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt 
+              {
+                     $$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound;
+                     if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");
+                     // *$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text + *$8.text;
+              }
         ;
 
 elif_stmt : ELIF '(' expression ')' empty_space stmt_block ENDLINE  {$$.stopAdvanceFound = $[stmt_block].stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}

@@ -119,7 +119,7 @@ vector<ParamList> func_paramlist;
 %token <main> SUB_ASSIGN_OP
 %token <main> EQUAL
 %token <main> STRING_TOKEN
-%token ENDLINE
+%token <main>ENDLINE
 %token <main> ID
 %token <main> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
 %token <main> NOT AND OR 
@@ -140,6 +140,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> optional_arg valid_arg
 %nterm <main> arr_access
 %nterm <main> memb_access
+%nterm <main> empty_space
 %nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
@@ -405,36 +406,36 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE;}
        | '<' vertex vertex vertex '>' {$$.eletype = ANGLE;}
        ;
 
-expression:   expression '+' expression {$$.eletype = sumTypeCheck($1.eletype, $3.eletype);}
-            | expression '-' expression {$$.eletype = diffTypeCheck($1.eletype, $3.eletype);} 
-            | expression '*' expression {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);}
-            | expression '/' expression {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);}
-            | expression '%' expression {if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT;}
-            | expression '^' expression {$$.eletype = mulTypeCheck($1.eletype, $3.eletype);}
-            | expression LINE_OP expression {if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
-            | expression PARALLEL expression {$$.eletype = parallelCheck($1.eletype, $3.eletype);}
-            | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
+expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "+" + *$3.text;}
+            | expression '-' expression {  $$.eletype = diffTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "-" + *$3.text;} 
+            | expression '*' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "*" + *$3.text;}
+            | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "/" + *$3.text;}
+            | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; *$$.text = *$1.text + "%" + *$3.text;}
+            | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
+            | expression LINE_OP expression { if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
+            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);}
+            | expression PERPENDICULAR expression  {  $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
             | PARALLEL inside_norm PARALLEL  {$$.eletype = REAL;}
-            | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; } 
-            | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  }
-            | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  }
-            | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
-            | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;  }
-            | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;  }
+            | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
+            | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
+            | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
+            | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;*$$.text = "!" + *$1.text}
+            | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "&&" + *$3.text; }
+            | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "||" + *$3.text; }
             | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype) || ($1.eletype == LINE && $2.eletype == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype; }
-            | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;} 
-            | expression '<' expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
-            | expression '>' expression  {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
-            | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;}
-            | member_access {$$.eletype = $1.eletype;}
-            | '(' expression ')' {$$.eletype = $2.eletype;}
-            | FLOATS {$$.eletype = $1.constExp.eletype;} 
-            | INTEGERS {$$.eletype = $1.constExp.eletype;}
-            | BOOLEAN {$$.eletype = $1.constExp.eletype;}
-            | STRING_TOKEN {$$.eletype = $1.eletype;}
-            | func_call {$$.eletype = $1.eletype;}
-            | point {$$.eletype = $1.eletype;}
-            | angle {$$.eletype = $1.eletype;}            
+            | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;*$$.text = *$1.text + *$2.text + *$3.text;} 
+            | expression '<' expression { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "<" + *$3.text; }
+            | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + ">" + *$3.text; }
+            | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + *$2.text + *$3.text;}
+            | member_access {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+            | '(' expression ')' {$$.eletype = $2.eletype;*$$.text = "(" + *$2.text + ")";}
+            | FLOATS { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;} 
+            | INTEGERS { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
+            | BOOLEAN { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
+            | STRING_TOKEN { *$$.text = *$1.text ; $$.eletype = $1.eletype;}
+            | func_call {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+            | point { $$.eletype = $1.eletype; *$$.text = *$1.text;}
+            | angle {$$.eletype = $1.eletype; *$$.text = *$1.text;}            
             ; 
 
 inside_norm: inside_norm '+' vertex 
@@ -615,6 +616,8 @@ member_access : memb_access {
                      delete ($1.dimCount->at(i)).name ;
               }
               is_member = 1;
+
+              *$$.text = *$1.text;
        };
 
 memb_access: memb_access '.' ID  arr_access {
@@ -623,18 +626,22 @@ memb_access: memb_access '.' ID  arr_access {
                      if(count >= 0) {
                             $$.dimCount->push_back({count,$3.name});
                      }
+
+                     *$$.text = *$1.text + "." + *$3.text + *$4.text;
               }
               | ID arr_access {
                      int count = checkDims($1.name,$2.count);
                      $$.dimCount = new vector<cntAndType> ;   //free?
                      if(count >= 0) {
                             $$.dimCount->push_back({count,$1.name});  
-                     }     
+                     } 
+                     *$$.text = *$1.text + *$2.text;    
               }
        ;  
 
-arr_access: arr_access '[' expression ']' {$$.count = $1.count; $$.count = $$.count + 1;} 
-          | /* empty */ {$$.count = 0;} 
+//Semantic check for expression in this (only type int allowed)
+arr_access: arr_access '[' expression ']' {$$.count = $1.count; $$.count = $$.count + 1; *$$.text = *$1.text + "[" + *$3.text + "]";} 
+          | /* empty */ {$$.count = 0; *$$.text = "";} 
           ;
 
 func_call : member_access {
@@ -665,20 +672,28 @@ func_call : member_access {
               }
 
               is_fig = 0;
+              *$$.text = *$1.text + "(" + *$3.text + ")";
        };
           
 
-param_list_opt : param_list 
-               | /* empty */ 
+param_list_opt : param_list {*$$.text = *$1.text;}
+               | /* empty */ {*$$.text = "";}
                ;
 
-empty_space: empty_space ENDLINE 
-           | /* empty */ 
+empty_space: empty_space ENDLINE  { *$$.text = *$1.text + *$2.text ;}
+           | /* empty */          { *$$.text = " " ;}
            ;
 
 /* Conditional Statements */
 
-cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
+cond_stmt:  IF '(' expression ')' empty_space stmt_block ENDLINE 
+              {     
+                     $$.stopAdvanceFound = $6.stopAdvanceFound;
+                     if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");
+                     *$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text ;
+                     // cout << *$$.text << endl;
+                     // fprintf(fout_translated, "%s", $$.text->c_str());
+              }
         |   IF '(' expression ')' empty_space stmt_block ENDLINE  ELSE empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound||$10.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt ELSE empty_space stmt_block ENDLINE {$$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound||$11.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}
         |   IF '(' expression ')' empty_space stmt_block ENDLINE elif_stmt {$$.stopAdvanceFound = $6.stopAdvanceFound||$8.stopAdvanceFound;if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");}

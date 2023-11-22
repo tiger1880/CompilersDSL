@@ -137,7 +137,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> check_arr dim 
 %nterm <main> arr_assign comma_arr_assign arr_assign_line
 %nterm <main> decl_token decl_assign decl_stmt
-%nterm <main> ret_var 
+%nterm <main> ret_var return_stmt
 %nterm <main> optional_arg valid_arg
 %nterm <main> arr_access
 %nterm <main> memb_access
@@ -301,9 +301,11 @@ break_stmt : BREAK ENDLINE
            ;
 
        /* Return Statement */
-return_stmt : RETURN ret_var ENDLINE {ret_type = $2.eletype; ret_flag = 1; ret_fig_flag = 1;};
+return_stmt : RETURN ret_var ENDLINE {ret_type = $2.eletype; ret_flag = 1; ret_fig_flag = 1; *$$.text = *$1.text + *$2.text + *$3.text; };
 
-ret_var : construct {$$.eletype = $1.eletype;} | expression {$$.eletype = $1.eletype;} | {$$.eletype = Void;}; 
+ret_var : construct {$$.eletype = $1.eletype; *$$.text = *$1.text; } 
+       | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;} 
+       | {$$.eletype = Void; *$$.text = "void" ;}; 
 
        /* Assignment Statement */
 assign_stmt : expression ENDLINE {lineArrNo = 0;}

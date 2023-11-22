@@ -339,10 +339,10 @@ construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; 
           | constructor '(' ')' {$$.eletype = $1.eletype;} 
           ; 
 
-constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text + "Hello";} 
-            | CIRCLECONSTRUCT { $$.eletype = $1.eletype;} 
-            | PARACONSTRUCT { $$.eletype = $1.eletype;} 
-            | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;}
+constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;} 
+            | CIRCLECONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;} 
+            | PARACONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;} 
+            | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;}
             ;
 
 valid_arg: construct {$$.eletype = $1.eletype;}

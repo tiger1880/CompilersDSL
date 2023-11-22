@@ -128,6 +128,7 @@ vector<ParamList> func_paramlist;
 
 // non-terminals
 %nterm <main> construct constructor
+%nterm <main> param_list construct_param_list
 %nterm <main> point angle expression member_access 
 %nterm <main> assign func_call
 %nterm <main> id_list
@@ -335,8 +336,8 @@ fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
        delete $ID;
 } */
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); } 
-          | constructor '(' ')' {$$.eletype = $1.eletype;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); *$$.text = *$1.text + "(" + *$3.text +  ")" ;} 
+          | constructor '(' ')' {$$.eletype = $1.eletype; *$$.text = *$1.text + "()" ;} 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;} 
@@ -345,8 +346,8 @@ constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;}
             | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;}
             ;
 
-valid_arg: construct {$$.eletype = $1.eletype;}
-         | expression {$$.eletype = $1.eletype;}
+valid_arg: construct {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+         | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;}
          ;
 
 param_list: param_list ',' valid_arg {
@@ -358,6 +359,7 @@ param_list: param_list ',' valid_arg {
                      vector<int> dim;
                      params.push_back({$3.eletype,Var,dim});   
               }
+              *$$.text = *$1.text + "," + *$3.text;
           }
           | valid_arg {
               if(is_member) {
@@ -368,6 +370,7 @@ param_list: param_list ',' valid_arg {
                      vector<int> dim;
                      params.push_back({$1.eletype,Var,dim});   
               }
+              *$$.text = *$1.text;
           }
           ;
 
@@ -380,6 +383,8 @@ construct_param_list: construct_param_list ',' valid_arg {
                      vector<int> dim;
                      construct_params.push_back({$3.eletype,Var,dim});   
               }
+
+              *$$.text = *$1.text + "," + *$3.text;
           }
           | valid_arg {
               if(is_member) {
@@ -391,21 +396,23 @@ construct_param_list: construct_param_list ',' valid_arg {
                      vector<int> dim;
                      construct_params.push_back({$1.eletype,Var,dim});   
               }
+
+              *$$.text = *$1.text;
           }
           ;
 
-point : '(' expression ','  expression ',' STRING_TOKEN ')' {  *$$.text = "(" + *$2.text + "," + *$4.text + "," + *$6.text + ")"; $$.eletype = pointCheck($2.eletype, $4.eletype); }
-       |  '(' expression ','  expression  ')'  {  *$$.text = "(" + *$2.text + "," + *$4.text +  ")";  $$.eletype = pointCheck($2.eletype, $4.eletype);}
+point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype);  *$$.text = "(" + *$2.text + "," + *$4.text + "," + *$6.text + ")"; }
+       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);*$$.text = "(" + *$2.text + "," + *$4.text +  ")";}
        ; 
 
 // NOT TESTED
-vertex: member_access { *$$.text = *$1.text; if ($1.eletype != POINT) semanticError("Error: vertex has to be a point");}
+vertex: member_access { if ($1.eletype != POINT) semanticError("Error: vertex has to be a point"); *$$.text = *$1.text; }
       /* | func_call { if ($1 != POINT) semanticError("Error: vertex has to be a point");} */
       | point         { *$$.text = *$1.text; }
       ;
 
-angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE;}
-       | '<' vertex vertex vertex '>' {$$.eletype = ANGLE;}
+angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE; *$$.text = "angleBetweenPoints(" + *$2.text + "," + *$3.text + "," + *$4.text + "," + *$6.text + ")";}
+       | '<' vertex vertex vertex '>' {$$.eletype = ANGLE; *$$.text = "angleBetweenPoints(" + *$2.text + "," + *$3.text + "," + *$4.text + ")";}
        ;
 
 expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "+" + *$3.text;}
@@ -414,10 +421,10 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; *$$.text = *$1.text + "%" + *$3.text;}
             | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
-            | expression LINE_OP expression { *$$.text = *$1.text + *$2.text + *$3.text ; if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
-            | expression PARALLEL expression { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = parallelCheck($1.eletype, $3.eletype);}
-            | expression PERPENDICULAR expression  {  *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
-            | PARALLEL inside_norm PARALLEL  { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = REAL;}
+            | expression LINE_OP expression {  if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");*$$.text = *$1.text + *$2.text + *$3.text ;}  // <-> -> //need to change this
+            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);*$$.text = *$1.text + *$2.text + *$3.text ; } //need to change this
+            | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype);  *$$.text = *$1.text + *$2.text + *$3.text ;}  //need to change this
+            | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; *$$.text = *$1.text + *$2.text + *$3.text ;} //need to change this
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
             | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
@@ -836,7 +843,7 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<stdlib.h>\n");
     fprintf(fout_translated,"#include<math.h>\n");
     fprintf(fout_translated,"#include<deque>\n");
-    fprintf(fout_translated,"#include \"standard_lib.hpp \" \n");
+    fprintf(fout_translated,"#include \"standard_lib.hpp\" \n");
 
 
     insertConstructTab();

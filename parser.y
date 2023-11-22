@@ -277,24 +277,38 @@ params : expression ',' expression { if(!(arithCompatible($1.eletype) && $3.elet
        | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
 
  /* Statements */
-stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound;}
-     | loop     {$$.stopAdvanceFound = false;}
+stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound; *$$.text = *$1.text ;}
+     | loop     {$$.stopAdvanceFound = false; *$$.text = *$1.text ;}
      | decl_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
      | assign_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
      | return_stmt {$$.stopAdvanceFound = false; *$$.text= *$1.text ;}
      | ENDLINE    {$$.stopAdvanceFound = false;  *$$.text= *$1.text ;}
-     | stmt_block {$$.stopAdvanceFound = $1.stopAdvanceFound;}
+     | stmt_block {$$.stopAdvanceFound = $1.stopAdvanceFound; *$$.text = *$1.text ;}
      | break_stmt {$$.stopAdvanceFound = true; *$$.text= *$1.text ;}
      ;
 
-stmt_list: stmt_list stmt {$$.stopAdvanceFound = $1.stopAdvanceFound || $2.stopAdvanceFound;}
-         |  /* empty */ {$$.stopAdvanceFound = false;}
-         ;
+stmt_list: stmt_list stmt 
+       {
+              $$.stopAdvanceFound = $1.stopAdvanceFound || $2.stopAdvanceFound;
+              *$$.text = *$1.text + *$2.text;
+       }
+       |  /* empty */ {$$.stopAdvanceFound = false;}
+       ;
 
-stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' { $$.stopAdvanceFound = $3.stopAdvanceFound; delSymTabPtr(); }
+stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' 
+              { 
+                     $$.stopAdvanceFound = $3.stopAdvanceFound;
+                     delSymTabPtr(); 
+                     *$$.text = "{" + *$3.text + "}" ;
+              }
           ;
 
-stmt_block_for: '{'  stmt_list '}' { $$.stopAdvanceFound = $2.stopAdvanceFound; delSymTabPtr(); } // addSymTabPtr before for decl
+stmt_block_for: '{'  stmt_list '}' 
+              { 
+                     $$.stopAdvanceFound = $2.stopAdvanceFound; 
+                     delSymTabPtr(); 
+                     *$$.text = "{" + *$2.text + "}" ;
+              } // addSymTabPtr before for decl
           ;
 
 break_stmt : BREAK ENDLINE  {*$$.text = *$1.text + *$2.text;}

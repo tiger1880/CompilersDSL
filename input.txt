@@ -1,6 +1,13 @@
 point p := (2,3)
 point q := (2,4)
- p -> q
+line l 
+line r
+l |- r
+
+
+
+
+
 
 
 

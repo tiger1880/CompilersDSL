@@ -413,8 +413,8 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; *$$.text = *$1.text + "%" + *$3.text;}
             | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
             | expression LINE_OP expression { *$$.text = *$1.text + *$2.text + *$3.text ; if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
-            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);}
-            | expression PERPENDICULAR expression  {  $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
+            | expression PARALLEL expression { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = parallelCheck($1.eletype, $3.eletype);}
+            | expression PERPENDICULAR expression  {  *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
             | PARALLEL inside_norm PARALLEL  {$$.eletype = REAL;}
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}

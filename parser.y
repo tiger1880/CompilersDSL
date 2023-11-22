@@ -472,7 +472,7 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$.nameList = $1.nameLi
        | ID decl_assign {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);insertType($1.name, Var, $2.eletype);}
        ;
 
-decl_assign: EQUAL decl_token {$$.eletype = $2.eletype;}
+decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *$2.text; }
        | /* empty */  {$$.eletype = UNDEF;}
        ; 
 

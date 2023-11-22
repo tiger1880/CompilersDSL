@@ -13,6 +13,8 @@ using namespace std;
 
 // Everyone add bool show to indicate show/hide.
 
+vector<Shapes*> shapeStore;
+
 double norm(Point p1, Point p2)
 {
     double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
@@ -70,18 +72,13 @@ public:
     {
 
     }
-    Point(double a, double b)
-    {
-        x = a;
-        y = b;
-        show = true;
-    }
-
-    Point(double a, double b, bool sh)
+    
+    Point(double a, double b, bool sh = true)
     {
         x = a;
         y = b;
         show = sh;
+        shapeStore.push_back(this);
     }
 
     double Area() override
@@ -133,6 +130,7 @@ public:
         show = sh;
         scale = Scale;
         center = Center;
+        shapeStore.push_back(this);
 
     }
 
@@ -145,6 +143,7 @@ public:
         double b = sqrt(s2 * s2 - a * a);
         p3 = Point(a, b);
         show = sh;
+        shapeStore.push_back(this);
 
        
     }
@@ -155,6 +154,7 @@ public:
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
         show = sh;
+        shapeStore.push_back(this);
 
     }
 
@@ -329,6 +329,7 @@ class Circle : public Shapes
     {
         this->radius = radius;
         this->center = center;
+        shapeStore.push_back(this);
         
     }
 
@@ -497,6 +498,7 @@ public:
         p2 = Point(s1, 0);
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
         p4 = Point(s2 * cos(ang), s2 * sin(ang));
+        shapeStore.push_back(this);
 
     }
 
@@ -555,6 +557,7 @@ class RegPoly : public Shapes
     {
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
+        shapeStore.push_back(this);
         
     }
 

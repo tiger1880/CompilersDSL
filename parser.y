@@ -141,6 +141,8 @@ vector<ParamList> func_paramlist;
 %nterm <main> arr_access
 %nterm <main> memb_access
 %nterm <main> empty_space
+%nterm <main> inside_norm
+%nterm <main> vertex
 %nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
@@ -337,10 +339,10 @@ construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; 
           | constructor '(' ')' {$$.eletype = $1.eletype;} 
           ; 
 
-constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text + "Hello";} 
-            | CIRCLECONSTRUCT { $$.eletype = $1.eletype;} 
-            | PARACONSTRUCT { $$.eletype = $1.eletype;} 
-            | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;}
+constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;} 
+            | CIRCLECONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;} 
+            | PARACONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;} 
+            | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;}
             ;
 
 valid_arg: construct {$$.eletype = $1.eletype;}
@@ -397,9 +399,9 @@ point : '(' expression ','  expression ',' STRING_TOKEN ')' {  *$$.text = "(" + 
        ; 
 
 // NOT TESTED
-vertex: member_access { if ($1.eletype != POINT) semanticError("Error: vertex has to be a point");}
+vertex: member_access { *$$.text = *$1.text; if ($1.eletype != POINT) semanticError("Error: vertex has to be a point");}
       /* | func_call { if ($1 != POINT) semanticError("Error: vertex has to be a point");} */
-      | point 
+      | point         { *$$.text = *$1.text; }
       ;
 
 angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE;}
@@ -412,10 +414,10 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; *$$.text = *$1.text + "%" + *$3.text;}
             | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
-            | expression LINE_OP expression { if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
-            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);}
-            | expression PERPENDICULAR expression  {  $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
-            | PARALLEL inside_norm PARALLEL  {$$.eletype = REAL;}
+            | expression LINE_OP expression { *$$.text = *$1.text + *$2.text + *$3.text ; if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
+            | expression PARALLEL expression { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = parallelCheck($1.eletype, $3.eletype);}
+            | expression PERPENDICULAR expression  {  *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
+            | PARALLEL inside_norm PARALLEL  { *$$.text = *$1.text + *$2.text + *$3.text ; $$.eletype = REAL;}
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
             | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
@@ -438,9 +440,9 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | angle {$$.eletype = $1.eletype; *$$.text = *$1.text;}            
             ; 
 
-inside_norm: inside_norm '+' vertex 
-           | inside_norm '-' vertex 
-           | vertex
+inside_norm: inside_norm '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
+           | inside_norm '-' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
+           | vertex                  { *$$.text = *$1.text;}
            /* | memb_access assign   will := add in || ||  later*/
            ; // norm cannot be empty
 
@@ -472,9 +474,9 @@ decl_token: construct  {$$.eletype = $1.eletype;}
        ;
 
 /* Arrays */
-check_arr: dim {$$.dimList = $1.dimList;}
-         | '['']' {$$.dimList = new vector<int>;$$.dimList->push_back(-1);}
-         | '['']' dim {$$.dimList = new vector<int>;addFrontAndCopy($$.dimList, $3.dimList, -1);delete $3.dimList;}
+check_arr: dim {$$.dimList = $1.dimList; *$$.text = *$1.text;}
+         | '[' ']' {$$.dimList = new vector<int>;$$.dimList->push_back(-1); *$$.text = "[]";}
+         | '[' ']' dim {$$.dimList = new vector<int>;addFrontAndCopy($$.dimList, $3.dimList, -1);delete $3.dimList; *$$.text = "[]" + *$3.text; }
          ;
          
 dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
@@ -483,6 +485,8 @@ dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
                                    $$.dimList->push_back($3.constExp.d);
                             else              
                                    $$.dimList->push_back($3.constExp.i);
+
+                            *$$.text = *$1.text + "[" + *$3.text + "]";
                             
                             }
     | '[' const_expr ']' {$$.dimList = new vector<int>; 
@@ -491,6 +495,9 @@ dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
                                    $$.dimList->push_back($2.constExp.d);
                             else              
                                    $$.dimList->push_back($2.constExp.i);
+
+                            
+                            *$$.text =  "[" + *$2.text + "]";
                          }
     ;
 
@@ -518,8 +525,15 @@ arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.e
              | /* empty */ {$$.countAndType.count = 0;$$.eletype = UNDEF;}
              ;
 
-mult_elements : mult_elements ',' expression  {$$.count = $1.countAndType.count + 1; if (!coercible($1.countAndType.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");else $$.countAndType.eletype = $3.eletype;} //double to int only checked at decl_stmt 
-              | expression {$$.countAndType.count = 1;$$.countAndType.eletype = $1.eletype;}
+mult_elements : mult_elements ',' expression  
+              {
+                     $$.count = $1.countAndType.count + 1; 
+                     if (!coercible($1.countAndType.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");
+                     else $$.countAndType.eletype = $3.eletype;
+                     //double to int only checked at decl_stmt 
+                     *$$.text = *$1.text + "," + *$3.text ;
+              } 
+              | expression {$$.countAndType.count = 1;$$.countAndType.eletype = $1.eletype; *$$.text = *$1.text;}
               ;
 
 const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.constExp.eletype, $3.constExp.eletype);
@@ -531,9 +545,10 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                           else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
                                                  $$.constExp.d = $1.constExp.d + $3.constExp.i;
                                           else 
-                                                 $$.constExp.i = $1.constExp.i + $3.constExp.i;                           
-                                          
+                                                 $$.constExp.i = $1.constExp.i + $3.constExp.i;      
 
+
+                                          *$$.text = *$1.text + "+" + *$3.text  ;                     
                                       }
        | const_expr '-' const_expr {$$.constExp.eletype = diffTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -545,7 +560,8 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                                  $$.constExp.d = $1.constExp.d - $3.constExp.i;
                                           else
                                                  $$.constExp.i = $1.constExp.i - $3.constExp.i;
-                                   
+
+                                          *$$.text = *$1.text + "-" + *$3.text  ;
                                    }
        | const_expr '*' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -558,6 +574,7 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                           else
                                                  $$.constExp.i = $1.constExp.i * $3.constExp.i;
                                           
+                                          *$$.text = *$1.text + "*" + *$3.text  ;     
                                    }
        | const_expr '/' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -569,9 +586,12 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                                  $$.constExp.d = $1.constExp.d / $3.constExp.i;
                                           else
                                                  $$.constExp.i = $1.constExp.i / $3.constExp.i;
+
+                                          *$$.text = *$1.text + "/" + *$3.text  ;
                                    }
        | const_expr '%' const_expr {if ($1.constExp.eletype != INT || $3.constExp.eletype != INT) semanticError("Error: Semantic error incompatible datatype");$$.constExp.eletype = INT;
                                           $$.constExp.i = $1.constExp.i % $3.constExp.i;
+                                          *$$.text = *$1.text + "%" + *$3.text  ;
                                    }
        | const_expr '^' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -583,25 +603,30 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                                  $$.constExp.d = pow($1.constExp.d, $3.constExp.i);
                                           else
                                                  $$.constExp.i = pow($1.constExp.i, $3.constExp.i);
-
+                                         
+                                          *$$.text = "pow(" + *$1.text + "," + *$3.text + ")" ;
                                    }
-       | '-' const_expr {if (!arithCompatible($2.constExp.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.constExp.eletype = $2.constExp.eletype;
+       | '-' const_expr {   
+                            if (!arithCompatible($2.constExp.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.constExp.eletype = $2.constExp.eletype;
 
                             if ($$.constExp.eletype == REAL) 
                                    $$.constExp.d = -$2.constExp.d; 
                             else 
                                    $$.constExp.i = -$2.constExp.i;
+                            *$$.text = "-" + *$2.text ;
                         } 
-       | '(' const_expr ')' {
+       | '(' const_expr ')' {      
                                    $$.constExp.eletype = $2.constExp.eletype;
                                    if ($$.constExp.eletype == REAL) 
                                           $$.constExp.d = $2.constExp.d; 
                                    else 
                                           $$.constExp.i = $2.constExp.i;
+                                  
+                                   *$$.text = "(" + *$2.text  + ")";
                             } 
-       | FLOATS {$$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
-       | INTEGERS {$$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
-       | BOOLEAN {$$.eletype = INT;$$.constExp.i = $1.constExp.i;}
+       | FLOATS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
+       | INTEGERS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
+       | BOOLEAN { *$$.text = *$1.text; $$.eletype = INT;$$.constExp.i = $1.constExp.i;}
        ;          
 
 
@@ -672,12 +697,12 @@ func_call : member_access {
               }
 
               is_fig = 0;
-              *$$.text = *$1.text + "(" + *$3.text + ")";
+              // *$$.text = *$1.text + "(" + *$3.text + ")";
        };
           
 
-param_list_opt : param_list {*$$.text = *$1.text;}
-               | /* empty */ {*$$.text = "";}
+param_list_opt : param_list {/**$$.text = *$1.text;*/}
+               | /* empty */ {/**$$.text = "";*/}
                ;
 
 empty_space: empty_space ENDLINE  { *$$.text = *$1.text + *$2.text ;}

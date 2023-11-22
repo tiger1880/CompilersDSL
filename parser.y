@@ -144,7 +144,8 @@ vector<ParamList> func_paramlist;
 %nterm <main> empty_space
 %nterm <main> inside_norm
 %nterm <main> vertex
-%nterm <main> stmt assign_stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt for_loop_decl
+%nterm <main> stmt assign_stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt 
+%nterm <main> loop for_loop_decl for_loop while_loop
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
 
@@ -821,8 +822,8 @@ elif_stmt : ELIF '(' expression ')' empty_space stmt_block ENDLINE  {$$.stopAdva
 
 /* Loops */
 
-loop : for_loop 
-     | while_loop
+loop : for_loop      { *$$.text = *$1.text; }
+     | while_loop    { *$$.text = *$1.text; }
      ;
 
 for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression 
@@ -844,9 +845,13 @@ optional_arg: expression  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
             | /* empty */ {$$.eletype = UNDEF;} 
             ;
             
-for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' empty_space stmt_block_for {if(!(arithCompatible($5.eletype)) && $5.eletype != UNDEF) semanticError("Error: Semantic error incompatible datatype11");}
+for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' empty_space stmt_block_for 
+              { 
+                     if(!(arithCompatible($5.eletype)) && $5.eletype != UNDEF) semanticError("Error: Semantic error incompatible datatype11");
+                     *$$.text = *$1.text + "(" + *$3.text + "|" + *$5.text + "|" + *$7.text + ")" + *$9.text + *$10.text;
+              }
 
-while_loop : WHILE '(' expression ')' empty_space stmt_block 
+while_loop : WHILE '(' expression ')' empty_space stmt_block  {*$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text;}
            ;
 
 

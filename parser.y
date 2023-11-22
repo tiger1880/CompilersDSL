@@ -136,7 +136,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> const_expr 
 %nterm <main> check_arr dim 
 %nterm <main> arr_assign comma_arr_assign arr_assign_line
-%nterm <main> decl_token decl_assign
+%nterm <main> decl_token decl_assign decl_stmt
 %nterm <main> ret_var 
 %nterm <main> optional_arg valid_arg
 %nterm <main> arr_access
@@ -460,8 +460,8 @@ assign:  EQUAL expression {$$.eletype = $2.eletype;}
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0;}
-          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0;}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + *$3.text; }
+          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + *$3.text;}
           ;
 
 id_list: id_list ',' ID check_arr EQUAL arr_assign_line 

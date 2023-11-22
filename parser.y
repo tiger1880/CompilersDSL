@@ -528,7 +528,7 @@ comma_arr_assign: comma_arr_assign ',' arr_assign  {updateMaxDim($1.listAndType.
                 | arr_assign {$$.listAndType.dimList = new vector<int>; addFrontAndCopy($$.listAndType.dimList, $1.listAndType.dimList, 1);delete $1.listAndType.dimList;$$.listAndType.eletype = $1.listAndType.eletype;}
                 ;
 
-arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.eletype = $1.countAndType.eletype;}
+arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.eletype = $1.countAndType.eletype; *$$.text = *$1.text;}
              | /* empty */ {$$.countAndType.count = 0;$$.eletype = UNDEF;}
              ;
 

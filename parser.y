@@ -476,8 +476,8 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype;}
        | /* empty */  {$$.eletype = UNDEF;}
        ; 
 
-decl_token: construct  {$$.eletype = $1.eletype;}
-       | expression {$$.eletype = $1.eletype;}
+decl_token: construct  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+          | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;}
        ;
 
 /* Arrays */

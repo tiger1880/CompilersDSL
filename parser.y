@@ -464,12 +464,48 @@ decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineAr
           | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0;}
           ;
 
-id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$.nameList = $1.nameList;$$.nameList->push_back($3.name);compareAndInsertArray($3.name, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);}
-       | id_list ',' ID check_arr  {$$.nameList = $1.nameList;$$.nameList->push_back($3.name);insertArray($3.name, $4.dimList);}       
-       | id_list ',' ID decl_assign {$$.nameList = $1.nameList;$$.nameList->push_back($3.name);insertType($3.name, Var, $4.eletype);}
-       | ID check_arr  {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);insertArray($1.name, $2.dimList);}
-       | ID check_arr EQUAL arr_assign_line {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);compareAndInsertArray($1.name, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);}
-       | ID decl_assign {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);insertType($1.name, Var, $2.eletype);}
+id_list: id_list ',' ID check_arr EQUAL arr_assign_line 
+       {
+              $$.nameList = $1.nameList;
+              $$.nameList->push_back($3.name);
+              compareAndInsertArray($3.name, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);
+              *$$.text = *$1.text + "," + *$3.text + *$4.text + *$5.text  + *$6.text;
+       }
+       | id_list ',' ID check_arr  
+       {
+              $$.nameList = $1.nameList;
+              $$.nameList->push_back($3.name);
+              insertArray($3.name, $4.dimList);
+              *$$.text = *$1.text + "," + *$3.text + *$4.text;
+       }       
+       | id_list ',' ID decl_assign 
+       {
+              $$.nameList = $1.nameList;
+              $$.nameList->push_back($3.name);
+              insertType($3.name, Var, $4.eletype);
+              *$$.text = *$1.text + "," + *$3.text + *$4.text;
+       }
+       | ID check_arr  
+       {
+              $$.nameList = new vector<char*>;
+              $$.nameList->push_back($1.name);
+              insertArray($1.name, $2.dimList);
+              *$$.text = *$1.text + *$2.text;
+       }
+       | ID check_arr EQUAL arr_assign_line 
+       {
+              $$.nameList = new vector<char*>;
+              $$.nameList->push_back($1.name);
+              compareAndInsertArray($1.name, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);
+              *$$.text = *$1.text + *$2.text + *$3.text + *$4.text;
+       }
+       | ID decl_assign 
+       {
+              $$.nameList = new vector<char*>;
+              $$.nameList->push_back($1.name);
+              insertType($1.name, Var, $2.eletype);
+              *$$.text = *$1.text + *$2.text;
+       }
        ;
 
 decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *$2.text; }

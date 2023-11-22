@@ -453,10 +453,10 @@ inside_norm: inside_norm '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
            /* | memb_access assign   will := add in || ||  later*/
            ; // norm cannot be empty
 
-assign:  EQUAL expression {$$.eletype = $2.eletype;}
-       | ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; }  
-       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype) || $2.eletype == LABEL || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; }
-       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2.eletype) || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;}
+assign:  EQUAL expression {$$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
+       | ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = *$1.text + *$2.text;}  
+       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype) || $2.eletype == LABEL || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = *$1.text + *$2.text;}
+       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2.eletype) || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = *$1.text + *$2.text;}
        ;
 
        /* Declaration Statement */

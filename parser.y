@@ -144,7 +144,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> empty_space
 %nterm <main> inside_norm
 %nterm <main> vertex
-%nterm <main> stmt assign_stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt
+%nterm <main> stmt assign_stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt for_loop_decl
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
 
@@ -825,8 +825,18 @@ loop : for_loop
      | while_loop
      ;
 
-for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID.name, Var, $DATATYPE.eletype);delete $ID.name;}
-              | { addSymTabPtr(); } ID EQUAL expression { delete $ID.name; }
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression 
+              {
+                     insertType($ID.name, Var, $DATATYPE.eletype);
+                     *$$.text = *$2.text + *$3.text + *$4.text + *$5.text;
+                     delete $ID.name;
+              }
+              | { addSymTabPtr(); } 
+                     ID EQUAL expression 
+              { 
+                     *$$.text = *$2.text + *$3.text + *$4.text ;
+                     delete $ID.name; 
+              }
               | { addSymTabPtr(); } 
               ;
 

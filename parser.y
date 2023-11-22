@@ -97,32 +97,32 @@ vector<ParamList> func_paramlist;
 
 
 %token <main> INTEGERS BOOLEAN FLOATS
-%token <main.text> LINE_OP  
-%token <main.text> IF
-%token <main.text> ELIF
-%token <main.text> ELSE
-%token <main.text> FOR
-%token <main.text> WHILE
-%token <main.text> RETURN
+%token <main> LINE_OP  
+%token <main> IF
+%token <main> ELIF
+%token <main> ELSE
+%token <main> FOR
+%token <main> WHILE
+%token <main> RETURN
 %token <main> VOID
-%token <main.text> CONTINUE
-%token <main.text> BREAK
-%token <main.text> PARALLEL
-%token <main.text> PERPENDICULAR
+%token <main> CONTINUE
+%token <main> BREAK
+%token <main> PARALLEL
+%token <main> PERPENDICULAR
 %token FUNC
 %token FIG
-%token <main.text> UNARY
+%token <main> UNARY
 %token <main> DATATYPE
-%token <main.text> CMP_OP EQ_CMP_OP
-%token <main.text> ASSIGN_OP
-%token <main.text> SUM_ASSIGN_OP
-%token <main.text> SUB_ASSIGN_OP
-%token <main.text> EQUAL
+%token <main> CMP_OP EQ_CMP_OP
+%token <main> ASSIGN_OP
+%token <main> SUM_ASSIGN_OP
+%token <main> SUB_ASSIGN_OP
+%token <main> EQUAL
 %token <main> STRING_TOKEN
 %token ENDLINE
-%token <main.name> ID
+%token <main> ID
 %token <main> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
-%token <main.text> NOT AND OR 
+%token <main> NOT AND OR 
 %token SCALE CENTER
 
 
@@ -176,8 +176,8 @@ program: program func
  
 
  /* Function Definition */
-func:  FUNC DATATYPE  ID { insertType($3, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
-                     addParamList($3,paramslist);
+func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
+                     addParamList($3.name,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
               }}
@@ -198,11 +198,11 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2.eletype); addSymTabPtr(); } '
                             semanticError("stop/advance cannot be outside the loop");
                      }
 
-                     delete $ID;
+                     delete $ID.name;
                      delSymTabPtr();
               }
-              |  FUNC VOID ID { insertType($3, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
-                     addParamList($3,paramslist);
+              |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
+                     addParamList($3.name,paramslist);
                      insertParams(paramslist);
                      paramslist.clear();
               }}
@@ -220,7 +220,7 @@ func:  FUNC DATATYPE  ID { insertType($3, Func, $2.eletype); addSymTabPtr(); } '
                             semanticError("stop/advance cannot be outside the loop");
                      }
 
-                     delete $ID;
+                     delete $ID.name;
                      delSymTabPtr();
               } 
               ;
@@ -234,28 +234,28 @@ list1: list1 ',' argument | argument ;
 argument : DATATYPE ID check_arr {
               ParamList param;
               param.Eletype = $1.eletype;
-              param.name = $2;
+              param.name = $2.name;
               param.dim = *$3.dimList;
               param.Type = Array;
               paramslist.push_back(param);
-              delete $ID;
+              delete $ID.name;
        }
        | DATATYPE ID {
               ParamList param;
               param.Eletype = $1.eletype;
-              param.name = $2;
+              param.name = $2.name;
               vector<int> dim;
               param.dim = dim;
               param.Type = Var;
               paramslist.push_back(param);
-              delete $ID;
+              delete $ID.name;
        }
        ;
 
  
 /* Figure Definition */
               
-fig: FIG ID {insertType($ID, Fig, UNDEF); addSymTabPtr();}  '(' params ')' empty_space stmt_block { 
+fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' empty_space stmt_block { 
                                                         if (ret_fig_flag == 1)  
                                                                semanticError("Error: Return statement is not allowed in figures."); 
                                                         ret_fig_flag = 0;
@@ -265,7 +265,7 @@ fig: FIG ID {insertType($ID, Fig, UNDEF); addSymTabPtr();}  '(' params ')' empty
                                                                semanticError("stop/advance cannot be outside the loop");
 
                                                         delSymTabPtr();
-                                                        delete $ID;
+                                                        delete $ID.name;
                                                         } 
 
 params : expression ',' expression { if(!(arithCompatible($1.eletype) && $3.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
@@ -336,7 +336,7 @@ construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; 
           | constructor '(' ')' {$$.eletype = $1.eletype;} 
           ; 
 
-constructor : TRICONSTRUCT { $$.eletype = $1.eletype;} 
+constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text + "Hello";} 
             | CIRCLECONSTRUCT { $$.eletype = $1.eletype;} 
             | PARACONSTRUCT { $$.eletype = $1.eletype;} 
             | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;}
@@ -454,12 +454,12 @@ decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineAr
           | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0;}
           ;
 
-id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$.nameList = $1.nameList;$$.nameList->push_back($3);compareAndInsertArray($3, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);}
-       | id_list ',' ID check_arr  {$$.nameList = $1.nameList;$$.nameList->push_back($3);insertArray($3, $4.dimList);}       
-       | id_list ',' ID decl_assign {$$.nameList = $1.nameList;$$.nameList->push_back($3);insertType($3, Var, $4.eletype);}
-       | ID check_arr  {$$.nameList = new vector<char*>;$$.nameList->push_back($1);insertArray($1, $2.dimList);}
-       | ID check_arr EQUAL arr_assign_line {$$.nameList = new vector<char*>;$$.nameList->push_back($1);compareAndInsertArray($1, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);}
-       | ID decl_assign {$$.nameList = new vector<char*>;$$.nameList->push_back($1);insertType($1, Var, $2.eletype);}
+id_list: id_list ',' ID check_arr EQUAL arr_assign_line {$$.nameList = $1.nameList;$$.nameList->push_back($3.name);compareAndInsertArray($3.name, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);}
+       | id_list ',' ID check_arr  {$$.nameList = $1.nameList;$$.nameList->push_back($3.name);insertArray($3.name, $4.dimList);}       
+       | id_list ',' ID decl_assign {$$.nameList = $1.nameList;$$.nameList->push_back($3.name);insertType($3.name, Var, $4.eletype);}
+       | ID check_arr  {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);insertArray($1.name, $2.dimList);}
+       | ID check_arr EQUAL arr_assign_line {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);compareAndInsertArray($1.name, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);}
+       | ID decl_assign {$$.nameList = new vector<char*>;$$.nameList->push_back($1.name);insertType($1.name, Var, $2.eletype);}
        ;
 
 decl_assign: EQUAL decl_token {$$.eletype = $2.eletype;}
@@ -619,16 +619,16 @@ member_access : memb_access {
 
 memb_access: memb_access '.' ID  arr_access {
                      $$.dimCount = $1.dimCount; 
-                     int count = checkDims($3,$4.count);
+                     int count = checkDims($3.name,$4.count);
                      if(count >= 0) {
-                            $$.dimCount->push_back({count,$3});
+                            $$.dimCount->push_back({count,$3.name});
                      }
               }
               | ID arr_access {
-                     int count = checkDims($1,$2.count);
+                     int count = checkDims($1.name,$2.count);
                      $$.dimCount = new vector<cntAndType> ;   //free?
                      if(count >= 0) {
-                            $$.dimCount->push_back({count,$1});  
+                            $$.dimCount->push_back({count,$1.name});  
                      }     
               }
        ;  
@@ -695,8 +695,8 @@ loop : for_loop
      | while_loop
      ;
 
-for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID, Var, $DATATYPE.eletype);delete $ID;}
-              | { addSymTabPtr(); } ID EQUAL expression { delete $ID; }
+for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression { insertType($ID.name, Var, $DATATYPE.eletype);delete $ID.name;}
+              | { addSymTabPtr(); } ID EQUAL expression { delete $ID.name; }
               | { addSymTabPtr(); } 
               ;
 

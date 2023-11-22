@@ -34,11 +34,11 @@ utils: utils.cpp
 
 # Clean target: remove the target executable
 clean:
-	rm -f $(TARGET) lex.yy.c y.tab.c y.tab.h error.txt seq_token.txt utils
+	rm -f $(TARGET) lex.yy.c y.tab.c y.tab.h error.txt seq_token.txt utils 
 
 # Clean target: remove the itarget files BISON version
 clean2: 
-	rm -f $(TARGET) lex.yy.c $(FILENAME).tab.c $(FILENAME).tab.h error.txt seq_token.txt utils
+	rm -f $(TARGET) lex.yy.c $(FILENAME).tab.c $(FILENAME).tab.h error.txt seq_token.txt utils translated.cpp
 
 # Run target: build and run the target executable
 run: $(TARGET)

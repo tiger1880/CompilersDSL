@@ -54,6 +54,9 @@ public:
     string tag;
     virtual double Area() = 0;
     virtual double Perimeter() = 0;
+    Shapes(){
+       ;
+    }
 };
 
 class Point : public Shapes
@@ -63,7 +66,10 @@ public:
     double y;
     bool show;
 
+    Point()
+    {
 
+    }
     Point(double a, double b)
     {
         x = a;
@@ -91,7 +97,8 @@ public:
 
 class Line : public Shapes
 {
-
+    double scale;
+    class Point center;
     double Area() override
     {
         // Implementation for Line Area
@@ -110,29 +117,27 @@ public:
     Point p2;
     Point p3;
     bool show;
+    double scale;
+    class Point center; 
 
     Tri()
     {
+        ;
     }
 
-    Tri(Point point1, Point point2, Point point3, bool sh = true)
+    Tri(Point point1, Point point2, Point point3, bool sh = true, class Point Center = Point(0,0),double Scale = 1.0)
     {
         p1 = point1;
         p2 = point2;
         p3 = point3;
         show = sh;
+        scale = Scale;
+        center = Center;
 
-        glColor3b(0, 0, 0);
-        glBegin(GL_TRIANGLES);
-        glVertex2d(p1.x, p1.y);
-        glVertex2d(p2.x, p2.y);
-        glVertex2d(p3.x, p3.y);
-
-        glEnd();
     }
 
 
-    Tri(double s1, double s2, double s3, bool sh = true)
+    Tri(double s1, double s2, double s3, bool sh = true, class Point center = Point(0,0),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
@@ -141,22 +146,21 @@ public:
         p3 = Point(a, b);
         show = sh;
 
-        glColor3b(0, 0, 0);
-        glBegin(GL_TRIANGLES);
-        glVertex2d(p1.x, p1.y);
-        glVertex2d(p2.x, p2.y);
-        glVertex2d(p3.x, p3.y);
-
-        glEnd();
+       
     }
 
-    Tri(double h, double s, bool sh = true)
+    Tri(double h, double s, bool sh = true, class Point center = Point(0,0),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
         show = sh;
 
+    }
+
+    void show()
+    {   
+        glTranslatef(center.x, center.y, 0.0f);
         glColor3b(0, 0, 0);
         glBegin(GL_TRIANGLES);
         glVertex2d(p1.x, p1.y);
@@ -164,6 +168,7 @@ public:
         glVertex2d(p3.x, p3.y);
 
         glEnd();
+
     }
 
     Point CIRCUMCENTER()
@@ -187,7 +192,6 @@ public:
     {
         Point o = CIRCUMCENTER();
         Point g = CENTROID();
-
         Point h = Point(3 * g.x - 2 * o.x, 3 * g.y - 2 * o.y);
 
         return h;
@@ -318,20 +322,29 @@ class Circle : public Shapes
 {
     float radius;
     class Point center;
+    double scale;
+    bool show;
 
-    Circle(float radius, class Point center)
+    Circle(float radius, class Point center = Point(0,0),double scale = 1.0)
     {
         this->radius = radius;
         this->center = center;
+        
+    }
+
+    void show()
+    {   
+        glTranslatef(center.x, center.y, 0.0f);
         glBegin(GL_LINE_LOOP);
         glColor3f(0.0f, 1.0f, 1.0f); // Blue
         GLfloat angle;
         for (int i = 0; i <= 360; i++)
         {
             angle = i * PI / 180; // 360 deg for all segments
-            glVertex2f(cos(angle) * this->radius, sin(angle) * this->radius);
+            glVertex2f(cos(angle) * radius, sin(angle) * radius);
         }
         glEnd();
+
     }
 
     class Line TANGENT(class Point q)
@@ -473,8 +486,11 @@ public:
     Point p2;
     Point p3;
     Point p4;
+    double scale;
+    class Point center; 
+    bool show;
 
-    Para(double s1, double ang, double s2)
+    Para(double s1, double ang, double s2, class Point center = Point(0,0),double scale = 1.0)
     {
         
         p1 = Point(0, 0);
@@ -482,6 +498,11 @@ public:
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
         p4 = Point(s2 * cos(ang), s2 * sin(ang));
 
+    }
+
+    void show(){
+        
+        glTranslatef(center.x, center.y, 0.0f);
         glColor3b(0, 0, 0);
         glBegin(GL_QUADS);
         glVertex2d(p1.x, p1.y);
@@ -526,24 +547,32 @@ class RegPoly : public Shapes
 {
     int numOfSides;
     double sideLength;
+    double scale;
+    class Point center;
+    bool show; 
 
-    RegPoly(int numOfSides, double sideLength)
+    RegPoly(int numOfSides, double sideLength, class Point center = Point(0,0),double scale = 1.0)
     {
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
-        glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
+        
+    }
 
+    void show()
+    {
+        glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
+        glTranslatef(center.x, center.y, 0.0f);
         glBegin(GL_LINE_LOOP);
         glColor3f(1.0f, 0.0f, 1.0f); // Yellow
-        int num = 5;
-        double len = 0.6f / 2;
+
         GLfloat angle = 0;
-        for (int i = 0; i < num; i++)
+        for (int i = 0; i < numOfSides; i++)
         {
-            glVertex2f(len * cos(angle), len * sin(angle));
-            angle += (PI / 180) *(360 / num);
+            glVertex2f(sideLength * cos(angle), sideLength * sin(angle));
+            angle += (PI / 180) *(360 / numOfSides);
         }
         glEnd();
+
     }
 
     double Area()

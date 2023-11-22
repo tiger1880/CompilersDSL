@@ -144,7 +144,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> empty_space
 %nterm <main> inside_norm
 %nterm <main> vertex
-%nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt
+%nterm <main> stmt assign_stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
 
@@ -308,8 +308,8 @@ ret_var : construct {$$.eletype = $1.eletype; *$$.text = *$1.text; }
        | {$$.eletype = Void; *$$.text = "void" ;}; 
 
        /* Assignment Statement */
-assign_stmt : expression ENDLINE {lineArrNo = 0;}
-            | construct ENDLINE  {lineArrNo = 0;}
+assign_stmt : expression ENDLINE {lineArrNo = 0; *$$.text = *$1.text + *$2.text;}
+            | construct ENDLINE  {lineArrNo = 0; *$$.text = *$1.text + *$2.text;}
             /* | fig_call ENDLINE */
             ;
 

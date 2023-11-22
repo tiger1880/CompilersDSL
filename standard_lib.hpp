@@ -379,9 +379,9 @@ class Circle : public Shapes
         glColor3f(0.0f, 1.0f, 1.0f); // Blue
         GLfloat angle;
         for (int i = 0; i <= 360; i++)
-        {                                      
-            angle = i * PI /180; // 360 deg for all segments
-            glVertex2f( cos(angle) * this->radius, sin(angle) * this->radius);
+        {
+            angle = i * PI / 180; // 360 deg for all segments
+            glVertex2f(cos(angle) * this->radius, sin(angle) * this->radius);
         }
         glEnd();
     }
@@ -398,7 +398,8 @@ class Circle : public Shapes
         return l;
     }
 
-    vector<class Point> INTERSECTION(class Circle c1, class Circle c2)
+    vector<class Point>
+    INTERSECTION(class Circle c1, class Circle c2)
     {
         vector<class Point> p;
         // Finding quadratic equation and then sove it.
@@ -407,7 +408,7 @@ class Circle : public Shapes
             return p;
         if (d < abs(c1.radius - c2.radius))
             return p;
-        if (d == 0 && c1.radius - c2.radius)
+        if (d == 0 && (c1.radius - c2.radius) == 0)
             return p;
         double c, k;
         c = (c1.radius * c1.radius - (c2.radius * c2.radius) + (c2.center.x * c2.center.x + c2.center.y * c2.center.y) - (c1.center.x * c1.center.x + c1.center.x * c1.center.x)) / (2 * (c2.center.x - c1.center.x));
@@ -436,11 +437,16 @@ class Circle : public Shapes
         vector<class Line> ans;
 
         class Point p, q, r, s;
+        int flag = 0;
 
         p.x = (c1.radius * c2.center.x + c2.radius * c1.center.x) / (c1.radius + c2.radius);
         p.y = (c1.radius * c2.center.y + c2.radius * c1.center.y) / (c1.radius + c2.radius);
-        q.x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / (c2.radius - c1.radius);
-        q.y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / (c2.radius - c1.radius);
+        if (c2.radius == c1.radius)
+        {
+            q.x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / (c2.radius - c1.radius);
+            q.y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / (c2.radius - c1.radius);
+            flag = 1;
+        }
 
         double D1, D2;
         vector<double> m;
@@ -466,27 +472,38 @@ class Circle : public Shapes
             ans.push_back(l);
         }
         m.clear();
-
-        D2 = pow((c1.center.x - q.x), 2) - 4 * (c1.radius) * (c1.radius) * (pow((c1.radius), 2) + c1.center.y - q.y);
-        if (D2 == 0)
+        if (flag == 0)
         {
-            m.push_back((c1.center.x - q.x) / 2 * (c1.radius) * c1.radius);
+            D2 = pow((c1.center.x - q.x), 2) - 4 * (c1.radius) * (c1.radius) * (pow((c1.radius), 2) + c1.center.y - q.y);
+            if (D2 == 0)
+            {
+                m.push_back((c1.center.x - q.x) / 2 * (c1.radius) * c1.radius);
+            }
+            else if (D2 > 0)
+            {
+                m.push_back((c1.center.x - q.x + D2) / 2 * (c1.radius) * c1.radius);
+                m.push_back((c1.center.x - q.x - D2) / 2 * (c1.radius) * c1.radius);
+            }
+
+            for (int i = 0; i < m.size(); i++)
+            {
+                r.x = 0;
+                r.y = q.y - m[0] * q.x;
+                class Line l;
+                l = Line(q, r);
+                ans.push_back(l);
+
+                return ans;
+            }
         }
-        else if (D2 > 0)
-        {
-            m.push_back((c1.center.x - q.x + D2) / 2 * (c1.radius) * c1.radius);
-            m.push_back((c1.center.x - q.x - D2) / 2 * (c1.radius) * c1.radius);
-        }
+        else{
+            double slope ;
+            slope = (c2.center.y - c1.center.y)/(c2.center.x - c1.center.x);
+            if( d == abs(c1.radius - c2.radius)){
+               slope = -1/slope;
+               
+            }
 
-        for (int i = 0; i < m.size(); i++)
-        {
-            r.x = 0;
-            r.y = q.y - m[0] * q.x;
-            class Line l;
-            l = Line(q, r);
-            ans.push_back(l);
-
-            return ans;
         }
     }
 
@@ -557,28 +574,26 @@ public:
 
 class RegPoly : public Shapes
 {
-    class Point center;
     int numOfSides;
     double sideLength;
 
-    RegPoly(int numOfSides, double sideLength, class Point center)
+    RegPoly(int numOfSides, double sideLength)
     {
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
-        this->center = center;
         glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
 
-        glBegin(GL_LINE_LOOP);   
+        glBegin(GL_LINE_LOOP);
         glColor3f(1.0f, 0.0f, 1.0f); // Yellow
         int num = 5;
-        double len = 0.6f/2;
+        double len = 0.6f / 2;
         GLfloat angle = 0;
-        for(int i=0;i<num;i++){
-            glVertex2f(len*cos(angle),len*sin(angle));
-            angle += (PI/180)*(360/num);
+        for (int i = 0; i < num; i++)
+        {
+            glVertex2f(len * cos(angle), len * sin(angle));
+            angle += (PI / 180) *(360 / num);
         }
         glEnd();
-
     }
 
     double Area()

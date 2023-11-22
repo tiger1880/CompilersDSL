@@ -474,9 +474,9 @@ decl_token: construct  {$$.eletype = $1.eletype;}
        ;
 
 /* Arrays */
-check_arr: dim {$$.dimList = $1.dimList;}
-         | '['']' {$$.dimList = new vector<int>;$$.dimList->push_back(-1);}
-         | '['']' dim {$$.dimList = new vector<int>;addFrontAndCopy($$.dimList, $3.dimList, -1);delete $3.dimList;}
+check_arr: dim {$$.dimList = $1.dimList; *$$.text = *$1.text;}
+         | '[' ']' {$$.dimList = new vector<int>;$$.dimList->push_back(-1); *$$.text = "[]";}
+         | '[' ']' dim {$$.dimList = new vector<int>;addFrontAndCopy($$.dimList, $3.dimList, -1);delete $3.dimList; *$$.text = "[]" + *$3.text; }
          ;
          
 dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;

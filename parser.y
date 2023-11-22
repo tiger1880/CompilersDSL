@@ -412,7 +412,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; *$$.text = *$1.text + "%" + *$3.text;}
             | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
-            | expression LINE_OP expression { if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
+            | expression LINE_OP expression { *$$.text = *$1.text + *$2.text + *$3.text ; if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");}  // <-> ->
             | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);}
             | expression PERPENDICULAR expression  {  $$.eletype = perpendicularCheck($1.eletype, $3.eletype);}
             | PARALLEL inside_norm PARALLEL  {$$.eletype = REAL;}
@@ -672,12 +672,12 @@ func_call : member_access {
               }
 
               is_fig = 0;
-              *$$.text = *$1.text + "(" + *$3.text + ")";
+              // *$$.text = *$1.text + "(" + *$3.text + ")";
        };
           
 
-param_list_opt : param_list {*$$.text = *$1.text;}
-               | /* empty */ {*$$.text = "";}
+param_list_opt : param_list {/**$$.text = *$1.text;*/}
+               | /* empty */ {/**$$.text = "";*/}
                ;
 
 empty_space: empty_space ENDLINE  { *$$.text = *$1.text + *$2.text ;}

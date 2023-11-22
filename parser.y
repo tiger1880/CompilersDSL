@@ -128,7 +128,7 @@ vector<ParamList> func_paramlist;
 
 // non-terminals
 %nterm <main> construct constructor
-%nterm <main> param_list construct_param_list
+%nterm <main> param_list construct_param_list param_list_opt
 %nterm <main> point angle expression member_access 
 %nterm <main> assign func_call
 %nterm <main> id_list
@@ -787,12 +787,12 @@ func_call : member_access {
               }
 
               is_fig = 0;
-              // *$$.text = *$1.text + "(" + *$3.text + ")";
+              *$$.text = *$1.text + "(" + *$4.text + ")";
        };
           
 
-param_list_opt : param_list {/**$$.text = *$1.text;*/}
-               | /* empty */ {/**$$.text = "";*/}
+param_list_opt : param_list {*$$.text = *$1.text;}
+               | /* empty */ {*$$.text = "";}
                ;
 
 empty_space: empty_space ENDLINE  { *$$.text = *$1.text + *$2.text ;}

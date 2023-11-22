@@ -520,12 +520,37 @@ arr_assign_line : arr_assign {$$.listAndType.dimList = $1.listAndType.dimList;$$
                      }
                 ;
 
-arr_assign : '{'  arr1d_in_list '}' {$$.listAndType.dimList = new vector<int>; $$.listAndType.dimList->push_back($2.countAndType.count); $$.listAndType.eletype = $2.countAndType.eletype;}
-           | '{' comma_arr_assign '}' {$$.listAndType.dimList = $2.listAndType.dimList;$$.listAndType.eletype = $2.listAndType.eletype;}
-           ; // { {1, 2}, {2, 3}}
+arr_assign : '{'  arr1d_in_list '}' 
+              {
+                     $$.listAndType.dimList = new vector<int>; 
+                     $$.listAndType.dimList->push_back($2.countAndType.count); 
+                     $$.listAndType.eletype = $2.countAndType.eletype; 
+                     *$$.text = "{" + *$2.text + "}";
+              }
+              | '{' comma_arr_assign '}' 
+              {
+                     $$.listAndType.dimList = $2.listAndType.dimList;
+                     $$.listAndType.eletype = $2.listAndType.eletype;
+                     *$$.text = "{" + *$2.text + "}";
+              }
+              ; // { {1, 2}, {2, 3}}
 
-comma_arr_assign: comma_arr_assign ',' arr_assign  {updateMaxDim($1.listAndType.dimList, $3.listAndType.dimList); delete $3.listAndType.dimList;$$.listAndType.dimList = $1.listAndType.dimList;if (!coercible($1.listAndType.eletype, $3.listAndType.eletype)) semanticError("arrays should be initialized with same datatype");else $$.listAndType.eletype = $1.listAndType.eletype;}
-                | arr_assign {$$.listAndType.dimList = new vector<int>; addFrontAndCopy($$.listAndType.dimList, $1.listAndType.dimList, 1);delete $1.listAndType.dimList;$$.listAndType.eletype = $1.listAndType.eletype;}
+comma_arr_assign: comma_arr_assign ',' arr_assign  
+              {
+                     updateMaxDim($1.listAndType.dimList, $3.listAndType.dimList); 
+                     delete $3.listAndType.dimList;$$.listAndType.dimList = $1.listAndType.dimList;
+                     if (!coercible($1.listAndType.eletype, $3.listAndType.eletype)) semanticError("arrays should be initialized with same datatype");
+                     else $$.listAndType.eletype = $1.listAndType.eletype;
+                     *$$.text = *$1.text + "," + *$3.text ;
+              }
+                | arr_assign 
+              {
+                     $$.listAndType.dimList = new vector<int>; 
+                     addFrontAndCopy($$.listAndType.dimList, $1.listAndType.dimList, 1);
+                     delete $1.listAndType.dimList;
+                     $$.listAndType.eletype = $1.listAndType.eletype;
+                     *$$.text = *$1.text;
+              }
                 ;
 
 arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.eletype = $1.countAndType.eletype; *$$.text = *$1.text;}

@@ -533,9 +533,10 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                           else if ($1.constExp.eletype == REAL && $3.constExp.eletype == INT)
                                                  $$.constExp.d = $1.constExp.d + $3.constExp.i;
                                           else 
-                                                 $$.constExp.i = $1.constExp.i + $3.constExp.i;                           
-                                          
+                                                 $$.constExp.i = $1.constExp.i + $3.constExp.i;      
 
+
+                                          *$$.text = *$1.text + "+" + *$3.text  ;                     
                                       }
        | const_expr '-' const_expr {$$.constExp.eletype = diffTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -547,7 +548,8 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                                  $$.constExp.d = $1.constExp.d - $3.constExp.i;
                                           else
                                                  $$.constExp.i = $1.constExp.i - $3.constExp.i;
-                                   
+
+                                          *$$.text = *$1.text + "-" + *$3.text  ;
                                    }
        | const_expr '*' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -560,6 +562,7 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                           else
                                                  $$.constExp.i = $1.constExp.i * $3.constExp.i;
                                           
+                                          *$$.text = *$1.text + "*" + *$3.text  ;     
                                    }
        | const_expr '/' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -571,9 +574,12 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                                  $$.constExp.d = $1.constExp.d / $3.constExp.i;
                                           else
                                                  $$.constExp.i = $1.constExp.i / $3.constExp.i;
+
+                                          *$$.text = *$1.text + "/" + *$3.text  ;
                                    }
        | const_expr '%' const_expr {if ($1.constExp.eletype != INT || $3.constExp.eletype != INT) semanticError("Error: Semantic error incompatible datatype");$$.constExp.eletype = INT;
                                           $$.constExp.i = $1.constExp.i % $3.constExp.i;
+                                          *$$.text = *$1.text + "%" + *$3.text  ;
                                    }
        | const_expr '^' const_expr {$$.constExp.eletype = mulTypeCheck($1.constExp.eletype, $3.constExp.eletype);
 
@@ -585,25 +591,30 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                                  $$.constExp.d = pow($1.constExp.d, $3.constExp.i);
                                           else
                                                  $$.constExp.i = pow($1.constExp.i, $3.constExp.i);
-
+                                         
+                                          *$$.text = "pow(" + *$1.text + "," + *$3.text + ")" ;
                                    }
-       | '-' const_expr {if (!arithCompatible($2.constExp.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.constExp.eletype = $2.constExp.eletype;
+       | '-' const_expr {   
+                            if (!arithCompatible($2.constExp.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.constExp.eletype = $2.constExp.eletype;
 
                             if ($$.constExp.eletype == REAL) 
                                    $$.constExp.d = -$2.constExp.d; 
                             else 
                                    $$.constExp.i = -$2.constExp.i;
+                            *$$.text = "-" + *$2.text ;
                         } 
-       | '(' const_expr ')' {
+       | '(' const_expr ')' {      
                                    $$.constExp.eletype = $2.constExp.eletype;
                                    if ($$.constExp.eletype == REAL) 
                                           $$.constExp.d = $2.constExp.d; 
                                    else 
                                           $$.constExp.i = $2.constExp.i;
+                                  
+                                   *$$.text = "(" + *$2.text  + ")";
                             } 
-       | FLOATS {$$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
-       | INTEGERS {$$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
-       | BOOLEAN {$$.eletype = INT;$$.constExp.i = $1.constExp.i;}
+       | FLOATS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
+       | INTEGERS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
+       | BOOLEAN { *$$.text = *$1.text; $$.eletype = INT;$$.constExp.i = $1.constExp.i;}
        ;          
 
 

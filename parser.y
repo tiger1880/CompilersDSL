@@ -392,8 +392,8 @@ construct_param_list: construct_param_list ',' valid_arg {
           }
           ;
 
-point : '(' expression ','  expression ',' STRING_TOKEN ')' {  $$.eletype = pointCheck($2.eletype, $4.eletype); }
-       |  '(' expression ','  expression  ')'  {  $$.eletype = pointCheck($2.eletype, $4.eletype);}
+point : '(' expression ','  expression ',' STRING_TOKEN ')' {  *$$.text = "(" + *$2.text + "," + *$4.text + "," + *$6.text + ")"; $$.eletype = pointCheck($2.eletype, $4.eletype); }
+       |  '(' expression ','  expression  ')'  {  *$$.text = "(" + *$2.text + "," + *$4.text +  ")";  $$.eletype = pointCheck($2.eletype, $4.eletype);}
        ; 
 
 // NOT TESTED
@@ -419,7 +419,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
             | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
-            | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;*$$.text = "!" + *$1.text}
+            | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;*$$.text = "!" + *$1.text;}
             | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "&&" + *$3.text; }
             | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "||" + *$3.text; }
             | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype) || ($1.eletype == LINE && $2.eletype == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype; }

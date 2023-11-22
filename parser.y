@@ -546,13 +546,18 @@ dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
 
 /* NEED TO ADD EMPTY SPACE WHEREEVER POSSIBLE IN ARRAY ASSIGN */
 
-arr_assign_line : arr_assign {$$.listAndType.dimList = $1.listAndType.dimList;$$.listAndType.eletype = $1.listAndType.eletype;}
+arr_assign_line : arr_assign {
+                            $$.listAndType.dimList = $1.listAndType.dimList;
+                            $$.listAndType.eletype = $1.listAndType.eletype;
+                            *$$.text = *$1.text;
+                     }
                 | expression {
                             if ($1.eletype != LINEARR) 
                                    semanticError("Error: Invalid Datatypes\n");
                             $$.listAndType.dimList = new vector<int>;
                             $$.listAndType.dimList->push_back(lineArrNo);
                             lineArrNo = 0;
+                            *$$.text = *$1.text;
                      }
                 ;
 

@@ -144,7 +144,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> empty_space
 %nterm <main> inside_norm
 %nterm <main> vertex
-%nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt
+%nterm <main> stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt
 //%nterm <main.eletype> opt_exp
 //%nterm <types> param_list;
 
@@ -280,8 +280,8 @@ stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound;}
      | loop     {$$.stopAdvanceFound = false;}
      | decl_stmt {$$.stopAdvanceFound = false;}
      | assign_stmt {$$.stopAdvanceFound = false;}
-     | return_stmt {$$.stopAdvanceFound = false;}
-     | ENDLINE    {$$.stopAdvanceFound = false;}
+     | return_stmt {$$.stopAdvanceFound = false; *$$.text= *$1.text ;}
+     | ENDLINE    {$$.stopAdvanceFound = false;  *$$.text= *$1.text ;}
      | stmt_block {$$.stopAdvanceFound = $1.stopAdvanceFound;}
      | break_stmt {$$.stopAdvanceFound = true;}
      ;
@@ -296,8 +296,8 @@ stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' { $$.stopAdvanceFound = $3.st
 stmt_block_for: '{'  stmt_list '}' { $$.stopAdvanceFound = $2.stopAdvanceFound; delSymTabPtr(); } // addSymTabPtr before for decl
           ;
 
-break_stmt : BREAK ENDLINE 
-           | CONTINUE ENDLINE 
+break_stmt : BREAK ENDLINE  {*$$.text = *$1.text + *$2.text;}
+           | CONTINUE ENDLINE { *$$.text = *$1.text + *$2.text;}
            ;
 
        /* Return Statement */

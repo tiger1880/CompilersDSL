@@ -271,61 +271,61 @@ or {
     if (strcmp(yytext, "int") == 0) {
         yylval.main.eletype = INT;
         yylval.main.text = new string;
-        *yylval.main.text = "int";
+        *yylval.main.text = "int ";
     } 
     else if (strcmp(yytext, "real") == 0) {
         yylval.main.eletype = REAL;
         yylval.main.text = new string;
-        *yylval.main.text = "double";
+        *yylval.main.text = "double ";
     } 
     else if (strcmp(yytext, "bool") == 0) {
         yylval.main.eletype = BOOL;
         yylval.main.text = new string;
-        *yylval.main.text = "bool";
+        *yylval.main.text = "bool ";
     } 
     else if (strcmp(yytext, "label") == 0) {
         yylval.main.eletype = LABEL;
         yylval.main.text = new string;
-        *yylval.main.text = "string";
+        *yylval.main.text = "string ";
     } 
     else if (strcmp(yytext, "tri") == 0) {
         yylval.main.eletype = TRI;
         yylval.main.text = new string;
-        *yylval.main.text = "Tri";
+        *yylval.main.text = "Tri ";
     } 
     else if (strcmp(yytext, "circle") == 0) {
         yylval.main.eletype = CIRCLE;
         yylval.main.text = new string;
-        *yylval.main.text = "Circle";
+        *yylval.main.text = "Circle ";
     } 
     else if (strcmp(yytext, "para") == 0) {
         yylval.main.eletype = PARA;
         yylval.main.text = new string;
-        *yylval.main.text = "Para";
+        *yylval.main.text = "Para ";
     } 
     else if (strcmp(yytext, "regPoly") == 0) {
         yylval.main.eletype = REGPOLY;
         yylval.main.text = new string;
-        *yylval.main.text = "RegPoly";
+        *yylval.main.text = "RegPoly ";
     } 
     else if (strcmp(yytext, "point") == 0) {
         yylval.main.eletype = POINT;
         yylval.main.text = new string;
-        *yylval.main.text = "Point";
+        *yylval.main.text = "Point ";
     } 
     else if (strcmp(yytext, "line") == 0) {
         yylval.main.eletype = LINE;
         yylval.main.text = new string;
-        *yylval.main.text = "Line";
+        *yylval.main.text = "Line ";
     } 
     else if (strcmp(yytext, "angle") == 0) {
         yylval.main.eletype = ANGLE;
         yylval.main.text = new string;
-        *yylval.main.text = "double";
+        *yylval.main.text = "double ";
     } 
 
-    yylval.main.text = new string;
-    *yylval.main.text = yytext;
+    // yylval.main.text = new string;
+    // *yylval.main.text = yytext;
     
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
     return DATATYPE;

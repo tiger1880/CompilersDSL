@@ -193,7 +193,7 @@ string totalProgram;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text; totalProgram = *$$.text;} 
+program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;cout << "hello: " << *$$.text << "\n";totalProgram = *$$.text;} 
        | program fig {$$.text = new string;*$$.text = *$1.text + *$2.text; totalProgram = *$$.text;} 
        | program stmt  {
               $$.text = new string;
@@ -206,6 +206,7 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text; tota
               else {
                      collection.push_back(*$2.text);
               }
+              printf("%s", $$.text->c_str());
               totalProgram = *$$.text;
               }  //have to consider global statements differently
        | /* empty */ {
@@ -1073,7 +1074,7 @@ string centerTranslation(string center) {
 int main(int argc, char*argv[])
 {    
 
-    yydebug = 1;
+    /* yydebug = 1; */
 
     if (argc < 2){
 
@@ -1138,13 +1139,24 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<cmath>\n");
     fprintf(fout_translated,"#include<deque>\n");
     fprintf(fout_translated,"#include \"standard_lib.hpp\" \n");
-
-    fprintf(fout_translated, "%s", totalProgram.c_str());
+    
     
 
     insertConstructTab();
 
     int x = yyparse();
+    
+    cout << "hello: " << totalProgram.c_str() << "\n";
+
+    fprintf(fout_translated, "%s", totalProgram.c_str());
+
+    fprintf(fout_translated, "\n\nint main(){\n");
+
+    for (int i = 0;i < collection.size();i++)
+       fprintf(fout_translated, "%s", collection[i].c_str());
+    
+    fprintf(fout_translated, "}\n");
+
 
     fclose(fp);
     fclose(fout_token);

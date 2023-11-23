@@ -147,7 +147,7 @@ STentry lookupConstructTab2(char* name) {
 */
 STentry lookup(char *name) {
 
-    for (int i = SymTab.size();i >= 0;i--){
+    for (int i = SymTab.size()-1;i >= 0;i--){
 
         if (SymTab[i].find(name) != SymTab[i].end()) {
             return SymTab[i][name];
@@ -447,8 +447,7 @@ void typeUpdate(vector<char*>* v, enum eletype t){
 
        for (int i = 0;i < v->size();i++){
 
-              int prevType = checkEletype(v->at(i));
-              
+            int prevType = checkEletype(v->at(i));
               
               if (!coercible(prevType, t)){
 
@@ -457,7 +456,7 @@ void typeUpdate(vector<char*>* v, enum eletype t){
               
               updateType(v->at(i), t);
               
-              free(v->at(i));
+            free(v->at(i));
        }
 
        delete v;

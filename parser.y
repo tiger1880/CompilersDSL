@@ -1090,13 +1090,21 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<iostream>\n");
     fprintf(fout_translated,"#include<vector>\n");
     fprintf(fout_translated,"#include<GL/glut.h>\n");
+    fprintf(fout_translated,"#include<bits/stdc++.h>\n");
     fprintf(fout_translated,"#include<string>\n");
     fprintf(fout_translated,"#include<stdlib.h>\n");
     fprintf(fout_translated,"#include<math.h>\n");
     fprintf(fout_translated,"#include<deque>\n");
     fprintf(fout_translated,"#include \"standard_lib.hpp\" \n");
+    fprintf(fout_translated,"using namespace std;\n \n");
+    fprintf(fout_translated,"void initGL() { \n glClearColor(1.0f, 1.0f, 1.0f, 1.0f); \n } \n")
+    fprintf(fout_translated,"int main(int argc, char** argv){\n");
+    
 
-
+    for(int i=0;i<collection.size();i++){
+       printf("%s\n",collection[i].c_str());
+    }
+    fprintf(fout_translated,"return 0\n } \n");
     insertConstructTab();
 
     int x = yyparse();

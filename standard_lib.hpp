@@ -1005,7 +1005,7 @@ class Circle : public Shapes
 
     vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2)
     {
-
+       //Implement common tangents again..
         double d = sqrt(pow((c1.center.x - c2.center.x), 2) + pow((c1.center.y - c2.center.y), 2));
         vector<class Line> ans;
 

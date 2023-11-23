@@ -34,6 +34,7 @@ deque <string> collection;
 string datatypeTranslation(string dtype);
 string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
+string centerTranslation(string center);
 
 extern int yydebug;
 
@@ -180,17 +181,17 @@ vector<ParamList> func_paramlist;
 //Committing for now errors in func,fig.
 
 /*
-       1.) Func,fig(arguments),store scale,center in gloabl variables
-       2.) construct - insert center and scale in constructor
+       1.) Func,fig(arguments),store scale,center in gloabl variables - Done
+       2.) construct - insert center and scale in constructor - Done (point left)
        3.) norm, perpandicular,parallel,line op
-       4.) assign op ^:= into pow
-       5.) Global statements except declaration in int main
+       4.) assign op ^:= into pow - Done
+       5.) Global statements except declaration in int main - Done for now change decl_stmt grammar if that is final
 
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func /*{ *$$.text = *$1.text + *$2.text;} */
-       | program fig /*{*$$.text = *$1.text + *$2.text;} */
+program: program func { *$$.text = *$1.text + *$2.text;} 
+       | program fig {*$$.text = *$1.text + *$2.text;} 
        | program stmt  {
               if ($stmt.stopAdvanceFound) 
                      semanticError("stop/advance cannot be outside the loop");
@@ -323,12 +324,16 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
 params : expression ',' expression { 
               if(!(arithCompatible($1.eletype) && $3.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype..") ;
-              *$$.text = "double scale , Point center "; //change this later
+              scale = *$1.text;
+              center = centerTranslation(*$3.text);
+              *$$.text = "double scale , Point center"; 
        }
        | SCALE EQUAL expression ',' CENTER EQUAL expression { 
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
-              *$$.text = "double scale = " + *$1.text + "," + "Point center = Point(" + *$3.text + ")"; //change this later
+              scale = *$3.text;
+              center = *$7.text;
+              *$$.text = "double scale , Point center" ; 
        }
 
  /* Statements */
@@ -408,8 +413,8 @@ fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
        delete $ID;
 } */
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); *$$.text = *$1.text + "(" + *$3.text + scale + center + ")" ;} 
-          | constructor '(' ')' {$$.eletype = $1.eletype; *$$.text = *$1.text + "(" + scale + center + ")" ;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); *$$.text = *$1.text + "(" + *$3.text + "," + scale + "," + center + ")" ;} 
+          | constructor '(' ')' {$$.eletype = $1.eletype; *$$.text = *$1.text + "(" + scale + "," + center + ")" ;} 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;} 
@@ -1002,7 +1007,24 @@ string datatypeTranslation(string dtype) {
        
 }
 
+string centerTranslation(string center) {
+       string translatedCenter;
+       if(center[0]=='(') {
+              int idx = center.find(',');
+              if(idx!=string::npos) {
+                     string x = center.substr(1,idx-1);
+                     string y = center.substr(idx+1,center.size()-idx-1);
+                     translatedCenter = "Point(" + x + "," + y + ")";
+              }
+       }
+       else {
+              string x = center + ".x";
+              string y = center + ".y";
+              translatedCenter = "Point(" + x + "," + y + ")";
+       }
 
+       return translatedCenter;
+}
 
 
 int main(int argc, char*argv[])

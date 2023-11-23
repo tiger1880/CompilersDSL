@@ -242,7 +242,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *$6.text + ")" +  *$9.text + *$10.text;
+                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *($[arg_list].text) + ")" +  *($[empty_space].text) + *($[stmt_block].text);
               }
               |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3.name,paramslist);
@@ -266,7 +266,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = *$2.text + *$ID.text + "(" + *$5.text + ")" *$7.text + *$8.text;
+                     *$$.text = *$2.text + *$ID.text + "(" + *($[arg_list].text) + ")" + *($[empty_space].text) + *($[stmt_block].text);
               } 
               ;
 
@@ -319,7 +319,7 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
                                                         delSymTabPtr();
                                                         delete $ID.name;
 
-                                                        *$$.text = "void" + *$ID.text + "(" + *$5.text + ")" + *$7.text + *$8.text;
+                                                        *$$.text = "void" + *$ID.text + "(" + *$params.text + ")" + *($[empty_space].text) + *($[stmt_block].text);
                                                  } 
 
 params : expression ',' expression { 
@@ -333,7 +333,7 @@ params : expression ',' expression {
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
               scale = *$3.text;
-              center = *$7.text;
+              center = centerTranslation(*$3.text);
               *$$.text = "double scale , Point center" ; 
        }
 
@@ -503,7 +503,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression LINE_OP expression {  if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");*$$.text = *$1.text + *$2.text + *$3.text ;}  // <-> -> //need to change this
             | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);*$$.text = *$1.text + *$2.text + *$3.text ; } //need to change this
             | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype);  *$$.text = *$1.text + *$2.text + *$3.text ;}  //need to change this
-            | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; *$$.text = *$1.text + *$2.text + *$3.text ;} //need to change this
+            | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; *$$.text = *$2.text;} 
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
             | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
@@ -526,9 +526,9 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | angle {$$.eletype = $1.eletype; *$$.text = *$1.text;}            
             ; 
 
-inside_norm: inside_norm '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
-           | inside_norm '-' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
-           | vertex                  { *$$.text = *$1.text;}
+inside_norm: /*vertex '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}*/
+             vertex '-' vertex  { *$$.text = "norm( " + *$1.text + "," + *$3.text + " )";}
+             | vertex   { *$$.text = "norm( " + *$1.text + " )";}
            /* | memb_access assign   will := add in || ||  later*/
            ; // norm cannot be empty
 

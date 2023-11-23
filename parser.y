@@ -31,6 +31,8 @@ void print(vector<T>& v){
 }
 
 deque <string> collection;
+string datatypeTranslation(string dtype);
+string assignOpTranslation(string op);
 
 extern int yydebug;
 
@@ -281,8 +283,8 @@ stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound; *$$.text = *$1.text
      | loop     {$$.stopAdvanceFound = false; *$$.text = *$1.text ;}
      | decl_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
      | assign_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
-     | return_stmt {$$.stopAdvanceFound = false; *$$.text= *$1.text ;}
-     | ENDLINE    {$$.stopAdvanceFound = false;  *$$.text= *$1.text ;}
+     | return_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text ;}
+     | ENDLINE    {$$.stopAdvanceFound = false;  *$$.text = *$1.text ;}
      | stmt_block {$$.stopAdvanceFound = $1.stopAdvanceFound; *$$.text = *$1.text ;}
      | break_stmt {$$.stopAdvanceFound = true; *$$.text= *$1.text ;}
      ;
@@ -311,8 +313,8 @@ stmt_block_for: '{'  stmt_list '}'
               } // addSymTabPtr before for decl
           ;
 
-break_stmt : BREAK ENDLINE  {*$$.text = *$1.text + ";";}
-           | CONTINUE ENDLINE { *$$.text = *$1.text + ";";}
+break_stmt : BREAK ENDLINE  {*$$.text = "break;";}
+           | CONTINUE ENDLINE { *$$.text = "continue;";}
            ;
 
        /* Return Statement */
@@ -470,14 +472,14 @@ inside_norm: inside_norm '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}
            /* | memb_access assign   will := add in || ||  later*/
            ; // norm cannot be empty
 
-assign:  EQUAL expression {$$.eletype = $2.eletype; *$$.text = *$1.text + *$2.text;}
-       | ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = *$1.text + *$2.text;}  
-       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype) || $2.eletype == LABEL || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = *$1.text + *$2.text;}
-       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2.eletype) || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = *$1.text + *$2.text;}
+assign:  EQUAL expression {$$.eletype = $2.eletype; *$$.text = "=" + *$2.text;}
+       | ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = assignOpTranslation(*$1.text) + *$2.text;}  
+       | SUM_ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype) || $2.eletype == LABEL || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = "+=" + *$2.text;}
+       | SUB_ASSIGN_OP expression {if(!(arithCompatible($2.eletype) || $2.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  *$$.text = "-=" + *$2.text;}
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + ";"; }
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = datatypeTranslation(*$1.text) + *$2.text + ";"; }
           | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + ";";}
           ;
 
@@ -893,6 +895,45 @@ string function_translation(string text) {
 
 string fig_translation(string text) {
        return "true";
+}
+
+string assignOpTranslation(string op) {
+       string translatedOp;
+       if(op=="*:=") {
+              translatedOp = "*=";
+       }
+       else if(op=="/:=") {
+              translatedOp = "/=";
+       }
+       else if(op=="%:=") {
+              translatedOp = "%=";
+       }
+       else if(op=="^:=") {
+              translatedOp = "^=";   //change this later
+       }
+
+       return op;
+
+}
+
+string datatypeTranslation(string dtype) {
+       string type;
+
+       if(dtype=="real") {
+              type = "double";
+       }
+       else if(dtype=="angle") {
+              type = "double";
+       }
+       else if(dtype=="label") {
+              type = "string";
+       }
+       else {
+              type = dtype;
+       }
+
+       return type;
+       
 }
 
 

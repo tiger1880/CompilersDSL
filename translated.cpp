@@ -21,5 +21,14 @@ int main(int argc, char** argv){
  glutReshapeFunc(reshape); 
  initGL(); 
  glutMainLoop();
-return 0
- } 
+void reshape(GLsizei width, GLsizei height)
+{ if (height == 0)
+   height = 1;
+GLfloat aspect = (GLfloat)width / (GLfloat)height; 
+ glViewport(0, 0, width, height);glMatrixMode(GL_PROJECTION);
+ glLoadIdentity();
+ if (width >= height) 
+{gluOrtho2D(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0);} 
+else 
+{gluOrtho2D(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect);}
+}

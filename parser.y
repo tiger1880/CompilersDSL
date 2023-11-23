@@ -50,6 +50,7 @@ int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
+int global_space = 1;
 
 int lineArrNo = 0;
 
@@ -179,7 +180,7 @@ vector<ParamList> func_paramlist;
 
 %%
 
-//Committing for now errors in func,fig.
+7//Committing for now errors in func,fig.
 
 /*
        1.) Func,fig(arguments),store scale,center in gloabl variables - Done
@@ -191,11 +192,13 @@ vector<ParamList> func_paramlist;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func { *$$.text = *$1.text + *$2.text;
+program: program { global_space = 0 ;} func { *$$.text = *$1.text + *$2.text;
                          fig_func.push_back(*$2.txt);
+                         global_space = 1;
                      } 
-       | program fig {*$$.text = *$1.text + *$2.text;
+       | program { global_space = 0 ;} fig {*$$.text = *$1.text + *$2.text;
                        fig_func.push_back(*$2.txt;);
+                       global_space = 1;
                      } 
        | program stmt  {
               if ($stmt.stopAdvanceFound) 
@@ -596,7 +599,9 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *
        ; 
 
 decl_token: construct  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
-          | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+          | expression { if(global_space)  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
+          | const_expr
+          | const_expr2 
        ;
 
 /* Arrays */
@@ -779,14 +784,19 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                           $$.constExp.i = $2.constExp.i;
                                   
                                    *$$.text = "(" + *$2.text  + ")";
-                            } 
+                            }
        | FLOATS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
        | INTEGERS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
        | BOOLEAN { *$$.text = *$1.text; $$.eletype = INT;$$.constExp.i = $1.constExp.i;}
        ;          
 
 
-
+const_expr2 : STRING_TOKEN 
+              | point 
+              | const_expr2 + const_expr2
+              | const_expr2 - const_expr2 { if($1.eletype == LABEL || $3.eletype == LABEL)  semanticError("Error: Semantic error incompatible datatype"); }
+              | (const_expr2)
+              ;
 member_access : memb_access {
               if($1.dimCount->empty()) {
                      exit(1);
@@ -1104,20 +1114,20 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"using namespace std;\n \n");
     fprintf(fout_translated,"void initGL() { \n glClearColor(1.0f, 1.0f, 1.0f, 1.0f); \n } \n");
     fprintf(fout_translated,"void reshape(GLsizei width, GLsizei height)\n{ if (height == 0)\n   height = 1;\nGLfloat aspect = (GLfloat)width / (GLfloat)height; \n glViewport(0, 0, width, height);glMatrixMode(GL_PROJECTION);\n glLoadIdentity();\n if (width >= height) \n{gluOrtho2D(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0);} \nelse \n{gluOrtho2D(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect);}\n}");
-    fprintf(fout_translated,"int main(int argc, char** argv){\n");
     
+    insertConstructTab();
+    int x = yyparse();
+
     for(int i = 0;i<fig_func.size();i++)
        fprintf(fout_translated,"%s\n",fig_func[i].c_str());
-    
+
+    fprintf(fout_translated,"int main(int argc, char** argv){\n");
     fprintf(fout_translated,"glutInit(&argc, argv);\n  glutInitWindowSize(640, 480);\n  glutInitWindowPosition(50, 50);\n  glutCreateWindow(\"Viewport Transform\");\n  gluOrtho2D(-50.0, 50.0, -50.0, 50.0);\n  glutDisplayFunc(display);\n  initGL();\n  glutMainLoop();\n");
     /* fprintf(fout_translated,"  glutInit(&argc, argv); \n  glutInitWindowSize(640, 480); \n  glutInitWindowPosition(50, 50);\n  glutCreateWindow(\"Viewport Transform\"); \n  glutDisplayFunc(display);\n glutReshapeFunc(reshape); \n initGL();\n  glutMainLoop();\n") */
     for(int i=0;i<collection.size();i++){
        fprintf(fout_translated,"%s\n",collection[i].c_str());
     }
     fprintf(fout_translated,"  return 0\n } \n");
-    insertConstructTab();
-
-    int x = yyparse();
 
     fclose(fp);
     fclose(fout_token);

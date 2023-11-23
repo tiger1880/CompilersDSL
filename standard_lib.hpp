@@ -201,7 +201,7 @@ enum lineType {
 
 // ----------------------- ignore ----------------------------------------------------------------------------------------------------------
 
-class Line : public Shape{
+class Line : public Shapes{
 
     Point a;
     Point b;

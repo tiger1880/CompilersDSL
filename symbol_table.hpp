@@ -1,8 +1,7 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+// #ifndef UTILS_HPP
+// #define UTILS_HPP
 
 // Data structures file
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -114,6 +113,6 @@ extern void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &p
 extern void figArgumentChecking(vector<types>& passed_params);
 
 
-#endif // UTILS_HPP
+// #endif // UTILS_HPP
 
 

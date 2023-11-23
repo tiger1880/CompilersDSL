@@ -119,7 +119,7 @@ vector<ParamList> func_paramlist;
 %token <main> SUB_ASSIGN_OP
 %token <main> EQUAL
 %token <main> STRING_TOKEN
-%token <main>ENDLINE
+%token <main> ENDLINE
 %token <main> ID
 %token <main> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
 %token <main> NOT AND OR 
@@ -292,7 +292,7 @@ stmt_list: stmt_list stmt
               $$.stopAdvanceFound = $1.stopAdvanceFound || $2.stopAdvanceFound;
               *$$.text = *$1.text + *$2.text;
        }
-       |  /* empty */ {$$.stopAdvanceFound = false;}
+       |  /* empty */ {$$.stopAdvanceFound = false; *$$.text = "";}
        ;
 
 stmt_block: { addSymTabPtr(); } '{'  stmt_list '}' 
@@ -311,20 +311,20 @@ stmt_block_for: '{'  stmt_list '}'
               } // addSymTabPtr before for decl
           ;
 
-break_stmt : BREAK ENDLINE  {*$$.text = *$1.text + *$2.text;}
-           | CONTINUE ENDLINE { *$$.text = *$1.text + *$2.text;}
+break_stmt : BREAK ENDLINE  {*$$.text = *$1.text + ";";}
+           | CONTINUE ENDLINE { *$$.text = *$1.text + ";";}
            ;
 
        /* Return Statement */
-return_stmt : RETURN ret_var ENDLINE {ret_type = $2.eletype; ret_flag = 1; ret_fig_flag = 1; *$$.text = *$1.text + *$2.text + *$3.text; };
+return_stmt : RETURN ret_var ENDLINE {ret_type = $2.eletype; ret_flag = 1; ret_fig_flag = 1; *$$.text = *$1.text + *$2.text + ";"; };
 
 ret_var : construct {$$.eletype = $1.eletype; *$$.text = *$1.text; } 
        | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;} 
-       | {$$.eletype = Void; *$$.text = "void" ;}; 
+       | {$$.eletype = Void; *$$.text = "void" ; *$$.text = "";}; 
 
        /* Assignment Statement */
-assign_stmt : expression ENDLINE {lineArrNo = 0; *$$.text = *$1.text + *$2.text;}
-            | construct ENDLINE  {lineArrNo = 0; *$$.text = *$1.text + *$2.text;}
+assign_stmt : expression ENDLINE {lineArrNo = 0; *$$.text = *$1.text + ";";}
+            | construct ENDLINE  {lineArrNo = 0; *$$.text = *$1.text + ";";}
             /* | fig_call ENDLINE */
             ;
 
@@ -477,8 +477,8 @@ assign:  EQUAL expression {$$.eletype = $2.eletype; *$$.text = *$1.text + *$2.te
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + *$3.text; }
-          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + *$3.text;}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + ";"; }
+          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; *$$.text = *$1.text + *$2.text + ";";}
           ;
 
 id_list: id_list ',' ID check_arr EQUAL arr_assign_line 
@@ -526,7 +526,7 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign_line
        ;
 
 decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *$2.text; }
-       | /* empty */  {$$.eletype = UNDEF;}
+       | /* empty */  {$$.eletype = UNDEF; *$$.text = "";}
        ; 
 
 decl_token: construct  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
@@ -612,7 +612,7 @@ comma_arr_assign: comma_arr_assign ',' arr_assign
                 ;
 
 arr1d_in_list: mult_elements {$$.countAndType.count = $1.countAndType.count;$$.eletype = $1.countAndType.eletype; *$$.text = *$1.text;}
-             | /* empty */ {$$.countAndType.count = 0;$$.eletype = UNDEF;}
+             | /* empty */ {$$.countAndType.count = 0;$$.eletype = UNDEF; *$$.text = "";}
              ;
 
 mult_elements : mult_elements ',' expression  
@@ -833,13 +833,13 @@ elif_stmt : ELIF '(' expression ')' empty_space stmt_block ENDLINE
               {
                      $$.stopAdvanceFound = $[stmt_block].stopAdvanceFound;
                      if(!(arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype");
-                     *$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text;
+                     *$$.text = "else if(" + *$3.text + ")" + *$5.text + *$6.text + *$7.text;
               }
           | elif_stmt ELIF '(' expression ')' empty_space stmt_block ENDLINE 
               {
                      $$.stopAdvanceFound = $1.stopAdvanceFound||$[stmt_block].stopAdvanceFound;
                      if(!(arithCompatible($4.eletype))) semanticError("Error: Semantic error incompatible datatype");
-                     *$$.text = *$1.text + *$2.text + "(" + *$4.text + ")" + *$6.text + *$7.text + *$8.text;
+                     *$$.text = *$1.text + "else if(" + *$4.text + ")" + *$6.text + *$7.text + *$8.text;
               }
           ;
 
@@ -853,7 +853,7 @@ loop : for_loop      { *$$.text = *$1.text; }
 for_loop_decl : { addSymTabPtr(); } DATATYPE ID EQUAL expression 
               {
                      insertType($ID.name, Var, $DATATYPE.eletype);
-                     *$$.text = *$2.text + *$3.text + *$4.text + *$5.text;
+                     *$$.text = *$2.text + *$3.text + *$4.text + *$5.text;  //change this
                      delete $ID.name;
               }
               | { addSymTabPtr(); } 
@@ -872,10 +872,10 @@ optional_arg: expression  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
 for_loop : FOR '(' for_loop_decl '|' optional_arg '|' optional_arg ')' empty_space stmt_block_for 
               { 
                      if(!(arithCompatible($5.eletype)) && $5.eletype != UNDEF) semanticError("Error: Semantic error incompatible datatype11");
-                     *$$.text = *$1.text + "(" + *$3.text + "|" + *$5.text + "|" + *$7.text + ")" + *$9.text + *$10.text;
+                     *$$.text = "for(" + *$3.text + ";" + *$5.text + ";" + *$7.text + ")" + *$9.text + *$10.text;
               }
 
-while_loop : WHILE '(' expression ')' empty_space stmt_block  {*$$.text = *$1.text + "(" + *$3.text + ")" + *$5.text + *$6.text;}
+while_loop : WHILE '(' expression ')' empty_space stmt_block  {*$$.text = "while(" + *$3.text + ")" + *$5.text + *$6.text;}
            ;
 
 

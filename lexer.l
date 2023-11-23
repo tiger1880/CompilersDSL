@@ -385,6 +385,8 @@ or {
 }
 
 \n  {
+    yylval.main.text = new string;
+    *yylval.main.text = yytext;
     return ENDLINE;
 }
 

@@ -222,7 +222,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *$5.text + ")" *$7.text + *$8.text;
+                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *$6.text + ")" *$9.text + *$10.text;
               }
               |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3.name,paramslist);
@@ -246,7 +246,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = *$2.text + *$ID.text + "(" + *$5.text + ")" *$7.text + *$8.text;
+                     *$$.text = *$2.text + *$ID.text + "(" + *$6.text + ")" *$9.text + *$10.text;
               } 
               ;
 
@@ -299,7 +299,7 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
                                                         delSymTabPtr();
                                                         delete $ID.name;
 
-                                                        *$$.text = "void" + *$ID.text + "(" + *$4.text + ")" + *$6.text + *$7.text;
+                                                        *$$.text = "void" + *$ID.text + "(" + *$5.text + ")" + *$7.text + *$8.text;
                                                  } 
 
 params : expression ',' expression { 

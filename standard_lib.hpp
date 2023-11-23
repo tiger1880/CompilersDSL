@@ -15,6 +15,14 @@ using namespace std;
 
 vector<Shapes*> shapeStore;
 
+void renderBitmapString(float x, float y, const char *string) {
+    glRasterPos2f(x, y);
+    
+    for (const char *c = string; *c != '\0'; ++c) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
+
 double norm(Point p1, Point p2)
 {
     double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
@@ -53,7 +61,6 @@ class Shapes
 {
 
 public:
-    string tag;
     virtual double Area() = 0;
     virtual double Perimeter() = 0;
     Shapes(){
@@ -66,11 +73,21 @@ class Point : public Shapes
 public:
     double x;
     double y;
+    string tag;
     bool show;
 
     Point()
     {
 
+    }
+
+    Point(double a, double b, string s, bool sh = true)
+    {
+        x = a;
+        y = b;
+        tag = s;
+        show = sh;
+        shapeStore.push_back(this);
     }
     
     Point(double a, double b, bool sh = true)
@@ -79,6 +96,19 @@ public:
         y = b;
         show = sh;
         shapeStore.push_back(this);
+    }
+
+    void show() {
+        glBegin(GL_POINTS);
+        
+        glColor3b(0, 0, 0);
+        glVertex2d(x,y);
+
+        glEnd();
+
+        renderBitmapString(x + 0.01,y + 0.01, tag.c_str());
+
+
     }
 
     double Area() override
@@ -90,6 +120,8 @@ public:
     {
         return 0;
     }
+
+
 };
 
 /*

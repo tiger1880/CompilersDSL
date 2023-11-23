@@ -33,6 +33,7 @@ void print(vector<T>& v){
 deque <string> collection;
 string datatypeTranslation(string dtype);
 string assignOpTranslation(string op);
+string assignTranslation(string assignText,string memText);
 
 extern int yydebug;
 
@@ -46,8 +47,12 @@ int ret_fig_flag = 0;
 int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
+int is_decl_stmt = 0;
 
 int lineArrNo = 0;
+
+string scale = "1";
+string center = "Point(0,0)";
 
 enum eletype ret_type = UNDEF;
 
@@ -184,9 +189,20 @@ vector<ParamList> func_paramlist;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func {*$$.text = *$1.text + *$2.text;}
-       | program fig {*$$.text = *$1.text + *$2.text;}
-       | program stmt  {if ($stmt.stopAdvanceFound) semanticError("stop/advance cannot be outside the loop");*$$.text = *$1.text + *$2.text;}  //have to consider global statements differently
+program: program func /*{ *$$.text = *$1.text + *$2.text;} */
+       | program fig /*{*$$.text = *$1.text + *$2.text;} */
+       | program stmt  {
+              if ($stmt.stopAdvanceFound) 
+                     semanticError("stop/advance cannot be outside the loop");
+              if(is_decl_stmt) {
+                     *$$.text = *$1.text + *$2.text;
+                     is_decl_stmt = 0;
+              }
+              else {
+                     collection.push_back(*$2.text);
+              }
+              
+              }  //have to consider global statements differently
        | /* empty */ {
               if(ret_flag) {
                      cerr << "Error: Return statement not allowed outside function" << endl;
@@ -197,11 +213,13 @@ program: program func {*$$.text = *$1.text + *$2.text;}
  
 
  /* Function Definition */
-func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
-                     addParamList($3.name,paramslist);
-                     insertParams(paramslist);
-                     paramslist.clear();
-              }}
+func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {
+                     if(paramslist.size()>0) {
+                            addParamList($3.name,paramslist);
+                            insertParams(paramslist);
+                            paramslist.clear();
+                     }
+              }
               ')' empty_space stmt_block {
                      
                      if (ret_flag == 0) {
@@ -246,7 +264,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = *$2.text + *$3.text + "(" + *$6.text + ")" +  *$9.text + *$10.text;
+                     *$$.text = *$2.text + *$ID.text + "(" + *$5.text + ")" *$7.text + *$8.text;
               } 
               ;
 
@@ -305,18 +323,18 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
 params : expression ',' expression { 
               if(!(arithCompatible($1.eletype) && $3.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype..") ;
-              *$$.text = "double scale = " + *$1.text + "," + "Point center = Point(" + *$3.text + ")"; //change this later
+              *$$.text = "double scale , Point center "; //change this later
        }
        | SCALE EQUAL expression ',' CENTER EQUAL expression { 
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
-              *$$.text = "double scale = " + *$3.text + "," + "Point center = Point(" + *$7.text + ")"; //change this later
+              *$$.text = "double scale = " + *$1.text + "," + "Point center = Point(" + *$3.text + ")"; //change this later
        }
 
  /* Statements */
 stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound; *$$.text = *$1.text ;}
      | loop     {$$.stopAdvanceFound = false; *$$.text = *$1.text ;}
-     | decl_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
+     | decl_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text; is_decl_stmt = 1;}
      | assign_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text;}
      | return_stmt {$$.stopAdvanceFound = false; *$$.text = *$1.text ;}
      | ENDLINE    {$$.stopAdvanceFound = false;  *$$.text = *$1.text ;}
@@ -390,8 +408,8 @@ fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
        delete $ID;
 } */
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); *$$.text = *$1.text + "(" + *$3.text +  ")" ;} 
-          | constructor '(' ')' {$$.eletype = $1.eletype; *$$.text = *$1.text + "()" ;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); *$$.text = *$1.text + "(" + *$3.text + scale + center + ")" ;} 
+          | constructor '(' ')' {$$.eletype = $1.eletype; *$$.text = *$1.text + "(" + scale + center + ")" ;} 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;} 
@@ -455,8 +473,9 @@ construct_param_list: construct_param_list ',' valid_arg {
           }
           ;
 
-point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype);  *$$.text = "(" + *$2.text + "," + *$4.text + "," + *$6.text + ")"; }
-       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);*$$.text = "(" + *$2.text + "," + *$4.text +  ")";}
+//scale,center?
+point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype);  *$$.text = "Point(" + *$2.text + "," + *$4.text + "," + *$6.text + ")"; }
+       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);*$$.text = "Point(" + *$2.text + "," + *$4.text +  ")";}
        ; 
 
 // NOT TESTED
@@ -485,7 +504,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;*$$.text = "!" + *$1.text;}
             | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "&&" + *$3.text; }
             | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "||" + *$3.text; }
-            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype) || ($1.eletype == LINE && $2.eletype == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = *$1.text + *$2.text;}
+            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype) || ($1.eletype == LINE && $2.eletype == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  *$$.text = assignTranslation(*$2.text,*$1.text);}
             | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;*$$.text = *$1.text + *$2.text + *$3.text;} 
             | expression '<' expression { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + "<" + *$3.text; }
             | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + ">" + *$3.text; }
@@ -924,13 +943,13 @@ void yyerror(const char * s)
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
 
-string function_translation(string text) {
+/* string function_translation(string text) {
        return "true";
 }
 
 string fig_translation(string text) {
        return "true";
-}
+} */
 
 string assignOpTranslation(string op) {
        string translatedOp;
@@ -949,6 +968,18 @@ string assignOpTranslation(string op) {
 
        return op;
 
+}
+
+string assignTranslation(string assignText,string memText) {
+       string translation;
+       if(assignText.substr(0,2)=="^=") {
+              string expr = assignText.substr(2,assignText.size()-2);
+              translation = memText + " = pow(" + memText + "," + expr + ")";
+       }
+       else {
+              translation = memText + assignText;
+       }
+       return translation;
 }
 
 string datatypeTranslation(string dtype) {

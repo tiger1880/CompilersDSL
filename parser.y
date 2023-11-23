@@ -222,7 +222,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *$6.text + ")" *$9.text + *$10.text;
+                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *$6.text + ")" +  *$9.text + *$10.text;
               }
               |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3.name,paramslist);
@@ -246,7 +246,7 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
 
-                     *$$.text = *$2.text + *$ID.text + "(" + *$6.text + ")" *$9.text + *$10.text;
+                     *$$.text = *$2.text + *$3.text + "(" + *$6.text + ")" +  *$9.text + *$10.text;
               } 
               ;
 
@@ -310,7 +310,7 @@ params : expression ',' expression {
        | SCALE EQUAL expression ',' CENTER EQUAL expression { 
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
-              *$$.text = "double scale = " + *$1.text + "," + "Point center = Point(" + *$3.text + ")"; //change this later
+              *$$.text = "double scale = " + *$3.text + "," + "Point center = Point(" + *$7.text + ")"; //change this later
        }
 
  /* Statements */

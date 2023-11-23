@@ -1,8 +1,8 @@
 %{
 #include "symbol_table.hpp"
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <string>
 #include <iostream>
 #include<algorithm>
@@ -30,18 +30,19 @@ void print(vector<T>& v){
     cout << "\n";
 }
 
+extern int yydebug;
+
+#define YYDEBUG 1
+
+/*     ONLY FOR  DEBUGGING    */
+
 deque <string> collection;
 string datatypeTranslation(string dtype);
 string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
 string centerTranslation(string center);
 
-extern int yydebug;
-
-#define YYDEBUG 1
-
 /* Linearr left */
-
 
 int ret_flag = 0;
 int ret_fig_flag = 0;

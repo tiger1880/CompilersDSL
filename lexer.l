@@ -3,17 +3,20 @@
 %{
 
 #include "symbol_table.hpp"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-// #include "y.tab.h"
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 #include "parser.tab.h" 
 
-extern FILE *fout_token;
+extern FILE *fout_token; // for generating seq_token.txt used for testing
 
+/* 
+* Creates a copy of src at a new location (on the heap using malloc) and returns the pointer to it
+* The pointer has to be freed (using free)
+*/
 char* dupString(char* src);
 
-//Free all main.text !!!
+// Free all main.text !!!
 
 %}
 
@@ -81,16 +84,16 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return *yytext;
 }
 
-printSymbolTable {
+printSymbolTable { // remove later
     printSymbolTable();
 }
 
-scale {  //add main.text ?
+scale {  
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return SCALE;
 }
 
-center {  //add main.text ?
+center {  
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return CENTER;
 }
@@ -401,6 +404,10 @@ int  yywrap(){
     return 1;
 }
 
+/* 
+* Creates a copy of src at a new location (on the heap using malloc) and returns the pointer to it
+* The pointer has to be freed (using free)
+*/
 char* dupString(char* src){
 
     char* cpy = (char*)malloc(sizeof(char)*(yyleng+1));

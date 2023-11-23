@@ -129,7 +129,9 @@ vector<ParamList> func_paramlist;
 
 
 // non-terminals
+%nterm <main> program func fig
 %nterm <main> construct constructor
+%nterm <main> arg_list list1 argument params
 %nterm <main> param_list construct_param_list param_list_opt
 %nterm <main> point angle expression member_access 
 %nterm <main> assign func_call
@@ -170,14 +172,26 @@ vector<ParamList> func_paramlist;
 
 %%
 
+//Committing for now errors in func,fig.
+
+/*
+       1.) Func,fig(arguments),store scale,center in gloabl variables
+       2.) construct - insert center and scale in constructor
+       3.) norm, perpandicular,parallel,line op
+       4.) assign op ^:= into pow
+       5.) Global statements except declaration in int main
+
+*/
+
 /* a program is a series of functions, figures and statements */
-program: program func 
-       | program fig 
-       | program stmt  {if ($stmt.stopAdvanceFound) semanticError("stop/advance cannot be outside the loop");}
+program: program func {*$$.text = *$1.text + *$2.text;}
+       | program fig {*$$.text = *$1.text + *$2.text;}
+       | program stmt  {if ($stmt.stopAdvanceFound) semanticError("stop/advance cannot be outside the loop");*$$.text = *$1.text + *$2.text;}  //have to consider global statements differently
        | /* empty */ {
               if(ret_flag) {
                      cerr << "Error: Return statement not allowed outside function" << endl;
               }
+              *$$.text = "";
          }      
        ; 
  
@@ -207,6 +221,8 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
 
                      delete $ID.name;
                      delSymTabPtr();
+
+                     *$$.text = datatypeTranslation(*$2.text) + *$ID.text + "(" + *$5.text + ")" *$7.text + *$8.text;
               }
               |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3.name,paramslist);
@@ -229,14 +245,18 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
 
                      delete $ID.name;
                      delSymTabPtr();
+
+                     *$$.text = *$2.text + *$ID.text + "(" + *$5.text + ")" *$7.text + *$8.text;
               } 
               ;
 
-arg_list : list1 
-         | /* empty */
+arg_list : list1 {*$$.text = *$1.text;}
+         | /* empty */ {*$$.text = "";}
          ;
 
-list1: list1 ',' argument | argument ;
+list1: list1 ',' argument {*$$.text = *$1.text + "," + *$3.text;}
+       | argument {*$$.text = *$1.text;}
+       ;
 
 argument : DATATYPE ID check_arr {
               ParamList param;
@@ -246,6 +266,8 @@ argument : DATATYPE ID check_arr {
               param.Type = Array;
               paramslist.push_back(param);
               delete $ID.name;
+
+              *$$.text = datatypeTranslation(*$1.text) + *$ID.text + *$3.text;
        }
        | DATATYPE ID {
               ParamList param;
@@ -256,6 +278,9 @@ argument : DATATYPE ID check_arr {
               param.Type = Var;
               paramslist.push_back(param);
               delete $ID.name;
+
+              *$$.text = datatypeTranslation(*$1.text) + *$ID.text;
+
        }
        ;
 
@@ -273,10 +298,20 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
 
                                                         delSymTabPtr();
                                                         delete $ID.name;
-                                                        } 
 
-params : expression ',' expression { if(!(arithCompatible($1.eletype) && $3.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype..") ;}
-       | SCALE EQUAL expression ',' CENTER EQUAL expression { if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) semanticError("Error: Semantic error incompatible datatype") ;}
+                                                        *$$.text = "void" + *$ID.text + "(" + *$4.text + ")" + *$6.text + *$7.text;
+                                                 } 
+
+params : expression ',' expression { 
+              if(!(arithCompatible($1.eletype) && $3.eletype == POINT)) 
+                     semanticError("Error: Semantic error incompatible datatype..") ;
+              *$$.text = "double scale = " + *$1.text + "," + "Point center = Point(" + *$3.text + ")"; //change this later
+       }
+       | SCALE EQUAL expression ',' CENTER EQUAL expression { 
+              if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
+                     semanticError("Error: Semantic error incompatible datatype") ;
+              *$$.text = "double scale = " + *$1.text + "," + "Point center = Point(" + *$3.text + ")"; //change this later
+       }
 
  /* Statements */
 stmt : cond_stmt {$$.stopAdvanceFound = $1.stopAdvanceFound; *$$.text = *$1.text ;}
@@ -456,7 +491,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + ">" + *$3.text; }
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; *$$.text = *$1.text + *$2.text + *$3.text;}
             | member_access {$$.eletype = $1.eletype; *$$.text = *$1.text;}
-            | '(' expression ')' {$$.eletype = $2.eletype;*$$.text = "(" + *$2.text + ")";}
+            | '(' expression ')' {$$.eletype = $2.eletype; *$$.text = "(" + *$2.text + ")";}
             | FLOATS { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;} 
             | INTEGERS { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
             | BOOLEAN { *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}

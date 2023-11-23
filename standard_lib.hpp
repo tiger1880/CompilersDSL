@@ -92,6 +92,7 @@ public:
     }
 };
 
+/*
 class Line : public Shapes
 {
     double scale;
@@ -106,6 +107,610 @@ class Line : public Shapes
         // Implementation for Line Perimeter
     }
 };
+
+
+Ignore 
+    1) testing some parts is left in Line
+    2) replace with loop and check .. Maybe should start properly => angle bisector
+    3) Test the extension fo 6 cases => change so that if initial points are outofRange update Range, => Depends on our set Range
+    4) Have to display midpoint ? 
+    5) we will have to use new update constructors properly and delete in main after MainLoop
+
+
+
+class Point : public Shape{
+
+    public:
+    double x;
+    double y;
+    bool isDisplayed;
+
+    Point(double x1 = 0, double x2 = 0, bool h = false):
+    x(x1),
+    y(x2), 
+    isDisplayed(h)
+    {
+        if (isDisplayed){
+            cout << "Point: " << x << " " << y << " pushed back\n";
+            d.push_back(this);
+        }
+
+    }
+
+    // copy constructor
+    Point(const Point& t){
+
+        x = t.x;
+        y = t.y;
+        isDisplayed = t.isDisplayed;
+
+    }
+
+    // copy assignment operator
+    Point& operator=(const Point& p){
+
+        x = p.x;
+        y = p.y;
+        isDisplayed = p.isDisplayed;
+
+        return *this;
+
+    }
+
+    
+    bool operator!=(const Point& r){
+
+        if (r.x != x)
+            return true;
+        
+        if (r.y != y)
+            return true;
+
+        return false;
+
+    }
+
+    bool operator==(const Point& r){
+
+        if (r.x == x && r.y == y)
+            return true;
+        
+        return false;
+    }
+
+    void show() {
+
+        glBegin(GL_POINTS);
+        // glColor3f(1.0, 0.0, 0.0); // color of the point
+        // specify in anti-clockwise direction
+        glVertex2f(x, y); // expects float check double overflow
+
+        glEnd();
+       
+    }
+};
+
+
+*/
+
+enum lineType {
+    SEGMENT, 
+    RAY,
+    LINE
+};
+
+// ----------------------- ignore ----------------------------------------------------------------------------------------------------------
+
+class Line : public Shape{
+
+    Point a;
+    Point b;
+
+
+    // y = mx+c
+    double m;
+    double c;
+
+    // what if both the points are the same
+    lineType t;
+
+    bool isDisplayed;
+
+    // only for my use
+    double angle; // not slope, in degrees (-90, 90)
+
+    double R(bool positive, Point initial, Point final){
+
+        double r, r1, r2;
+        if (positive){
+
+            r1 = (yAxis - abs(final.y))/sin(angle*PI/180);       
+            r2 = (xAxis - abs(final.x))/cos(angle*PI/180);
+
+            r1 = abs(r1);
+            r2 = abs(r2);
+            r = min(r1, r2)-1;
+
+            return r;
+
+        }
+        else {
+
+            r1 = (abs(b.y) - yAxis)/sin(angle*PI/180);       
+            r2 = (abs(b.x) - xAxis)/cos(angle*PI/180);
+
+            r1 = abs(r1);
+            r2 = abs(r2);
+
+            
+            r = min(r1, r2)-1;
+
+            return r;
+            
+
+        }
+
+    }
+
+    public:
+
+    Line(Point x1, Point x2, lineType type = SEGMENT, bool display = true):
+    a(x1),
+    b(x2),
+    t(type),
+    isDisplayed(display),
+    m(0),
+    c(0)
+    {
+
+        if (x1 != x2){
+            cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
+            d.push_back(this); // otherwise not displaying 
+        }
+
+        
+        if (x1.x == x2.x){
+            angle = 90.0;
+        }
+        else {
+            angle = atan((x2.y - x1.y)/(x2.x - x1.x))*180/PI;
+        }
+
+        if (angle < 0)
+            angle += 180;
+
+        if (angle != 90){
+            m = (b.y - a.y)/(b.x-a.x);
+            c = b.y - m*b.x;
+        }
+
+
+    }
+
+    // m, c constructor
+    // y = mx + c
+    Line(double m1, double c1, bool h = false):
+    m(m1),
+    c(c1)
+    {
+
+        // (0, c), (1, m+c)
+
+        a.x = 0;
+        a.y = c;
+
+        b.x = 1;
+        b.y = m+c;
+
+        angle = atan(m1)*180/PI;
+        isDisplayed = true;
+        t = LINE;
+
+        if (h)
+            d.push_back(this);
+
+    }
+
+    // Copy Constructor
+    Line(const Line& l){
+        a = l.a;
+        b = l.b;
+        isDisplayed = l.isDisplayed; // if its true already pushed
+        angle =  l.angle;
+        c = l.c;
+        m = l.m;
+        t = l.t;
+        
+
+        cout << "copy called\n";
+    }
+
+    // copy assignment operator
+    Line& operator=(const Line& l){
+
+        a = l.a;
+        b = l.b;
+        isDisplayed = l.isDisplayed; // if its true already pushed
+        angle =  l.angle;
+        c = l.c;
+        m = l.m;
+        t = l.t;
+        
+        cout << "assignment called\n";
+
+        return *this;
+
+    }
+
+    void printEquation(){
+
+        cout << "m: " << m << endl;
+        cout << "c: " << c << endl;
+        cout << "angle: " << angle << endl;
+
+    }
+
+    void setDisplay(bool d){
+
+        isDisplayed = d;
+        return;
+    }
+
+    void showSegment(){
+
+        glBegin(GL_LINES);
+
+        glVertex2d(a.x, a.y);
+        glVertex2d(b.x, b.y);
+
+        glEnd();
+    }
+
+    void showRay(){
+
+        // 1/2 diagnol of unit length box
+        double arrowLength = width/(2*(1.14)*xAxis);
+
+        double xFinal, yFinal;
+
+        double r, r1, r2;   
+
+         if (a == b){
+            xFinal = b.x;
+            yFinal = b.y;
+        }
+        else {
+
+            // positive
+            
+            r = R(true, a, b);
+
+            xFinal = b.x + r*cos(angle*PI/180);
+            yFinal = b.y + r*sin(angle*PI/180); 
+
+            double flag = 0;
+
+            // check same side
+            if (a.x != b.x)
+                flag = (xFinal - a.x)/(b.x - a.x);
+            else 
+                flag = (yFinal - a.y)/(b.y - a.y);
+
+            if (flag < 0){
+                
+                r = R(false, a, b);
+
+                xFinal = b.x - r*cos(angle*PI/180);
+                yFinal = b.y - r*sin(angle*PI/180); 
+                
+            }
+        
+        }
+
+
+        glBegin(GL_LINES);
+        glVertex2f(a.x, a.y); // should I do aspects here aswell ?? 
+        glVertex2f(b.x, b.y);
+        glEnd();
+
+        glBegin(GL_LINES);
+        glVertex2f(a.x, a.y);
+        glVertex2f(xFinal, yFinal);
+        glEnd();
+
+        // arrow
+
+        // glTranslatef(xFinal, yFinal, 0.0);
+        // glRotatef(angle, 0, 0, 1.0);
+
+        // glBegin(GL_LINE_STRIP)
+        // glVertex2f(cos(45), sin(45));
+        // glVertex2f(0, 0);
+        // glVertex2f(, );
+        // glEnd();
+
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin(GL_POINTS);
+        glVertex2f(xFinal, yFinal);
+        glEnd();
+        glColor3f(0.0, 0.0, 0.0);
+
+
+    }
+
+    void showLine(){
+
+
+        showRay();
+
+        swap(a.x, b.x);
+        swap(a.y, b.y);
+
+        showRay();
+        
+        swap(a.x, b.x);
+        swap(a.y, b.y);
+
+    /*
+        Point A(0, 0, false), B(0, 0, false);
+
+        double r, r1, r2;  
+
+        if (a == b){
+
+            B.x = b.x;
+            B.y = b.y;
+        }
+        else {
+
+            r = R(true, a, b);
+
+            B.x = b.x + r*cos(angle*PI/180);
+            B.y = b.y + r*sin(angle*PI/180); 
+
+            double flag = 0;
+
+            // check same side
+            if (a.x != b.x)
+                flag = (B.x - a.x)/(b.x - a.x);
+            else 
+                flag = (B.y - a.y)/(b.y - a.y);
+
+            if (flag < 0){
+                
+                r = R(false, a, b);
+
+                B.x = b.x - r*cos(angle*PI/180);
+                B.y = b.y - r*sin(angle*PI/180); 
+                
+            }
+
+        }
+
+        if (a == b){
+
+            A.x = a.x;
+            A.y = a.y;
+        }
+        else {
+
+            r = R(true, b, a);
+
+            A.x = a.x + r*cos(angle*PI/180);
+            A.y = a.y + r*sin(angle*PI/180); 
+
+            double flag = 0;
+
+            // check same side
+            if (a.x != b.x)
+                flag = (A.x - b.x)/(a.x - b.x);
+            else 
+                flag = (A.y - b.y)/(a.y - b.y);
+
+            if (flag < 0){
+                
+                r = R(false, b, a);
+
+                A.x = a.x - r*cos(angle*PI/180);
+                A.y = a.y - r*sin(angle*PI/180); 
+                
+            }
+
+        }
+
+
+
+        glBegin(GL_LINES);
+
+        glVertex2f(a.x, a.y);
+        glVertex2f(b.x, b.y);
+
+        glEnd();
+
+
+        glBegin(GL_LINES);
+        glVertex2f(A.x, A.y);
+        glVertex2f(B.x, B.y);
+        glEnd();
+
+        glColor3f(1.0, 0.0, 0.0);
+
+        glBegin(GL_POINTS);
+        glVertex2f(A.x, A.y);
+        glVertex2f(B.x, B.y);
+        glEnd();
+
+        glColor3f(0.0, 0.0, 0.0);
+
+        */
+
+
+
+    }
+
+    void show(){
+        
+        switch (t)
+        {
+        case SEGMENT:
+            showSegment();
+            break;
+        case RAY:
+            showRay();
+            break;
+        case LINE:
+            showLine();
+            break;
+        default:
+            break;
+        }
+    }
+
+    friend Point INTERSECTION(Line l1, Line l2);
+    friend Line& LINE_AT_ANGLE(double a, Line& l, Point p);
+    friend vector<Line> ANGLE_BISECTOR(Line a, Line b); // just displaying for now
+
+    Point MIDPOINT(){
+
+        if (t != SEGMENT)
+            return b;
+        
+        Point p((a.x+b.x)/2, (a.y+b.y)/2, false); // not displayed by default
+
+        return p;
+
+    }
+
+    bool passesThrough(Point p){
+
+
+        if (angle == 90){
+            
+            if (p.x == a.x)
+                return true;
+            return false;
+
+        }
+
+        // check floating point should I put epsilon
+        if (p.y == (m*p.x + c))
+            return true;
+        
+        return false;
+
+        
+    }
+
+};
+
+
+Point rotatePoint(const Point& point, const Point& center, double theta) {
+    double x = center.x + (point.x - center.x) * std::cos(theta) - (point.y - center.y) * std::sin(theta);
+    double y = center.y + (point.x - center.x) * std::sin(theta) + (point.y - center.y) * std::cos(theta);
+    return {x, y};
+}
+
+
+Line& LINE_AT_ANGLE(double a, Line& l, Point p){
+
+
+    if (!l.passesThrough(p)){
+
+        cout << "LINE_AT_ANGLE: p doesn't pass through l\n";
+        return l;
+    }
+
+    Point rotatePoint1(0, 0, false);
+    Point rotatePoint2(0, 0, false);
+
+    while (a >= 180)
+        a -= 180;
+
+    rotatePoint1 = rotatePoint(l.a, p, a*PI/180);
+    rotatePoint2 = rotatePoint(l.b, p, a*PI/180);
+
+    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE for now, not displaying for now
+
+    return *l1; // delete ??
+
+}
+
+
+// Just computes not display
+// add test cases
+Point INTERSECTION(Line l1, Line l2){
+
+
+    if (l1.t != LINE || l2.t != LINE){
+
+        cout << "Define intersection for the rest" << "\n";
+
+        return l1.a;
+    }
+
+    if (l1.m == l2.m){
+        cout << "Do not intersect" << "\n";
+        return l1.a;
+    }
+
+    Point p(0, 0, false);
+    
+    if (l1.angle == 90){
+        p.x = l1.a.x;
+        p.y = l2.m*p.x + l2.c;
+
+
+        return p;
+    }
+
+    if (l2.angle == 90){
+        p.x = l2.a.x;
+        p.y = l1.m*p.x + l1.c;
+        cout << l1.m << " " << l1.c << "\n";
+
+
+        return p;
+    }
+
+
+    p.x = (l2.c - l1.c)/(l1.m - l2.m);
+    p.y = l1.m*p.x + l1.c;
+    
+    return p;
+
+}
+
+vector<Line> ANGLE_BISECTOR(Line a, Line b){
+
+    vector<Line>* x = new vector<Line>();
+
+    if (a.angle == 90 && b.angle == 90){
+
+        cout << "Parallel lines cannot have angle bisectors\n";
+        return *x;
+    }
+
+    if (a.m == b.m){
+
+        cout << "Parallel lines cannot have angle bisectors\n";
+        return *x;
+    }
+
+    double d1 = pow(1 + a.m*a.m, 0.5);
+    double d2 = pow(1 + b.m*b.m, 0.5);
+
+    Line* l1 = new Line((a.m*d2 - b.m*d1)/(d2 - d1), (a.c*d2 - b.c*d1)/(d2-d1), true);
+    Line* l2 = new Line((a.m*d2 + b.m*d1)/(d2 + d1), (a.c*d2 + b.c*d1)/(d2+d1), true);
+
+    x->push_back(*l1);
+    x->push_back(*l2);
+
+    return *x;
+
+}
+
+// ----------------------- ignore --------------------------------------------------------------------------------------------------------------------
+
 
 class Tri : public Shapes
 {

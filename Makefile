@@ -40,6 +40,10 @@ clean:
 clean2: 
 	rm -f $(TARGET) lex.yy.c $(FILENAME).tab.c $(FILENAME).tab.h error.txt seq_token.txt utils translated.cpp
 
+# Clean specification latex log files
+clean_latex:
+	rm -f ./specs/*.log ./specs/*.toc ./specs/*.fls ./specs/*.aux ./specs/*.fdb_latexmk ./specs/*.synctex.gz 
+
 # Run target: build and run the target executable
 run: $(TARGET)
 	./$(TARGET)

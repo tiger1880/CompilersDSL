@@ -928,15 +928,17 @@ public:
 
 class Circle : public Shapes
 {
+    public:
     float radius;
     class Point center;
     double scale;
     bool show;
 
-    Circle(float radius, class Point center = Point(0,0),double scale = 1.0)
+    Circle(float radius, class Point center = Point(0,0),bool sh = true,double scale = 1.0)
     {
         this->radius = radius;
         this->center = center;
+        show = sh;
         shapeStore.push_back(this);
         
     }
@@ -969,115 +971,6 @@ class Circle : public Shapes
         class Line l;
         l = Line(p, q);
         return l;
-    }
-
-    vector<class Point>
-    INTERSECTION(class Circle c1, class Circle c2)
-    {
-        vector<class Point> p;
-        // Finding quadratic equation and then sove it.
-        double d = sqrt(pow((c1.center.x - c2.center.x), 2) + pow((c1.center.y - c2.center.y), 2));
-        if (d > c1.radius + c2.radius)
-            return p;
-        if (d < abs(c1.radius - c2.radius))
-            return p;
-        if (d == 0 && (c1.radius - c2.radius) == 0)
-            return p;
-        double c, k;
-        c = (c1.radius * c1.radius - (c2.radius * c2.radius) + (c2.center.x * c2.center.x + c2.center.y * c2.center.y) - (c1.center.x * c1.center.x + c1.center.x * c1.center.x)) / (2 * (c2.center.x - c1.center.x));
-        k = (c1.center.y - c2.center.y) / (c2.center.x - c1.center.x);
-        double D = (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2)) - 4 * (k * k + 1) * (c1.center.x * c1.center.x + c1.center.y * c1.center.y + c * c - c1.radius * c1.radius - 2 * c * c1.radius);
-        if (D == 0)
-        {
-            p[0].y = -1 * (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2) / 2 * (k * k + 1));
-            p[0].x = k * p[0].y + c;
-        }
-        else
-        {
-            p[0].y = -1 * (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-            p[1].y = -1 * (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-            p[0].x = k * p[0].y + c;
-            p[0].x = k * p[1].y + c;
-        }
-
-        return p;
-    }
-
-    vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2)
-    {
-       //Implement common tangents again..
-        double d = sqrt(pow((c1.center.x - c2.center.x), 2) + pow((c1.center.y - c2.center.y), 2));
-        vector<class Line> ans;
-
-        class Point p, q, r, s;
-        int flag = 0;
-
-        p.x = (c1.radius * c2.center.x + c2.radius * c1.center.x) / (c1.radius + c2.radius);
-        p.y = (c1.radius * c2.center.y + c2.radius * c1.center.y) / (c1.radius + c2.radius);
-        if (c2.radius == c1.radius)
-        {
-            q.x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / (c2.radius - c1.radius);
-            q.y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / (c2.radius - c1.radius);
-            flag = 1;
-        }
-
-        double D1, D2;
-        vector<double> m;
-        D1 = pow((c1.center.x - p.x), 2) - 4 * (c1.radius) * (c1.radius) * (pow((c1.radius), 2) + c1.center.y - p.y);
-
-        if (D1 == 0)
-        {
-            m.push_back((c1.center.x - p.x) / 2 * (c1.radius) * c1.radius);
-            double y;
-        }
-        else if (D1 > 0)
-        {
-            m.push_back((c1.center.x - p.x + D1) / 2 * (c1.radius) * c1.radius);
-            m.push_back((c1.center.x - p.x - D1) / 2 * (c1.radius) * c1.radius);
-        }
-
-        for (int i = 0; i < m.size(); i++)
-        {
-            r.x = 0;
-            r.y = p.y - m[0] * p.x;
-            class Line l;
-            l = Line(p, r);
-            ans.push_back(l);
-        }
-        m.clear();
-        if (flag == 0)
-        {
-            D2 = pow((c1.center.x - q.x), 2) - 4 * (c1.radius) * (c1.radius) * (pow((c1.radius), 2) + c1.center.y - q.y);
-            if (D2 == 0)
-            {
-                m.push_back((c1.center.x - q.x) / 2 * (c1.radius) * c1.radius);
-            }
-            else if (D2 > 0)
-            {
-                m.push_back((c1.center.x - q.x + D2) / 2 * (c1.radius) * c1.radius);
-                m.push_back((c1.center.x - q.x - D2) / 2 * (c1.radius) * c1.radius);
-            }
-
-            for (int i = 0; i < m.size(); i++)
-            {
-                r.x = 0;
-                r.y = q.y - m[0] * q.x;
-                class Line l;
-                l = Line(q, r);
-                ans.push_back(l);
-
-                return ans;
-            }
-        }
-        else{
-            double slope ;
-            slope = (c2.center.y - c1.center.y)/(c2.center.x - c1.center.x);
-            if( d == abs(c1.radius - c2.radius)){
-               slope = -1/slope;
-               
-            }
-
-        }
     }
 
     double Area()
@@ -1205,3 +1098,191 @@ class RegPoly : public Shapes
         return numOfSides * sideLength;
     }
 };
+
+
+//Non-memeber functions
+vector<class Point>
+    INTERSECTION_CIRCLE(class Circle c1, class Circle c2)
+    {
+        vector<class Point> p;
+        // Finding quadratic equation and then sove it.
+        double d = sqrt(pow((c1.center.x - c2.center.x), 2) + pow((c1.center.y - c2.center.y), 2));
+        if (d > c1.radius + c2.radius)
+            return p;
+        if (d < abs(c1.radius - c2.radius))
+            return p;
+        if (d == 0 && (c1.radius - c2.radius) == 0)
+            return p;
+        double c, k;
+        c = (c1.radius * c1.radius - (c2.radius * c2.radius) + (c2.center.x * c2.center.x + c2.center.y * c2.center.y) - (c1.center.x * c1.center.x + c1.center.x * c1.center.x)) / (2 * (c2.center.x - c1.center.x));
+        k = (c1.center.y - c2.center.y) / (c2.center.x - c1.center.x);
+        double D = (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2)) - 4 * (k * k + 1) * (c1.center.x * c1.center.x + c1.center.y * c1.center.y + c * c - c1.radius * c1.radius - 2 * c * c1.radius);
+        if (D == 0)
+        {
+            p[0].y = -1 * (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2) / 2 * (k * k + 1));
+            p[0].x = k * p[0].y + c;
+        }
+        else
+        {
+            p[0].y = -1 * (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+            p[1].y = -1 * (pow((2 * c * k - 2 * c1.center.x * k - 2 * c1.center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+            p[0].x = k * p[0].y + c;
+            p[0].x = k * p[1].y + c;
+        }
+
+        return p;
+    }
+
+    vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2) {
+        vector<Line> tangents;
+        double c1c2 = norm(c1.center,c2.center);
+
+        if(c1c2 < abs(c1.radius - c2.radius)) {
+            return tangents;
+        }
+        
+        else if( c1c2 == abs(c1.radius - c2.radius)) {
+            vector<Point> intersect;
+            intersect = INTERSECTION_CIRCLE(c1,c2);
+            Line l = c1.TANGENT(intersect[0]);
+            tangents.push_back(l);
+            return tangents;
+        }
+        
+        else if(c1c2 > abs(c1.radius - c2.radius) && c1c2 < c1.radius + c2.radius) {
+            Point p;
+            p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
+            p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
+            double d1 = norm(p,c1.center);
+            Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
+            vector<Point> intersect;
+            intersect = INTERSECTION_CIRCLE(c1,c);
+            tangents.push_back(Line(p,intersect[0]));
+            tangents.push_back(Line(p,intersect[1]));
+            return tangents;
+        }
+        
+        else if(c1c2 == c1.radius + c2.radius) {
+            vector<Point> intersect;
+            intersect = INTERSECTION_CIRCLE(c1,c2);
+            Line l = c1.TANGENT(intersect[0]);
+            tangents.push_back(l);
+
+            Point p;
+            p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
+            p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
+            double d1 = norm(p,c1.center);
+            Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
+            vector<Point> intersect2;
+            intersect2 = INTERSECTION_CIRCLE(c1,c);
+            tangents.push_back(Line(p,intersect2[0]));
+            tangents.push_back(Line(p,intersect2[1]));
+            return tangents;
+        }
+        
+        else if(c1c2 > c1.radius + c2.radius) {
+            Point p;
+            p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
+            p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
+            double d1 = norm(p,c1.center);
+            Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
+            vector<Point> intersect;
+            intersect = INTERSECTION_CIRCLE(c1,c);
+            tangents.push_back(Line(p,intersect[0]));
+            tangents.push_back(Line(p,intersect[1]));
+
+            Point q;
+            q.x = (c2.radius*c1.center.x + c1.radius*c2.center.x) / (c2.radius + c1.radius);
+            q.y = (c2.radius*c1.center.y + c1.radius*c2.center.y) / (c2.radius + c1.radius);
+            double d2 = norm(q,c1.center);
+            Circle c = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
+            vector<Point> intersect2;
+            intersect2 = INTERSECTION_CIRCLE(c1,c);
+            tangents.push_back(Line(q,intersect2[0]));
+            tangents.push_back(Line(q,intersect2[1]));
+            return tangents;
+        }
+
+    }
+
+
+
+
+// Old common tangent func
+
+    // vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2)
+    // {
+    //    //Implement common tangents again..
+    //     double d = sqrt(pow((c1.center.x - c2.center.x), 2) + pow((c1.center.y - c2.center.y), 2));
+    //     vector<class Line> ans;
+
+    //     class Point p, q, r, s;
+    //     int flag = 0;
+
+    //     p.x = (c1.radius * c2.center.x + c2.radius * c1.center.x) / (c1.radius + c2.radius);
+    //     p.y = (c1.radius * c2.center.y + c2.radius * c1.center.y) / (c1.radius + c2.radius);
+    //     if (c2.radius == c1.radius)
+    //     {
+    //         q.x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / (c2.radius - c1.radius);
+    //         q.y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / (c2.radius - c1.radius);
+    //         flag = 1;
+    //     }
+
+    //     double D1, D2;
+    //     vector<double> m;
+    //     D1 = pow((c1.center.x - p.x), 2) - 4 * (c1.radius) * (c1.radius) * (pow((c1.radius), 2) + c1.center.y - p.y);
+
+    //     if (D1 == 0)
+    //     {
+    //         m.push_back((c1.center.x - p.x) / 2 * (c1.radius) * c1.radius);
+    //         double y;
+    //     }
+    //     else if (D1 > 0)
+    //     {
+    //         m.push_back((c1.center.x - p.x + D1) / 2 * (c1.radius) * c1.radius);
+    //         m.push_back((c1.center.x - p.x - D1) / 2 * (c1.radius) * c1.radius);
+    //     }
+
+    //     for (int i = 0; i < m.size(); i++)
+    //     {
+    //         r.x = 0;
+    //         r.y = p.y - m[0] * p.x;
+    //         class Line l;
+    //         l = Line(p, r);
+    //         ans.push_back(l);
+    //     }
+    //     m.clear();
+    //     if (flag == 0)
+    //     {
+    //         D2 = pow((c1.center.x - q.x), 2) - 4 * (c1.radius) * (c1.radius) * (pow((c1.radius), 2) + c1.center.y - q.y);
+    //         if (D2 == 0)
+    //         {
+    //             m.push_back((c1.center.x - q.x) / 2 * (c1.radius) * c1.radius);
+    //         }
+    //         else if (D2 > 0)
+    //         {
+    //             m.push_back((c1.center.x - q.x + D2) / 2 * (c1.radius) * c1.radius);
+    //             m.push_back((c1.center.x - q.x - D2) / 2 * (c1.radius) * c1.radius);
+    //         }
+
+    //         for (int i = 0; i < m.size(); i++)
+    //         {
+    //             r.x = 0;
+    //             r.y = q.y - m[0] * q.x;
+    //             class Line l;
+    //             l = Line(q, r);
+    //             ans.push_back(l);
+
+    //             return ans;
+    //         }
+    //     }
+    //     else{
+    //         double slope ;
+    //         slope = (c2.center.y - c1.center.y)/(c2.center.x - c1.center.x);
+    //         if( d == abs(c1.radius - c2.radius)){
+    //            slope = -1/slope;
+               
+    //         }
+
+    //     }
+    // }

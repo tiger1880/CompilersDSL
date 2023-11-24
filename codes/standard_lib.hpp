@@ -4,7 +4,6 @@
 #include <vector>
 #include <deque>
 #include <iostream>
-#include <math.h>
 #include <cmath>
 #include <GL/glut.h>
 
@@ -594,9 +593,10 @@ class Line : public Shape {
 
     friend Point* INTERSECTION(Line *l1, Line *l2);
     friend Line* LINE_AT_ANGLE(double a, Line *l, Point *p);
-    friend vector<Line> ANGLE_BISECTOR(Line *a, Line *b); 
+    friend Line* ANGLE_BISECTOR(Line *a, Line *b); // returns 1x2 array of lines
     friend bool isPerpendicular(Line *l1, Line *l2);
     friend bool isParallel(Line *l1, Line *l2);
+    friend double SHORTEST_DISTANCE(Line* l1, Line* l2);
    
     Point MIDPOINT(){
 
@@ -714,20 +714,23 @@ Point *INTERSECTION(Line *l1, Line *l2){
 
 }
 
-vector<Line> ANGLE_BISECTOR(Line *a, Line *b){
+Line* ANGLE_BISECTOR(Line *a, Line *b){
 
-    vector<Line>* x = new vector<Line>();
+
+    Line* x = new Line[2];
+
+    // vector<Line>* x = new vector<Line>();
 
     if (a->angle == 90 && b->angle == 90){
 
         cout << "Parallel lines cannot have angle bisectors\n";
-        return *x;
+        return x;
     }
 
     if (a->m == b->m){
 
         cout << "Parallel lines cannot have angle bisectors\n";
-        return *x;
+        return x;
     }
 
     double d1 = pow(1 + a->m*a->m, 0.5);
@@ -736,11 +739,21 @@ vector<Line> ANGLE_BISECTOR(Line *a, Line *b){
     Line* l1 = new Line((a->m*d2 - b->m*d1)/(d2 - d1), (a->c*d2 - b->c*d1)/(d2-d1), true);
     Line* l2 = new Line((a->m*d2 + b->m*d1)/(d2 + d1), (a->c*d2 + b->c*d1)/(d2+d1), true);
 
-    x->push_back(*l1);
-    x->push_back(*l2);
+    // x->push_back(*l1);
+    // x->push_back(*l2);
+    x[0] = *l1;
+    x[1] = *l2;
 
-    return *x;
+    return x;
 
+}
+
+double SHORTEST_DISTANCE(Line* l1, Line* l2){
+
+    if (l1->m == l2->m)
+        return 0;
+    
+    return abs(l1->c - l2->c)/pow(1 + l1->m*l1->m, 0.5);
 }
 
 
@@ -911,9 +924,9 @@ public:
         Line *b = new Line(&p2, &p3, false);
         Line *c = new Line(&p3, &p1, false);
 
-        vector<Line> l1;
-        vector<Line> l2;
-        vector<Line> l3;
+        Line* l1;
+        Line* l2;
+        Line* l3;
 
         l1 = ANGLE_BISECTOR(a, b);
         l2 = ANGLE_BISECTOR(b, c);
@@ -945,8 +958,8 @@ public:
         Line *b = new Line(&p2, &p3, false);
         Line *c = new Line(&p3, &p1, false);
 
-        vector<Line> l1;
-        vector<Line> l2;
+        Line* l1;
+        Line* l2;
         l1 = ANGLE_BISECTOR(a, b);
         l2 = ANGLE_BISECTOR(b, c);
         Point *i = INTERSECTION(&l1[0], &l2[0]); // Assuming 1st angle bisector is internal angle bisector
@@ -1175,13 +1188,15 @@ public:
         return is_show;
     }
 
-    vector<Line*> DIAGONAL() {
-        vector<Line*>* diagonals;
+    Line** DIAGONAL() {
 
-        diagonals->push_back(new Line(&p1,&p3));
-        diagonals->push_back(new Line(&p2,&p4));
+        Line** diagonals = new Line*[2]; // free
+        // vector<Line*>* diagonals;s
+        
+        diagonals[0] = new Line(&p1,&p3);
+        diagonals[1] = new Line(&p2,&p4);
 
-        return *diagonals;
+        return diagonals;
     }
 
     double Area() override
@@ -1274,10 +1289,10 @@ class RegPoly : public Shape
 
 
 //Non-memeber functions
-vector<Point>
+Point*
     INTERSECTION_CIRCLE(Circle *c1, Circle *c2)
     {
-        vector<Point> p;
+        Point* p = NULL;
         // Finding quadratic equation and then sove it.
         double d = sqrt(pow((c1->center.x - c2->center.x), 2) + pow((c1->center.y - c2->center.y), 2));
         if (d > c1->radius + c2->radius)
@@ -1290,13 +1305,16 @@ vector<Point>
         c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->center.x * c2->center.x + c2->center.y * c2->center.y) - (c1->center.x * c1->center.x + c1->center.x * c1->center.x)) / (2 * (c2->center.x - c1->center.x));
         k = (c1->center.y - c2->center.y) / (c2->center.x - c1->center.x);
         double D = (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2)) - 4 * (k * k + 1) * (c1->center.x * c1->center.x + c1->center.y * c1->center.y + c * c - c1->radius * c1->radius - 2 * c * c1->radius);
+        
         if (D == 0)
-        {
+        {   
+            p = new Point[1];
             p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1));
             p[0].x = k * p[0].y + c;
         }
         else
         {
+            p = new Point[2];
             p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
             p[1].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
             p[0].x = k * p[0].y + c;

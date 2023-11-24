@@ -44,6 +44,6 @@ real d
 
 if(isRight(p,q,r)) {
     d := ||r||
-    d :=^ 2
+    d ^:= 2
 }
 

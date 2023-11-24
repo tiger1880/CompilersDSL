@@ -52,6 +52,7 @@ int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
 int global_space = 1;
+int decl = 0;
 
 
 string scale = "1";

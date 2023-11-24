@@ -137,7 +137,7 @@ vector<ParamList> func_paramlist;
 
 
 // non-terminals
-%nterm <main> program func fig
+%nterm <main> program func fig 
 %nterm <main> construct constructor
 %nterm <main> arg_list list1 argument params
 %nterm <main> param_list construct_param_list param_list_opt
@@ -145,7 +145,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> assign func_call
 %nterm <main> id_list
 %nterm <main> mult_elements arr1d_in_list
-%nterm <main> const_expr 
+%nterm <main> const_expr const_expr2
 %nterm <main> check_arr dim 
 %nterm <main> arr_assign comma_arr_assign arr_assign_line
 %nterm <main> decl_token decl_assign decl_stmt
@@ -180,7 +180,7 @@ vector<ParamList> func_paramlist;
 
 %%
 
-7//Committing for now errors in func,fig.
+//Committing for now errors in func,fig.
 
 /*
        1.) Func,fig(arguments),store scale,center in gloabl variables - Done
@@ -192,12 +192,12 @@ vector<ParamList> func_paramlist;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program { global_space = 0 ;} func { *$$.text = *$1.text + *$2.text;
-                         fig_func.push_back(*$2.txt);
+program:  program { global_space = 0 ;} func { *$$.text = *$1.text + *$func.text;
+                         fig_func.push_back(*$func.text);
                          global_space = 1;
                      } 
-       | program { global_space = 0 ;} fig {*$$.text = *$1.text + *$2.text;
-                       fig_func.push_back(*$2.txt;);
+       |   program { global_space = 0 ;} fig {*$$.text = *$1.text + *$fig.text;
+                       fig_func.push_back(*$fig.text);
                        global_space = 1;
                      } 
        | program stmt  {
@@ -791,11 +791,11 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
        ;          
 
 
-const_expr2 : STRING_TOKEN 
-              | point 
-              | const_expr2 + const_expr2
-              | const_expr2 - const_expr2 { if($1.eletype == LABEL || $3.eletype == LABEL)  semanticError("Error: Semantic error incompatible datatype"); }
-              | (const_expr2)
+const_expr2 : STRING_TOKEN { $$.eletype = $1.eletype; *$$.text = *$1.text;} 
+              | point { *$$.text = *$1.text; $$.eletype = $1.eletype;} 
+              | const_expr2 '+' const_expr2 { $$.eletype = sumTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "+" + *$3.text; }
+              | const_expr2 '-' const_expr2 { $$.eletype = diffTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "-" + *$3.text; } 
+              | '(' const_expr2 ')' { *$$.text = "(" + *$2.text + ")"; $$.eletype = $2.eletype; } 
               ;
 member_access : memb_access {
               if($1.dimCount->empty()) {

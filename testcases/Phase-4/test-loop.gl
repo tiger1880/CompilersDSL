@@ -1,0 +1,22 @@
+$ while 
+$ for with optional arguments
+
+int a := 5
+int sum := 6
+
+repeat(int i:=0 | i < a | i++) {
+    sum +:= i
+}
+
+while(sum > a) {
+    sum -:= 4
+    label s := "Helloooo!!!"
+}
+
+repeat(int j := 7 | j > 8 |) {
+    j++
+}
+
+repeat(int c := 5 | | ) {
+    c--
+}

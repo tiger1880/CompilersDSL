@@ -1,0 +1,29 @@
+$ arguments are called properly
+$ check Circle, RegPoly
+
+point p := (3.2,4)
+point q := (4,5.5)
+point r := (7,8)
+
+tri t1 := Tri(p,q,r)
+
+
+fig figure_1(scale := 2.0,center := (6,6)) {
+    tri t2 := Tri(7,5.5,10)
+    circle c := Circle(r,7.5)
+}
+
+fig figure_2(3,(3,3)) {
+    tri t3 := Tri(4,5)
+    para p := Para(6,60,6)
+    regPoly r := RegPoly(5,4)
+}
+
+point s := (4,4)
+point r := (8,8)
+
+line l := s<->r
+
+figure_1()
+figure_2()
+

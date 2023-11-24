@@ -11,6 +11,8 @@
 using namespace std;
 
 const double  PI  = 3.14;
+double height = 500, width = 500, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
+
 
 vector<Shape*> shapeStore;
 
@@ -23,7 +25,6 @@ void init(){
 
 }
 
-
 void reshape(int w, int h){
 
     height = h; // zero height debug
@@ -31,10 +32,7 @@ void reshape(int w, int h){
 
     // viewport => only here inside the window things will be displayed
     glViewport(0, 0, w, h); // 0, 0 is the bottom-left of whole window
-    
-    // glScissor(100, 50, w, h);
-    // glEnable(GL_SCISSOR_TEST);
-    
+
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -71,47 +69,19 @@ void reshape(int w, int h){
 
 void display() {
 
-    // reset and clear
-    glClear(GL_COLOR_BUFFER_BIT); // erase what was previously there
-    glLoadIdentity(); // resets the transformations to what was set at reshape: (translate, rotation, scaling)
-    // also add at the end of figures
+    glClear(GL_COLOR_BUFFER_BIT); 
+    glLoadIdentity(); 
 
     glColor3f(0.0, 0.0, 0.0); // black everything
 
-    // set state
-    // glShadeModel(GL_SMOOTH); // default
-    glPointSize(5); // how to get circular points
+    
+    // glPointSize(5); // how to get circular points
 
-
-    // Translate
-    // glTranslatef(5.0, 5.0, 0.0);
-    // Rotaion
-    // Scaling
-
-    // draw
-    // glBegin(GL_LINES);
-
-    // // specify in anti-clockwise direction
-
-    // glColor3f(1.0, 0.0, 0.0);
-    // glVertex2f(0.0, 1.0);
-    // glColor3f(1.0, 1.0, 0.0);
-    // glVertex2f(0.0, 0.0);
-    // glColor3f(0.0, 1.0, 0.0);
-    // glVertex2f(1.0, 0.0);
-    // glColor3f(0.0, 0.0, 1.0);
-    // glVertex2f(1.0, 1.0);
-
-    // glEnd();
-
-
-    // glRotatef(60, 0, 0, 1.0);
     
     // draw
 
-    for (int i = 0;i < d.size();i++){
-        cerr << "i: " << i << " size: " << d.size() << "\n";
-        d[i]->show();
+    for (int i = 0;i < shapeStore.size();i++){
+        shapeStore[i]->show();
     }
 
     // switch buffers
@@ -120,11 +90,6 @@ void display() {
 
 }
 
-
-
-// OPENGL --------------------------------------
-
-
 void renderBitmapString(float x, float y, const char *string) {
     glRasterPos2f(x, y);
     
@@ -132,6 +97,8 @@ void renderBitmapString(float x, float y, const char *string) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
 }
+
+// OPENGL --------------------------------------
 
 double norm(Point p1, Point p2)
 {
@@ -639,6 +606,16 @@ class Line : public Shape {
         return false;
 
         
+    }
+
+    double Area() override
+    {
+        return 0;
+    }
+
+    double Perimeter() override
+    {
+        return 0;
     }
 
 };

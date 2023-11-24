@@ -9,11 +9,10 @@
 #include <GL/glut.h>
 
 using namespace std;
-#define PI 3.14
 
-// Everyone add bool show to indicate show/hide.
+const double  PI  = 3.14;
 
-vector<Shapes*> shapeStore;
+vector<Shape*> shapeStore;
 
 double norm(Point p1, Point p2)
 {
@@ -40,19 +39,19 @@ double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
 }
 
 
-class Shapes
+class Shape
 {
 
 public:
     string tag;
     virtual double Area() = 0;
     virtual double Perimeter() = 0;
-    Shapes(){
+    Shape(){
        ;
     }
 };
 
-class Point : public Shapes
+class Point : public Shape
 {
 public:
     double x;
@@ -72,6 +71,35 @@ public:
         shapeStore.push_back(this);
     }
 
+    bool operator!=(const Point& r){
+
+        if (r.x != x)
+            return true;
+        
+        if (r.y != y)
+            return true;
+
+        return false;
+
+    }
+
+    bool operator==(const Point& r){
+
+        if (r.x == x && r.y == y)
+            return true;
+        
+        return false;
+    }
+
+    void show() {
+
+        glColor3f(0.0, 0.0, 0.0); 
+        glBegin(GL_POINTS);
+        glVertex2f(x, y); // expects float check double overflow
+        glEnd();
+       
+    }
+
     double Area() override
     {
         return 0;
@@ -84,7 +112,7 @@ public:
 };
 
 /*
-class Line : public Shapes
+class Line : public Shape
 {
     double scale;
     class Point center;
@@ -148,26 +176,6 @@ class Point : public Shape{
 
     }
 
-    
-    bool operator!=(const Point& r){
-
-        if (r.x != x)
-            return true;
-        
-        if (r.y != y)
-            return true;
-
-        return false;
-
-    }
-
-    bool operator==(const Point& r){
-
-        if (r.x == x && r.y == y)
-            return true;
-        
-        return false;
-    }
 
     void show() {
 
@@ -194,21 +202,21 @@ enum lineType {
 
 class Line : public Shape{
 
+    // if both points are same then shows a point
     Point a;
     Point b;
-
+    bool show;
 
     // y = mx+c
     double m;
     double c;
 
-    // what if both the points are the same
-    lineType t;
+    lineType t; // RAY, LINE, SEGMENT
+    double angle; // clockwise angle in degrees
 
-    bool isDisplayed;
-
-    // only for my use
-    double angle; // not slope, in degrees (-90, 90)
+    // figures
+    double scale;
+    Point center;
 
     double R(bool positive, Point initial, Point final){
 
@@ -245,20 +253,21 @@ class Line : public Shape{
 
     public:
 
-    Line(Point x1, Point x2, lineType type = SEGMENT, bool display = true):
+    Line(Point x1, Point x2, lineType type = SEGMENT, double Scale = 1.0, Point Center = Point(0, 0, false), bool sh = true):
     a(x1),
     b(x2),
     t(type),
-    isDisplayed(display),
+    show(sh),
     m(0),
-    c(0)
+    c(0),
+    scale(Scale),
+    center(Center)
     {
+        // if (x1 != x2){
+            // cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
+        // }
 
-        if (x1 != x2){
-            cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
-            d.push_back(this); // otherwise not displaying 
-        }
-
+        shapeStore.push_back(this);
         
         if (x1.x == x2.x){
             angle = 90.0;
@@ -275,17 +284,19 @@ class Line : public Shape{
             c = b.y - m*b.x;
         }
 
-
     }
 
     // m, c constructor
     // y = mx + c
-    Line(double m1, double c1, bool h = false):
+    Line(double m1, double c1, double Scale = 1.0, Point Center = Point(0, 0, false), bool sh = false):
     m(m1),
-    c(c1)
+    c(c1),
+    show(sh),
+    scale(Scale),
+    center(Center)
     {
 
-        // (0, c), (1, m+c)
+        // (0, c), (1, m+c) taken as points
 
         a.x = 0;
         a.y = c;
@@ -294,11 +305,10 @@ class Line : public Shape{
         b.y = m+c;
 
         angle = atan(m1)*180/PI;
-        isDisplayed = true;
+        show = true;
         t = LINE;
 
-        if (h)
-            d.push_back(this);
+        shapeStore.push_back(this);
 
     }
 
@@ -306,14 +316,13 @@ class Line : public Shape{
     Line(const Line& l){
         a = l.a;
         b = l.b;
-        isDisplayed = l.isDisplayed; // if its true already pushed
+        show = l.show; // if its true already pushed
         angle =  l.angle;
         c = l.c;
         m = l.m;
         t = l.t;
         
-
-        cout << "copy called\n";
+        // cout << "copy called\n";
     }
 
     // copy assignment operator
@@ -321,13 +330,13 @@ class Line : public Shape{
 
         a = l.a;
         b = l.b;
-        isDisplayed = l.isDisplayed; // if its true already pushed
+        show = l.show; // if its true already pushed
         angle =  l.angle;
         c = l.c;
         m = l.m;
         t = l.t;
         
-        cout << "assignment called\n";
+        // cout << "assignment called\n";
 
         return *this;
 
@@ -343,18 +352,21 @@ class Line : public Shape{
 
     void setDisplay(bool d){
 
-        isDisplayed = d;
+        show = d;
         return;
     }
 
     void showSegment(){
 
-        glBegin(GL_LINES);
 
+        glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
+        glColor3f(0.0, 0.0, 0.0);
+        glBegin(GL_LINES);
         glVertex2d(a.x, a.y);
         glVertex2d(b.x, b.y);
-
         glEnd();
+        glLoadIdentity();
     }
 
     void showRay(){
@@ -720,8 +732,7 @@ bool isParallel(Line l1, Line l2)
     return true;
 }
 
-
-class Tri : public Shapes
+class Tri : public Shape
 {
 public:
     Point p1;
@@ -729,14 +740,14 @@ public:
     Point p3;
     bool show;
     double scale;
-    class Point center; 
+    Point center; 
 
     Tri()
     {
         ;
     }
 
-    Tri(Point point1, Point point2, Point point3, bool sh = true, class Point Center = Point(0,0),double Scale = 1.0)
+    Tri(Point point1, Point point2, Point point3, bool sh = true, Point Center = Point(0, 0, false),double Scale = 1.0)
     {
         p1 = point1;
         p2 = point2;
@@ -749,7 +760,7 @@ public:
     }
 
 
-    Tri(double s1, double s2, double s3, bool sh = true, class Point center = Point(0,0),double scale = 1.0)
+    Tri(double s1, double s2, double s3, bool sh = true, Point center = Point(0, 0, false),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
@@ -762,7 +773,7 @@ public:
        
     }
 
-    Tri(double h, double s, bool sh = true, class Point center = Point(0,0),double scale = 1.0)
+    Tri(double h, double s, bool sh = true, class Point center = Point(0, 0, false),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s, 0);
@@ -783,6 +794,7 @@ public:
         glVertex2d(p3.x, p3.y);
 
         glEnd();
+        // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
 
@@ -935,14 +947,14 @@ public:
     }
 };
 
-class Circle : public Shapes
+class Circle : public Shape
 {
     float radius;
-    class Point center;
+    Point center;
     double scale;
     bool show;
 
-    Circle(float radius, class Point center = Point(0,0),double scale = 1.0)
+    Circle(float radius, class Point center = Point(0, 0, false), double scale = 1.0)
     {
         this->radius = radius;
         this->center = center;
@@ -963,6 +975,7 @@ class Circle : public Shapes
             glVertex2f(cos(angle) * radius, sin(angle) * radius);
         }
         glEnd();
+        // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
 
@@ -1093,14 +1106,15 @@ class Circle : public Shapes
     {
         return 3.14 * radius * radius;
     }
+
+    // Here perimeter means circumference
     double Perimeter()
     {
-        // Here perimeter means circumference
         return 2 * 3.14 * radius;
     }
 };
 
-class Para : public Shapes   
+class Para : public Shape
 {
 public:
     Point p1;    //p1,p2,p3,p4 are attributes 
@@ -1111,7 +1125,7 @@ public:
     class Point center; 
     bool show;
 
-    Para(double s1, double ang, double s2, class Point center = Point(0,0),double scale = 1.0)
+    Para(double s1, double ang, double s2, class Point center = Point(0, 0, false), double scale = 1.0)
     {
         
         p1 = Point(0, 0);
@@ -1133,6 +1147,7 @@ public:
         glVertex2d(p3.x, p3.y);
         glVertex2d(p4.x, p4.y);
         glEnd();
+        // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
     }
@@ -1168,7 +1183,7 @@ public:
     }
 };
 
-class RegPoly : public Shapes
+class RegPoly : public Shape
 {
     int numOfSides;
     double sideLength;
@@ -1176,7 +1191,7 @@ class RegPoly : public Shapes
     class Point center;
     bool show; 
 
-    RegPoly(int numOfSides, double sideLength, class Point center = Point(0,0),double scale = 1.0)
+    RegPoly(int numOfSides, double sideLength, class Point center = Point(0, 0, false),double scale = 1.0)
     {
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
@@ -1199,6 +1214,7 @@ class RegPoly : public Shapes
             angle += (PI / 180) *(360 / numOfSides);
         }
         glEnd();
+        glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
 

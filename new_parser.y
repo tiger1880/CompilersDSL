@@ -53,7 +53,7 @@ int is_decl_stmt = 0;
 
 
 string scale = "1";
-string center = "Point(0,0)";
+string center = "Point(0, 0, false)";
 
 enum eletype ret_type = UNDEF;
 
@@ -186,8 +186,7 @@ string totalProgram;
        1.) Func,fig(arguments),store scale,center in gloabl variables - Done
        2.) construct - insert center and scale in constructor - Done (point left)
        3.) norm
-       4.) assign op ^:= into pow - Done
-       5.) Global statements except declaration in int main - Done for now change decl_stmt grammar if that is final
+       3.) Global statements except declaration in int main - Done for now change decl_stmt grammar if that is final
 
 */
 
@@ -325,7 +324,11 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
                                                         delSymTabPtr();
                                                         delete $ID.name;
                                                         $$.text = new string;
-                                                        *$$.text = "void" + *$ID.text + "(" + *$params.text + ")" + *($[empty_space].text) + *($[stmt_block].text);
+                                                        *$$.text = "void " + *$ID.text + "(" + *$params.text + ")" + *($[empty_space].text) + *($[stmt_block].text);
+                                                        
+                                                        // reset scale and center
+                                                        scale = "1.0";
+                                                        center = "Point(0, 0, false)";
                                                  } 
 
 params : expression ',' expression { 
@@ -341,9 +344,8 @@ params : expression ',' expression {
                      semanticError("Error: Semantic error incompatible datatype") ;
               scale = *$3.text;
               center = centerTranslation(*$3.text);
-              // *$$.text = "double scale = " + (*$3.text) ", Point center = " + (*$7.text); 
               $$.text = new string;
-              *$$.text = "double scale , Point center" ; 
+              *$$.text = "double scale = " + *$3.text + " , Point center = " + *$7.text;
        }
 
  /* Statements */
@@ -408,31 +410,6 @@ line_op: LINE_OP {$$.text = new string; *$$.text = *$1.text;}
 lineArr: lineArr line_op vertex {$$.count = $$.count + 1;$$.text = new string; *$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        | vertex line_op vertex {$$.count = 1;$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        ;
-
-/* opt_exp: expression {$$ = $1;}
-       | {$$ = UNDEF;}
-       ;
-
-fig_call: ID '(' opt_exp[scale] ',' opt_exp[center] ')' {
-
-       if (!arithCompatible($scale) && $scale != UNDEF){
-              
-              semanticError("in fig call scale has to be a number type");
-       }
-
-       if ($center != POINT && $center != UNDEF){
-              
-              semanticError("in fig call scale has to be a point type");
-
-       }
-
-       STentry figEntry = lookup($ID);
-
-       if (figEntry.Type != Fig)
-              semanticError("fig not defined");
-
-       delete $ID;
-} */
 
 construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = *$1.text + "(" + *$3.text + "," + scale + "," + center + ")" ;} 
           | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text + "(" + scale + "," + center + ")" ;} 
@@ -555,7 +532,7 @@ inside_norm: /*vertex '+' vertex  { *$$.text = *$1.text + "+" + *$3.text;}*/
              vertex '-' vertex  { $$.text = new string;*$$.text = "norm( " + *$1.text + "," + *$3.text + " )";}
              | vertex   { $$.text = new string;*$$.text = "norm( " + *$1.text + " )";}
            /* | memb_access assign   will := add in || ||  later*/
-           ; // norm cannot be empty
+           ; 
 
 assign:  EQUAL expression {$$.eletype = $2.eletype;$$.text = new string; *$$.text = "=" + *$2.text;}
        | ASSIGN_OP  expression  {if(!(arithCompatible($2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype;  $$.text = new string;*$$.text = assignOpTranslation(*$1.text) + *$2.text;}  
@@ -717,7 +694,7 @@ mult_elements : mult_elements ',' expression
                      $$.count = $1.countAndType.count + 1; 
                      if (!coercible($1.countAndType.eletype, $3.eletype)) semanticError("arrays should be initialized with same datatype");
                      else $$.countAndType.eletype = $3.eletype;
-                     // double to int only checked at decl_stmt 
+                      
                      $$.text = new string;
                      *$$.text = *$1.text + "," + *$3.text ;
               } 
@@ -1114,13 +1091,13 @@ string centerTranslation(string center) {
               if(idx!=string::npos) {
                      string x = center.substr(1,idx-1);
                      string y = center.substr(idx+1,center.size()-idx-1);
-                     translatedCenter = "Point(" + x + "," + y + ")";
+                     translatedCenter = "Point(" + x + "," + y + ", false)";
               }
        }
        else {
               string x = center + ".x";
               string y = center + ".y";
-              translatedCenter = "Point(" + x + "," + y + ")";
+              translatedCenter = "Point(" + x + "," + y + ", false)";
        }
 
        return translatedCenter;

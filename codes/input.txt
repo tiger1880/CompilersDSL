@@ -1,21 +1,27 @@
-fig figure(scale := 2,center := (1,1)) {
-    point p := (3,4)
-    point q := (4,5)
-    point r := (6.5,3.4)
-    point s := (1,4)
-    line l[4] := p<->r-q->s
 
-    {
-        int arr[][4] := {{1,2,3,4},{5,6,7,8}}
+point c := (0, 2)
 
-        {
-            angle arr := < (1,2) (2,2) (0,0) >
-        }
+int  v := 7
 
-        int x := arr[0][6]
-    }
+real s := 1.9
 
+
+real s1 := 2
+real s2 := 4
+real ang := 40
+
+real radius := 5
+
+
+repeat ( int i := 6 | i < v | i++ )
+{
+    para p := Para(s1,ang,s2,false,c +(i,0),s+i)
+    circle c1 := Circle(c,radius+i)
+    circle c2 := Circle(c,radius+i)
+    $ line diags[] := p.DIAGONAL()
+    point inter_circle[] := INTERSECTION_CIRCLE(c1,c2)
 }
+
 
 
 

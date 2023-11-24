@@ -2,8 +2,18 @@
 int x
 {
         real x := 1 + 2.444
+        point p := (3,4)
+        point q := (5,6)
+        point r := (7,8)
+
+        tri t = Tri(p,q,r)
+
 }
 
+
+
+
+$$
 
 fig fure_1(1,(0,0)) {
         repeat(int i:= 0 | i < 4 | i++){
@@ -12,8 +22,6 @@ fig fure_1(1,(0,0)) {
     }
 
 }
-
-$$
 point a
 int  x
 
@@ -30,6 +38,7 @@ int  x
     }
 
 $$
+
 
 
 

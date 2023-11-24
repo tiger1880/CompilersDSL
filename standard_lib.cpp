@@ -4,7 +4,6 @@
 #include <vector>
 #include <deque>
 #include <iostream>
-#include <math.h>
 #include <cmath>
 #include <GL/glut.h>
 
@@ -13,14 +12,25 @@ using namespace std;
 const double  PI  = 3.14;
 double height = 640, width = 480, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
+class Shape
+{
+
+public:
+    virtual double Area() = 0;
+    virtual double Perimeter() = 0;
+    Shape(){
+       ;
+    }
+    virtual void show(){}
+};
 
 vector<Shape*> shapeStore;
-
 
 // OPENGL --------------------------------------
 
 void init(){
 
+    glPointSize(5); 
     glClearColor(1.0, 1.0, 1.0, 1.0); // sets the background
 
 }
@@ -100,42 +110,7 @@ void renderBitmapString(float x, float y, const char *string) {
 
 // OPENGL --------------------------------------
 
-double norm(Point p1, Point p2)
-{
-    double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
-    return res;
-}
 
-double norm(Point p1)
-{
-    double res = sqrt(pow((p1.x), 2) + pow((p1.y), 2));
-    return res;
-}
-
-double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
-{
-    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
-    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
-
-    double theta = atan((m2 - m1) / (1 + m1 * m2));
-
-    theta = theta * 180.0 / M_PI;
-
-    return theta;
-}
-
-
-class Shape
-{
-
-public:
-    virtual double Area() = 0;
-    virtual double Perimeter() = 0;
-    Shape(){
-       ;
-    }
-    virtual void show(){}
-};
 
 class Point : public Shape
 {
@@ -143,7 +118,7 @@ public:
     double x;
     double y;
     string tag;
-    bool show;
+    bool toDisplay;
     double scale;
     double center_x;
     double center_y;
@@ -162,7 +137,7 @@ public:
         x = a;
         y = b;
         tag = s;
-        show = sh;
+        toDisplay = sh;
         shapeStore.push_back(this);
     }
     
@@ -173,7 +148,7 @@ public:
         center_y = cy;
         x = a;
         y = b;
-        show = sh;
+        toDisplay = sh;
         shapeStore.push_back(this);
     }
 
@@ -212,6 +187,32 @@ public:
     }
 };
 
+
+double norm(Point p1, Point p2)
+{
+    double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
+    return res;
+}
+
+double norm(Point p1)
+{
+    double res = sqrt(pow((p1.x), 2) + pow((p1.y), 2));
+    return res;
+}
+
+double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
+{
+    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
+    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
+
+    double theta = atan((m2 - m1) / (1 + m1 * m2));
+
+    theta = theta * 180.0 / M_PI;
+
+    return theta;
+}
+
+
 /*
 Ignore 
     1) testing some parts is left in Line
@@ -233,7 +234,7 @@ class Line : public Shape {
     // if both points are same then shows a point
     Point a;
     Point b;
-    bool show;
+    bool toDisplay;
 
     // y = mx+c
     double m;
@@ -283,11 +284,11 @@ class Line : public Shape {
 
     Line(){}
 
-    Line(Point x1, Point x2,  bool sh = true, lineType type = SEGMENT, double Scale = 1.0, Point Center = Point(0, 0, false)):
+    Line(Point x1, Point x2, lineType type = SEGMENT, bool sh = true, double Scale = 1.0, Point Center = Point(0, 0, false)):
     a(x1),
     b(x2),
     t(type),
-    show(sh),
+    toDisplay(sh),
     m(0),
     c(0),
     scale(Scale),
@@ -321,7 +322,7 @@ class Line : public Shape {
     Line(double m1, double c1, double Scale = 1.0, Point Center = Point(0, 0, false), bool sh = false):
     m(m1),
     c(c1),
-    show(sh),
+    toDisplay(sh),
     scale(Scale),
     center(Center)
     {
@@ -335,7 +336,7 @@ class Line : public Shape {
         b.y = m+c;
 
         angle = atan(m1)*180/PI;
-        show = true;
+        toDisplay = true;
         t = LINE;
 
         shapeStore.push_back(this);
@@ -346,7 +347,7 @@ class Line : public Shape {
     Line(const Line& l){
         a = l.a;
         b = l.b;
-        show = l.show; // if its true already pushed
+        toDisplay = l.toDisplay; // if its true already pushed
         angle =  l.angle;
         c = l.c;
         m = l.m;
@@ -360,7 +361,7 @@ class Line : public Shape {
 
         a = l.a;
         b = l.b;
-        show = l.show; // if its true already pushed
+        toDisplay = l.toDisplay; // if its true already pushed
         angle =  l.angle;
         c = l.c;
         m = l.m;
@@ -382,7 +383,7 @@ class Line : public Shape {
 
     void setDisplay(bool d){
 
-        show = d;
+        toDisplay = d;
         return;
     }
 
@@ -682,7 +683,7 @@ public:
     Point p1;
     Point p2;
     Point p3;
-    bool show;
+    bool toDisplay;
     double scale;
     Point center; 
 
@@ -696,7 +697,7 @@ public:
         p1 = point1;
         p2 = point2;
         p3 = point3;
-        show = sh;
+        toDisplay = sh;
         scale = Scale;
         center = Center;
         shapeStore.push_back(this);
@@ -711,7 +712,7 @@ public:
         double a = (s2 * s2 + s1 * s1 - s3 * s3) / (2 * s1);
         double b = sqrt(s2 * s2 - a * a);
         p3 = Point(a, b);
-        show = sh;
+        toDisplay = sh;
         shapeStore.push_back(this);
 
        
@@ -722,7 +723,7 @@ public:
         p1 = Point(0, 0);
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
-        show = sh;
+        toDisplay = sh;
         shapeStore.push_back(this);
 
     }
@@ -772,9 +773,9 @@ public:
 
     Point EXCENTER(Point p)
     {
-        Line a = Line(p1, p2, false);
-        Line b = Line(p2, p3, false);
-        Line c = Line(p3, p1, false);
+        Line a = Line(p1, p2, SEGMENT, false);
+        Line b = Line(p2, p3, SEGMENT, false);
+        Line c = Line(p3, p1, SEGMENT, false);
 
         vector<Line> l1;
         vector<Line> l2;
@@ -806,9 +807,9 @@ public:
 
     Point INCENTER() // SEGFAULT
     {
-        Line a = Line(p1, p2, false);
-        Line b = Line(p2, p3, false);
-        Line c = Line(p3, p1, false);
+        Line a = Line(p1, p2, SEGMENT, false);
+        Line b = Line(p2, p3, SEGMENT, false);
+        Line c = Line(p3, p1, SEGMENT, false);
 
         vector<Line> l1;
         vector<Line> l2;
@@ -897,7 +898,7 @@ class Circle : public Shape
     float radius;
     Point center;
     double scale;
-    bool show;
+    bool toDisplay;
 
     Circle(float radius, Point Center = Point(0,0),bool sh = true, double Scale = 1.0)
     {   
@@ -905,7 +906,7 @@ class Circle : public Shape
         this->center = center;
         scale = Scale;
         center = Center;
-        show = sh;
+        toDisplay = sh;
         shapeStore.push_back(this);
         
     }
@@ -964,7 +965,7 @@ public:
     Point p4;
     double scale;
     Point center; 
-    bool show;
+    bool toDisplay;
 
     Para(double s1, double ang, double s2, bool sh = true,class Point center = Point(0, 0, false), double scale = 1.0)
     {
@@ -973,7 +974,7 @@ public:
         p2 = Point(s1, 0);
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
         p4 = Point(s2 * cos(ang), s2 * sin(ang));
-        show = sh;
+        toDisplay = sh;
         shapeStore.push_back(this);
 
     }
@@ -1040,10 +1041,11 @@ class RegPoly : public Shape
     double sideLength;
     double scale;
     Point center;
-    bool show; 
+    bool toDisplay; 
 
-    RegPoly(int numOfSides, double sideLength, Point Center = Point(0, 0, false), double Scale = 1.0)
-    {
+    RegPoly(int numOfSides, double sideLength, bool sh = true, Point Center = Point(0, 0, false), double Scale = 1.0)
+    {   
+        toDisplay = sh;
         scale = Scale;
         center = Center;
         this->numOfSides = numOfSides;
@@ -1090,7 +1092,7 @@ class RegPoly : public Shape
 
 
 //Non-memeber functions
-vector<class Point>
+vector<Point>
     INTERSECTION_CIRCLE(class Circle c1, class Circle c2)
     {
         vector<class Point> p;
@@ -1184,13 +1186,15 @@ vector<class Point>
             q.x = (c2.radius*c1.center.x + c1.radius*c2.center.x) / (c2.radius + c1.radius);
             q.y = (c2.radius*c1.center.y + c1.radius*c2.center.y) / (c2.radius + c1.radius);
             double d2 = norm(q,c1.center);
-            Circle c = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
+            Circle c_ = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
             vector<Point> intersect2;
-            intersect2 = INTERSECTION_CIRCLE(c1,c);
+            intersect2 = INTERSECTION_CIRCLE(c1,c_);
             tangents.push_back(Line(q,intersect2[0]));
             tangents.push_back(Line(q,intersect2[1]));
             return tangents;
         }
+
+        return tangents;
 
     }
 
@@ -1274,3 +1278,38 @@ vector<class Point>
 
     //     }
     // }
+
+
+// main for testing
+
+int main(int argc, char* argv[]){
+
+    Point p(0, 10);
+
+    Line l = Line(p, Point(1, 2), LINE);
+
+
+    for (int i = 0;i < 10;i ++){
+
+        Point p = Point(0, i);
+    }
+
+
+    glutInit(&argc, argv);
+
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+
+    // Window
+    glutInitWindowPosition(600, 200);
+    glutInitWindowSize(800, 800);
+    glutCreateWindow("Figure");
+
+    // Callbacks
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+
+    init();
+    
+    glutMainLoop();
+
+}

@@ -24,10 +24,10 @@ integers [1-9][0-9]*|0
 floats (\.[0-9]+|[1-9][0-9]*\.[0-9]*|0\.[0-9]+)  
 parenthesis "["|"]"|"{"|"}"|"("|")"
 punctuation ,
-triConstruct "Tri "
-circleConstruct "Circle "
-regPolyConstruct "RegPoly "
-paraConstruct "Para "
+triConstruct "Tri"
+circleConstruct "Circle"
+regPolyConstruct "RegPoly"
+paraConstruct "Para"
 line_op "->"|"<->"
 cmp_op ">="|"<="
 datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"

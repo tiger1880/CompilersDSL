@@ -42,6 +42,7 @@ deque <string> collection;
 string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
 string centerTranslation(string center);
+string declStmtTranslation(vector<char*>* names);
 
 
 int ret_flag = 0;
@@ -102,6 +103,8 @@ string totalProgram;
        };
 
        string* text;
+
+       string* withStarText;
        
     } main;
     
@@ -418,8 +421,8 @@ lineArr: lineArr line_op vertex {$$.count = $$.count + 1;$$.text = new string; *
        | vertex line_op vertex {$$.count = 1;$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        ;
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = *$1.text + "(" + *$3.text + "," + center + "," + scale + ")" ;} 
-          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text + "(" + center + "," + scale + ")" ;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = "new " + *$1.text + "(" + *$3.text + "," + center + "," + scale + ")" ;} 
+          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = "new " + *$1.text + "(" + center + "," + scale + ")" ;} 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text ;} 
@@ -484,8 +487,8 @@ construct_param_list: construct_param_list ',' valid_arg {
           ;
 
 //scale,center?
-point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "Point(" + *$2.text + "," + *$4.text + "," + *$6.text + "," + scale + "," + center_x + "," + center_y +")"; }
-       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "Point(" + *$2.text + "," + *$4.text +  "," + scale + "," + center_x + "," + center_y + ")";}
+point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "new Point(" + *$2.text + "," + *$4.text + "," + *$6.text + "," + scale + "," + center_x + "," + center_y +")"; }
+       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "new Point(" + *$2.text + "," + *$4.text +  "," + scale + "," + center_x + "," + center_y + ")";}
        ; 
 
 // NOT TESTED
@@ -548,8 +551,13 @@ assign:  EQUAL expression {$$.eletype = $2.eletype;$$.text = new string; *$$.tex
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + ";"; }
-          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + ";";}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;
+                                          if (*$DATATYPE.text == "Point ")
+                                                 *$$.text = *$1.text + *$2.withStarText + ";"; 
+                                          else 
+                                                 *$$.text = *$1.text + *$2.text + ";" ;
+                                          }
+          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string; *$$.text = *$1.text + *$2.withStarText + ";" ;}
           ;
 
 id_list: id_list ',' ID check_arr EQUAL arr_assign
@@ -559,6 +567,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               compareAndInsertArray($3.name, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);
               $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text + *$4.text + *$5.text  + *$6.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = *$1.withStarText + ", *" + *$3.text + *$4.text + *$5.text  + *$6.text;
        }
        | id_list ',' ID check_arr  
        {
@@ -567,6 +578,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertArray($3.name, $4.dimList);
               $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text + *$4.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = *$1.withStarText + ", *" + *$3.text + *$4.text;
        }       
        | id_list ',' ID decl_assign 
        {
@@ -575,6 +589,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertType($3.name, Var, $4.eletype);
               $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text + *$4.text;
+              
+              $$.withStarText = new string;
+              *$$.withStarText = *$1.withStarText + ", *" + *$3.text + *$4.text;
        }
        | ID check_arr  
        {
@@ -583,6 +600,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertArray($1.name, $2.dimList);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = " *" + *$1.text + *$2.text;
        }
        | ID check_arr EQUAL arr_assign
        {
@@ -591,6 +611,10 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               compareAndInsertArray($1.name, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text + *$3.text + *$4.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = " *" +  *$1.text + *$2.text + *$3.text + *$4.text;
+
        }
        | ID check_arr EQUAL lineArr {
 
@@ -606,6 +630,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               $$.text = new string;
               *$$.text = *$1.text + *$2.text  + "=" + translateLineArr(*$4.text);
 
+              $$.withStarText = new string;
+              *$$.withStarText = " *" +  *$1.text + *$2.text  + "=" + translateLineArr(*$4.text);
+
        }
        | ID decl_assign 
        {
@@ -614,6 +641,8 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertType($1.name, Var, $2.eletype);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text;
+              $$.withStarText = new string;
+              *$$.withStarText = " *" +  *$1.text + *$2.text;
        }
        ;
 
@@ -1083,11 +1112,28 @@ string centerTranslation(string center) {
        return translatedCenter;
 }
 
+string declStmtTranslation(vector<char*>* names) {
+
+       string output = "  ";
+
+       for (int i = 0;i < names->size();i++){
+              /* printf("%s\n", names->at(i)); */
+              output = output + " *" + string(names->at(i)) + ", ";
+              free(names->at(i));
+       }
+
+       output[output.size()-2] = ' ';
+
+       delete names;
+
+       return output;
+}
+
 
 int main(int argc, char*argv[])
 {    
 
-    yydebug = 1;
+    /* yydebug = 1; */
 
     if (argc < 2){
 

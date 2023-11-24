@@ -53,10 +53,11 @@ int is_fig = 0;
 int is_decl_stmt = 0;
 int global_space = 1;
 
-int lineArrNo = 0;
 
 string scale = "1";
 string center = "Point(0,0)";
+sting center_x = "0";
+sting center_y = "0";
 
 enum eletype ret_type = UNDEF;
 
@@ -335,6 +336,8 @@ params : expression ',' expression {
                      semanticError("Error: Semantic error incompatible datatype..") ;
               scale = *$1.text;
               center = centerTranslation(*$3.text);
+              center_x = *$1.text;
+              center_y = *$3.text;
               *$$.text = "double scale , Point center"; 
        }
        | SCALE EQUAL expression ',' CENTER EQUAL expression { 
@@ -342,6 +345,8 @@ params : expression ',' expression {
                      semanticError("Error: Semantic error incompatible datatype") ;
               scale = *$3.text;
               center = centerTranslation(*$3.text);
+              center_x = *$3.text;
+              center_y = *$7.text;
               *$$.text = "double scale , Point center" ; 
        }
 

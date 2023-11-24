@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <deque>
@@ -12,7 +12,118 @@ using namespace std;
 
 const double  PI  = 3.14;
 
-vector<Shapes*> shapeStore;
+vector<Shape*> shapeStore;
+
+
+// OPENGL --------------------------------------
+
+void init(){
+
+    glClearColor(1.0, 1.0, 1.0, 1.0); // sets the background
+
+}
+
+
+void reshape(int w, int h){
+
+    height = h; // zero height debug
+    width = w;
+
+    // viewport => only here inside the window things will be displayed
+    glViewport(0, 0, w, h); // 0, 0 is the bottom-left of whole window
+    
+    // glScissor(100, 50, w, h);
+    // glEnable(GL_SCISSOR_TEST);
+    
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+
+    if (h == 0)
+        h = 1;
+
+    float aspect = (float)w/h;
+    aspectRatio = aspect;
+
+    // projection
+    glMatrixMode(GL_PROJECTION); // for setting projection matrices
+    glLoadIdentity(); // resets the axes
+
+    // -10 to 10 right now
+
+    // to prevent shape distortion on resizing window => just increases the coordinate axes
+    if (w >= h){
+        gluOrtho2D(-axisLength*aspect, axisLength*aspect, -axisLength, axisLength); // left right bottom top
+
+        xAxis = axisLength*aspect;
+        yAxis = axisLength;
+    }
+    else {
+        gluOrtho2D(-axisLength, axisLength, -axisLength/aspect, axisLength/aspect); // left right bottom top
+
+        xAxis = axisLength;
+        yAxis = axisLength/aspect;
+    }
+
+
+    glMatrixMode(GL_MODELVIEW); // always be in this mode
+}
+
+void display() {
+
+    // reset and clear
+    glClear(GL_COLOR_BUFFER_BIT); // erase what was previously there
+    glLoadIdentity(); // resets the transformations to what was set at reshape: (translate, rotation, scaling)
+    // also add at the end of figures
+
+    glColor3f(0.0, 0.0, 0.0); // black everything
+
+    // set state
+    // glShadeModel(GL_SMOOTH); // default
+    glPointSize(5); // how to get circular points
+
+
+    // Translate
+    // glTranslatef(5.0, 5.0, 0.0);
+    // Rotaion
+    // Scaling
+
+    // draw
+    // glBegin(GL_LINES);
+
+    // // specify in anti-clockwise direction
+
+    // glColor3f(1.0, 0.0, 0.0);
+    // glVertex2f(0.0, 1.0);
+    // glColor3f(1.0, 1.0, 0.0);
+    // glVertex2f(0.0, 0.0);
+    // glColor3f(0.0, 1.0, 0.0);
+    // glVertex2f(1.0, 0.0);
+    // glColor3f(0.0, 0.0, 1.0);
+    // glVertex2f(1.0, 1.0);
+
+    // glEnd();
+
+
+    // glRotatef(60, 0, 0, 1.0);
+    
+    // draw
+
+    for (int i = 0;i < d.size();i++){
+        cerr << "i: " << i << " size: " << d.size() << "\n";
+        d[i]->show();
+    }
+
+    // switch buffers
+    glutSwapBuffers();
+
+
+}
+
+
+
+// OPENGL --------------------------------------
+
 
 void renderBitmapString(float x, float y, const char *string) {
     glRasterPos2f(x, y);
@@ -56,6 +167,7 @@ public:
     Shape(){
        ;
     }
+    virtual void show(){}
 };
 
 class Point : public Shape
@@ -65,14 +177,21 @@ public:
     double y;
     string tag;
     bool show;
+    double scale;
+    double center_x;
+    double center_y;
 
     Point()
     {
 
     }
 
-    Point(double a, double b, string s, bool sh = true)
+    // store globally center aswell
+    Point(double a, double b, string s, bool sh = true, double Scale = 1.0, double cx = 0, double cy = 0)
     {
+        scale = Scale;
+        center_x = cx;
+        center_y = cy;
         x = a;
         y = b;
         tag = s;
@@ -80,8 +199,11 @@ public:
         shapeStore.push_back(this);
     }
     
-    Point(double a, double b, bool sh = true)
+    Point(double a, double b, bool sh = true, double Scale = 1.0, double cx = 0, double cy = 0)
     {
+        scale = Scale;
+        center_x = cx;
+        center_y = cy;
         x = a;
         y = b;
         show = sh;
@@ -89,14 +211,17 @@ public:
     }
 
     void show() {
-        glBegin(GL_POINTS);
-        
-        glColor3b(0, 0, 0);
-        glVertex2d(x,y);
 
+        glTranslatef(center_x, center_y, 0.0f);
+        glScalef(scale, scale, 0.0f);
+        glColor3b(0, 0, 0);
+
+        glBegin(GL_POINTS);
+        glVertex2d(x,y);
         glEnd();
 
         renderBitmapString(x + 0.01,y + 0.01, tag.c_str());
+        glLoadIdentity();
 
 
     }
@@ -201,9 +326,8 @@ enum lineType {
     LINE
 };
 
-// ----------------------- ignore ----------------------------------------------------------------------------------------------------------
 
-class Line : public Shapes{
+class Line : public Shape {
 
     // if both points are same then shows a point
     Point a;
@@ -388,7 +512,6 @@ class Line : public Shapes{
         else {
 
             // positive
-            
             r = R(true, a, b);
 
             xFinal = b.x + r*cos(angle*PI/180);
@@ -404,8 +527,8 @@ class Line : public Shapes{
 
             if (flag < 0){
                 
+                // negative
                 r = R(false, a, b);
-
                 xFinal = b.x - r*cos(angle*PI/180);
                 yFinal = b.y - r*sin(angle*PI/180); 
                 
@@ -413,9 +536,12 @@ class Line : public Shapes{
         
         }
 
+        glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
+        glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_LINES);
-        glVertex2f(a.x, a.y); // should I do aspects here aswell ?? 
+        glVertex2f(a.x, a.y); 
         glVertex2f(b.x, b.y);
         glEnd();
 
@@ -423,6 +549,15 @@ class Line : public Shapes{
         glVertex2f(a.x, a.y);
         glVertex2f(xFinal, yFinal);
         glEnd();
+
+
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin(GL_POINTS);
+        glVertex2f(xFinal, yFinal);
+        glEnd();
+
+        glLoadIdentity();
+        glColor3f(0.0, 0.0, 0.0);
 
         // arrow
 
@@ -434,13 +569,6 @@ class Line : public Shapes{
         // glVertex2f(0, 0);
         // glVertex2f(, );
         // glEnd();
-
-        glColor3f(1.0, 0.0, 0.0);
-        glBegin(GL_POINTS);
-        glVertex2f(xFinal, yFinal);
-        glEnd();
-        glColor3f(0.0, 0.0, 0.0);
-
 
     }
 
@@ -456,101 +584,6 @@ class Line : public Shapes{
         
         swap(a.x, b.x);
         swap(a.y, b.y);
-
-    /*
-        Point A(0, 0, false), B(0, 0, false);
-
-        double r, r1, r2;  
-
-        if (a == b){
-
-            B.x = b.x;
-            B.y = b.y;
-        }
-        else {
-
-            r = R(true, a, b);
-
-            B.x = b.x + r*cos(angle*PI/180);
-            B.y = b.y + r*sin(angle*PI/180); 
-
-            double flag = 0;
-
-            // check same side
-            if (a.x != b.x)
-                flag = (B.x - a.x)/(b.x - a.x);
-            else 
-                flag = (B.y - a.y)/(b.y - a.y);
-
-            if (flag < 0){
-                
-                r = R(false, a, b);
-
-                B.x = b.x - r*cos(angle*PI/180);
-                B.y = b.y - r*sin(angle*PI/180); 
-                
-            }
-
-        }
-
-        if (a == b){
-
-            A.x = a.x;
-            A.y = a.y;
-        }
-        else {
-
-            r = R(true, b, a);
-
-            A.x = a.x + r*cos(angle*PI/180);
-            A.y = a.y + r*sin(angle*PI/180); 
-
-            double flag = 0;
-
-            // check same side
-            if (a.x != b.x)
-                flag = (A.x - b.x)/(a.x - b.x);
-            else 
-                flag = (A.y - b.y)/(a.y - b.y);
-
-            if (flag < 0){
-                
-                r = R(false, b, a);
-
-                A.x = a.x - r*cos(angle*PI/180);
-                A.y = a.y - r*sin(angle*PI/180); 
-                
-            }
-
-        }
-
-
-
-        glBegin(GL_LINES);
-
-        glVertex2f(a.x, a.y);
-        glVertex2f(b.x, b.y);
-
-        glEnd();
-
-
-        glBegin(GL_LINES);
-        glVertex2f(A.x, A.y);
-        glVertex2f(B.x, B.y);
-        glEnd();
-
-        glColor3f(1.0, 0.0, 0.0);
-
-        glBegin(GL_POINTS);
-        glVertex2f(A.x, A.y);
-        glVertex2f(B.x, B.y);
-        glEnd();
-
-        glColor3f(0.0, 0.0, 0.0);
-
-        */
-
-
 
     }
 
@@ -574,7 +607,7 @@ class Line : public Shapes{
 
     friend Point INTERSECTION(Line l1, Line l2);
     friend Line& LINE_AT_ANGLE(double a, Line& l, Point p);
-    friend vector<Line> ANGLE_BISECTOR(Line a, Line b); // just displaying for now
+    friend vector<Line> ANGLE_BISECTOR(Line a, Line b); 
     friend bool isPerpendicular(Line l1, Line l2);
     friend bool isParallel(Line l1, Line l2);
    
@@ -583,7 +616,7 @@ class Line : public Shapes{
         if (t != SEGMENT)
             return b;
         
-        Point p((a.x+b.x)/2, (a.y+b.y)/2, false); // not displayed by default
+        Point p = new Point((a.x+b.x)/2, (a.y+b.y)/2); 
 
         return p;
 
@@ -600,7 +633,6 @@ class Line : public Shapes{
 
         }
 
-        // check floating point should I put epsilon
         if (p.y == (m*p.x + c))
             return true;
         
@@ -617,7 +649,6 @@ Point rotatePoint(const Point& point, const Point& center, double theta) {
     double y = center.y + (point.x - center.x) * std::sin(theta) + (point.y - center.y) * std::cos(theta);
     return {x, y};
 }
-
 
 Line& LINE_AT_ANGLE(double a, Line& l, Point p){
 
@@ -637,14 +668,12 @@ Line& LINE_AT_ANGLE(double a, Line& l, Point p){
     rotatePoint1 = rotatePoint(l.a, p, a*PI/180);
     rotatePoint2 = rotatePoint(l.b, p, a*PI/180);
 
-    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE for now, not displaying for now
+    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE for now
 
     return *l1; // delete ??
 
 }
 
-
-// Just computes not display
 // add test cases
 Point INTERSECTION(Line l1, Line l2){
 
@@ -661,7 +690,7 @@ Point INTERSECTION(Line l1, Line l2){
         return l1.a;
     }
 
-    Point p(0, 0, false);
+    Point p = new Point(0.0, 0.0);  // WTH
     
     if (l1.angle == 90){
         p.x = l1.a.x;
@@ -717,7 +746,6 @@ vector<Line> ANGLE_BISECTOR(Line a, Line b){
 
 }
 
-// ----------------------- ignore --------------------------------------------------------------------------------------------------------------------
 
 bool isPerpendicular(Line l1, Line l2)
 {
@@ -726,13 +754,13 @@ bool isPerpendicular(Line l1, Line l2)
     return false;
 }
 
-// upgrade after linearr
+// upgrade 
 bool isParallel(Line l1, Line l2)
 {   
     if (l1.m == l2.m)
         return true;
 
-    return true;
+    return false;
 }
 
 class Tri : public Shape
@@ -803,7 +831,7 @@ public:
 
     }
 
-    Point CIRCUMCENTER()
+    Point CIRCUMCENTER() // SEGFAULT
     { // Check once again
         double a = (p1.y * p1.y + p2.x * p3.x) * (p2.x - p3.x) + (p2.y * p2.y + p3.x * p1.x) * (p3.x - p1.x) + (p3.y * p3.y + p1.x * p2.x) * (p1.x - p2.x);
         double b = (p1.x * p1.x + p2.y * p3.y) * (p2.y - p3.y) + (p2.x * p2.x + p3.y * p1.y) * (p3.y - p1.y) + (p3.x * p3.x + p1.y * p2.y) * (p1.y - p2.y);
@@ -863,7 +891,7 @@ public:
         }
     }
 
-    Point INCENTER()
+    Point INCENTER() // SEGFAULT
     {
         Line a = Line(p1, p2, false);
         Line b = Line(p2, p3, false);
@@ -878,7 +906,7 @@ public:
         return i;
     }
 
-    class Line MEDIAN(Point p)
+    class Line MEDIAN(Point p) // will SEGFAULT
     {
         Point q;
         if (p1.x == p.x && p1.y == p.y)
@@ -904,7 +932,7 @@ public:
 
     Line
     ALTITUDE(Point p)
-    { // Check once again
+    { // Check once again // will SEGFAULT
         Point q;
         if (p1.x == p.x && p1.y == p.y)
         {
@@ -958,10 +986,12 @@ class Circle : public Shape
     double scale;
     bool show;
 
-    Circle(float radius, class Point center = Point(0,0),bool sh = true,double scale = 1.0)
-    {
+    Circle(float radius, Point Center = Point(0,0),bool sh = true, double scale = 1.0)
+    {   
         this->radius = radius;
         this->center = center;
+        scale = Scale;
+        center = Center;
         show = sh;
         shapeStore.push_back(this);
         
@@ -971,6 +1001,7 @@ class Circle : public Shape
     {   
         glScalef(scale, scale, 0.0f);
         glTranslatef(center.x, center.y, 0.0f);
+
         glBegin(GL_LINE_LOOP);
         glColor3f(0.0f, 1.0f, 1.0f); // Blue
         GLfloat angle;
@@ -980,21 +1011,22 @@ class Circle : public Shape
             glVertex2f(cos(angle) * radius, sin(angle) * radius);
         }
         glEnd();
+
         // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
 
     }
 
-    class Line TANGENT(class Point q)
+    Line TANGENT(Point q)
     {
         double m;
         m = (center.y - q.y) / (center.x - q.x);
-        class Point p;
+        Point p;
         p.y = q.y - m * q.x;
         p.x = 0;
-        class Line l;
-        l = Line(p, q);
+        Line l;
+        l = Line(p, q); // will SEGFAULT
         return l;
     }
 
@@ -1018,10 +1050,10 @@ public:
     Point p3;
     Point p4;
     double scale;
-    class Point center; 
+    Point center; 
     bool show;
 
-    Para(double s1, double ang, double s2, class Point center = Point(0, 0, false), double scale = 1.0)
+    Para(double s1, double ang, double s2, Point center = Point(0, 0, false), double scale = 1.0)
     {
         
         p1 = Point(0, 0);
@@ -1084,11 +1116,13 @@ class RegPoly : public Shape
     int numOfSides;
     double sideLength;
     double scale;
-    class Point center;
+    Point center;
     bool show; 
 
-    RegPoly(int numOfSides, double sideLength, class Point center = Point(0, 0, false),double scale = 1.0)
+    RegPoly(int numOfSides, double sideLength, Point Center = Point(0, 0, false), double Scale = 1.0)
     {
+        scale = Scale;
+        center = Center;
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
         shapeStore.push_back(this);
@@ -1098,8 +1132,11 @@ class RegPoly : public Shape
     void show()
     {
         glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
+        
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
+        glColor3f(0.0, 0.0, 0.0);
+
         glBegin(GL_LINE_LOOP);
         glColor3f(1.0f, 0.0f, 1.0f); // Yellow
 
@@ -1110,7 +1147,8 @@ class RegPoly : public Shape
             angle += (PI / 180) *(360 / numOfSides);
         }
         glEnd();
-        glLoadIdentity();
+
+        // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
 
@@ -1237,7 +1275,6 @@ vector<class Point>
 
 
 // Old common tangent func
-
     // vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2)
     // {
     //    //Implement common tangents again..

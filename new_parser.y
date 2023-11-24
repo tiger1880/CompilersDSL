@@ -364,6 +364,7 @@ stmt_list: stmt_list stmt
               $$.stopAdvanceFound = $1.stopAdvanceFound || $2.stopAdvanceFound;
               $$.text = new string;
               *$$.text = *$1.text + *$2.text;
+              is_decl_stmt = 0;
        }
        |  /* empty */ {$$.stopAdvanceFound = false; $$.text = new string;*$$.text = "";}
        ;

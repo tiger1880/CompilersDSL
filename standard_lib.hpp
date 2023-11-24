@@ -213,67 +213,12 @@ public:
 };
 
 /*
-
 Ignore 
     1) testing some parts is left in Line
     2) replace with loop and check .. Maybe should start properly => angle bisector
     3) Test the extension fo 6 cases => change so that if initial points are outofRange update Range, => Depends on our set Range
     4) Have to display midpoint ? 
     5) we will have to use new update constructors properly and delete in main after MainLoop
-
-class Point : public Shape{
-
-    public:
-    double x;
-    double y;
-    bool isDisplayed;
-
-    Point(double x1 = 0, double x2 = 0, bool h = false):
-    x(x1),
-    y(x2), 
-    isDisplayed(h)
-    {
-        if (isDisplayed){
-            cout << "Point: " << x << " " << y << " pushed back\n";
-            d.push_back(this);
-        }
-
-    }
-
-    // copy constructor
-    Point(const Point& t){
-
-        x = t.x;
-        y = t.y;
-        isDisplayed = t.isDisplayed;
-
-    }
-
-    // copy assignment operator
-    Point& operator=(const Point& p){
-
-        x = p.x;
-        y = p.y;
-        isDisplayed = p.isDisplayed;
-
-        return *this;
-
-    }
-
-
-    void show() {
-
-        glBegin(GL_POINTS);
-        // glColor3f(1.0, 0.0, 0.0); // color of the point
-        // specify in anti-clockwise direction
-        glVertex2f(x, y); // expects float check double overflow
-
-        glEnd();
-       
-    }
-};
-
-
 */
 
 enum lineType {

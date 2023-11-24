@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include <iostream>
+#include <math.h>
 #include <cmath>
 #include <GL/glut.h>
 
@@ -12,22 +13,6 @@ using namespace std;
 const double  PI  = 3.14;
 double height = 640, width = 480, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
-<<<<<<<< HEAD:standard_lib.cpp
-class Shape
-{
-
-public:
-    virtual double Area() = 0;
-    virtual double Perimeter() = 0;
-    Shape(){
-       ;
-    }
-    virtual void show(){}
-};
-
-vector<Shape*> shapeStore;
-
-========
 class Shape;
 
 vector<Shape*> shapeStore;
@@ -45,12 +30,10 @@ public:
 };
 
 
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
 // OPENGL --------------------------------------
 
 void init(){
 
-    glPointSize(5); 
     glClearColor(1.0, 1.0, 1.0, 1.0); // sets the background
 
 }
@@ -130,22 +113,13 @@ void renderBitmapString(float x, float y, const char *string) {
 
 // OPENGL --------------------------------------
 
-<<<<<<<< HEAD:standard_lib.cpp
-
-
-========
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
 class Point : public Shape
 {
 public:
     double x;
     double y;
     string tag;
-<<<<<<<< HEAD:standard_lib.cpp
-    bool toDisplay;
-========
     bool is_show;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
     double scale;
     double center_x;
     double center_y;
@@ -164,11 +138,7 @@ public:
         x = a;
         y = b;
         tag = s;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         shapeStore.push_back(this);
     }
     
@@ -179,11 +149,7 @@ public:
         center_y = cy;
         x = a;
         y = b;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         shapeStore.push_back(this);
     }
 
@@ -222,10 +188,6 @@ public:
     }
 };
 
-<<<<<<<< HEAD:standard_lib.cpp
-
-========
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
 double norm(Point p1, Point p2)
 {
     double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
@@ -272,11 +234,7 @@ class Line : public Shape {
     // if both points are same then shows a point
     Point a;
     Point b;
-<<<<<<<< HEAD:standard_lib.cpp
-    bool toDisplay;
-========
     bool is_show;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
 
     // y = mx+c
     double m;
@@ -326,19 +284,11 @@ class Line : public Shape {
 
     Line(){}
 
-<<<<<<<< HEAD:standard_lib.cpp
-    Line(Point x1, Point x2, lineType type = SEGMENT, bool sh = true, Point Center = Point(0, 0, false), double Scale = 1.0):
-    a(x1),
-    b(x2),
-    t(type),
-    toDisplay(sh),
-========
     Line(Point x1, Point x2,  bool sh = true, lineType type = SEGMENT,Point Center = Point(0, 0, false), double Scale = 1.0):
     a(x1),
     b(x2),
     t(type),
     is_show(sh),
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
     m(0),
     c(0),
     scale(Scale),
@@ -369,17 +319,10 @@ class Line : public Shape {
 
     // m, c constructor
     // y = mx + c
-<<<<<<<< HEAD:standard_lib.cpp
-    Line(double m1, double c1,  bool sh = false, Point Center = Point(0, 0, false), double Scale = 1.0):
-    m(m1),
-    c(c1),
-    toDisplay(sh),
-========
     Line(double m1, double c1, bool sh = false,Point Center = Point(0, 0, false),double Scale = 1.0):
     m(m1),
     c(c1),
     is_show(sh),
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
     scale(Scale),
     center(Center)
     {
@@ -393,11 +336,7 @@ class Line : public Shape {
         b.y = m+c;
 
         angle = atan(m1)*180/PI;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = true;
-========
         is_show = true;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         t = LINE;
 
         shapeStore.push_back(this);
@@ -408,11 +347,7 @@ class Line : public Shape {
     Line(const Line& l){
         a = l.a;
         b = l.b;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = l.toDisplay; // if its true already pushed
-========
         is_show = l.is_show; // if its true already pushed
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         angle =  l.angle;
         c = l.c;
         m = l.m;
@@ -426,11 +361,7 @@ class Line : public Shape {
 
         a = l.a;
         b = l.b;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = l.toDisplay; // if its true already pushed
-========
         is_show = l.is_show; // if its true already pushed
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         angle =  l.angle;
         c = l.c;
         m = l.m;
@@ -452,11 +383,7 @@ class Line : public Shape {
 
     void setDisplay(bool d){
 
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = d;
-========
         is_show = d;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         return;
     }
 
@@ -756,11 +683,7 @@ public:
     Point p1;
     Point p2;
     Point p3;
-<<<<<<<< HEAD:standard_lib.cpp
-    bool toDisplay;
-========
     bool is_show;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
     double scale;
     Point center; 
 
@@ -774,11 +697,7 @@ public:
         p1 = point1;
         p2 = point2;
         p3 = point3;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         scale = Scale;
         center = Center;
         shapeStore.push_back(this);
@@ -793,11 +712,7 @@ public:
         double a = (s2 * s2 + s1 * s1 - s3 * s3) / (2 * s1);
         double b = sqrt(s2 * s2 - a * a);
         p3 = Point(a, b);
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         shapeStore.push_back(this);
 
        
@@ -808,11 +723,7 @@ public:
         p1 = Point(0, 0);
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         shapeStore.push_back(this);
 
     }
@@ -862,9 +773,9 @@ public:
 
     Point EXCENTER(Point p)
     {
-        Line a = Line(p1, p2, SEGMENT, false);
-        Line b = Line(p2, p3, SEGMENT, false);
-        Line c = Line(p3, p1, SEGMENT, false);
+        Line a = Line(p1, p2, false);
+        Line b = Line(p2, p3, false);
+        Line c = Line(p3, p1, false);
 
         vector<Line> l1;
         vector<Line> l2;
@@ -896,9 +807,9 @@ public:
 
     Point INCENTER() // SEGFAULT
     {
-        Line a = Line(p1, p2, SEGMENT, false);
-        Line b = Line(p2, p3, SEGMENT, false);
-        Line c = Line(p3, p1, SEGMENT, false);
+        Line a = Line(p1, p2, false);
+        Line b = Line(p2, p3, false);
+        Line c = Line(p3, p1, false);
 
         vector<Line> l1;
         vector<Line> l2;
@@ -986,25 +897,16 @@ class Circle : public Shape
     public:
     float radius;
     Point center;
-    Point figCenter;
     double scale;
-<<<<<<<< HEAD:standard_lib.cpp
-    bool toDisplay;
-========
     bool is_show;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
 
-    Circle(float radius, Point center, bool sh = true, Point Center = Point(0, 0, false), double Scale = 1.0)
+    Circle(float radius, Point Center = Point(0,0),bool sh = true, double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;
         scale = Scale;
         center = Center;
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         shapeStore.push_back(this);
         
     }
@@ -1063,26 +965,16 @@ public:
     Point p4;
     double scale;
     Point center; 
-<<<<<<<< HEAD:standard_lib.cpp
-    bool toDisplay;
-========
     bool is_show;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
 
-    Para(double s1, double ang, double s2, bool sh = true,class Point Center = Point(0, 0, false), double Scale = 1.0)
+    Para(double s1, double ang, double s2, bool sh = true,class Point center = Point(0, 0, false), double scale = 1.0)
     {
         
-        scale = Scale;
-        center = Center;
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
         p4 = Point(s2 * cos(ang), s2 * sin(ang));
-<<<<<<<< HEAD:standard_lib.cpp
-        toDisplay = sh;
-========
         is_show = sh;
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         shapeStore.push_back(this);
 
     }
@@ -1134,18 +1026,10 @@ class RegPoly : public Shape
     double sideLength;
     double scale;
     Point center;
-<<<<<<<< HEAD:standard_lib.cpp
-    bool toDisplay; 
-
-    RegPoly(int numOfSides, double sideLength, bool sh = true, Point Center = Point(0, 0, false), double Scale = 1.0)
-    {   
-        toDisplay = sh;
-========
     bool is_show; 
 
     RegPoly(int numOfSides, double sideLength, bool sh = true,Point Center = Point(0, 0, false), double Scale = 1.0)
     {
->>>>>>>> ccd336096d145b687de33c945b0f3c2ed2b3fa70:codes/standard_lib.hpp
         scale = Scale;
         center = Center;
         this->numOfSides = numOfSides;
@@ -1193,7 +1077,7 @@ class RegPoly : public Shape
 
 
 //Non-memeber functions
-vector<Point>
+vector<class Point>
     INTERSECTION_CIRCLE(class Circle c1, class Circle c2)
     {
         vector<class Point> p;
@@ -1382,29 +1266,3 @@ vector<Point>
 
     //     }
     // }
-
-
-// main for testing
-
-int main(int argc, char* argv[]){
-
-    Circle c(5, Point(1, 2));
-
-    glutInit(&argc, argv);
-
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-
-    // Window
-    glutInitWindowPosition(600, 200);
-    glutInitWindowSize(800, 800);
-    glutCreateWindow("Figure");
-
-    // Callbacks
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-
-    init();
-    
-    glutMainLoop();
-
-}

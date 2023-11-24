@@ -38,6 +38,12 @@ string_literal (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
+
+main {
+    // make it a reserved keyword add in specificaion
+    return MAIN;
+}
+
 {floats} {
     yylval.main.constExp.eletype = REAL;
     yylval.main.constExp.d = atof(yytext);
@@ -162,7 +168,7 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 
 "return" {
     yylval.main.text = new string;
-    *yylval.main.text = yytext;
+    *yylval.main.text = "return ";
     fprintf(fout_token, "RETURN: %s\n", yytext);
     return RETURN;
 }

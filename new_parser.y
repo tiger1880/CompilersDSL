@@ -130,7 +130,7 @@ string totalProgram;
 %token <main> EQUAL
 %token <main> STRING_TOKEN
 %token <main> ENDLINE
-%token <main> ID
+%token <main> ID MAIN
 %token <main> TRICONSTRUCT CIRCLECONSTRUCT PARACONSTRUCT REGPOLYCONSTRUCT
 %token <main> NOT AND OR 
 %token SCALE CENTER
@@ -201,7 +201,7 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;cout 
               if(is_decl_stmt) {
                      *$$.text = *$1.text + *$2.text;
                      is_decl_stmt = 0;
-                     totalProgram = totalProgram + *$$.text;
+                     totalProgram = *$$.text;
               }
               else {
                      collection.push_back(*$2.text);
@@ -520,7 +520,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
-            | expression LINE_OP expression { if ($1.eletype != POINT || $2.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
+            | expression LINE_OP expression {if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
             | expression '*' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
@@ -1208,7 +1208,9 @@ int main(int argc, char*argv[])
     for (int i = 0;i < collection.size();i++)
        fprintf(fout_translated, "%s", collection[i].c_str());
     
-    fprintf(fout_translated, "}\n");
+    
+
+    fprintf(fout_translated, "\n return 0;\n}\n");
 
 
     fclose(fp);

@@ -5,7 +5,7 @@ LEX = lex
 LIBS = -lfl # for flex
 
 # <basename>.y for bison
-FILENAME = parser
+FILENAME = new_parser
 
 # Define the target executable
 TARGET = parser
@@ -39,6 +39,10 @@ clean:
 # Clean target: remove the itarget files BISON version
 clean2: 
 	rm -f $(TARGET) lex.yy.c $(FILENAME).tab.c $(FILENAME).tab.h error.txt seq_token.txt utils translated.cpp
+
+# Clean specification latex log files
+clean_latex:
+	rm -f ./specs/*.log ./specs/*.toc ./specs/*.fls ./specs/*.aux ./specs/*.fdb_latexmk ./specs/*.synctex.gz 
 
 # Run target: build and run the target executable
 run: $(TARGET)

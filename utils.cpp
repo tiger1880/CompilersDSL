@@ -15,17 +15,20 @@ vector< map<string,STentry> > ConstructTab;
 extern int yylineno;
 extern int lineArrNo;
 
-
-void insertType(char* name, enum type t ,enum eletype etype) {
-    if(SymTab.empty()){
+/* 
+* inserts into symbol table the name, type, eletype 
+*/
+void insertType(char* name, enum type t, enum eletype etype) {
+    
+    if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
         
-    if(SymTab.back().find(name) != SymTab.back().end()) {
+    if (SymTab.back().find(name) != SymTab.back().end()) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
-        exit(1); // error recovery later
+        exit(1); // ERROR_RECOVERY
     }
-    else{
+    else {
         SymTab.back()[name].Type = t;
         SymTab.back()[name].Eletype = etype;      
     }  
@@ -33,21 +36,25 @@ void insertType(char* name, enum type t ,enum eletype etype) {
 }
 
 void insertParams(vector<ParamList>& paramlist) {
-    for(int i = 0;i<paramlist.size();i++) {
-        insertType(const_cast<char*>(paramlist[i].name.data()),paramlist[i].Type,paramlist[i].Eletype);
-        addDimList(const_cast<char*>(paramlist[i].name.data()),paramlist[i].dim);
+    for(int i = 0;i < paramlist.size();i++) {
+        insertType(const_cast<char*>(paramlist[i].name.data()), paramlist[i].Type, paramlist[i].Eletype);
+        addDimList(const_cast<char*>(paramlist[i].name.data()), paramlist[i].dim);
     }
 }
 
+/*
+* updates the eletype of name with etype
+* if not found exits ERROR_RECOVERY
+*/
 void updateType(char* name, enum eletype etype) {
     
-    if(SymTab.empty()){
+    if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
-    } //remove
+    } 
         
-    if(SymTab.back().find(name) == SymTab.back().end()) {
+    if (SymTab.back().find(name) == SymTab.back().end()) {
         cerr << "Error: " << "Not declared " << name << endl;
-        exit(1); // error recovery later
+        exit(1); // ERROR_RECOVERY
     }
     else{
         SymTab.back()[name].Eletype = etype;      
@@ -133,23 +140,37 @@ STentry lookupConstructTab2(char* name) {
 
 }
 
+/* 
+* searches the symbol table for name 
+* returns the topmost entry found 
+* if not found returns an STEntry with Type Invalid 
+*/
 STentry lookup(char *name) {
-    for(int i = SymTab.size();i>=0;i--) {
-        if(SymTab[i].find(name) != SymTab[i].end()) {
+
+    for (int i = SymTab.size()-1;i >= 0;i--){
+
+        if (SymTab[i].find(name) != SymTab[i].end()) {
             return SymTab[i][name];
         }
     }
+
     STentry stentry;
     stentry.Type = Invalid;
     return stentry;
 }
 
+/* 
+* searches name in symbol table 
+* if found returns Type as int
+* otherwise returns -1 
+*/ 
 int checkType(char* name) {
-    if(SymTab.empty()){
+
+    if (SymTab.empty()) {
         SymTab.push_back(map<string,STentry>());
     }
     
-    if (lookup(name).Type!=Invalid) {
+    if (lookup(name).Type != Invalid) {
         return lookup(name).Type;
     }
     else{
@@ -158,13 +179,18 @@ int checkType(char* name) {
     }
 }
 
-//check return type
+/* 
+* searches name in symbol table
+* if found returns eletype as int 
+* otherwise returns -1 
+*/ 
 int checkEletype(char* name) {
-    if(SymTab.empty()){
+    
+    if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
     
-    if (lookup(name).Type!=Invalid) {
+    if (lookup(name).Type != Invalid) {
         return lookup(name).Eletype;
     }
     else{
@@ -173,12 +199,18 @@ int checkEletype(char* name) {
     }  
 }
 
+/*
+* searches the symbol table by name
+* if found returns a copy of the dimList associated with name
+* otherwise returns a copy of an empty vector
+*/
 vector<int> checkDimList(char* name) {
-    if(SymTab.empty()){
+
+    if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
     
-    if (lookup(name).Type!=Invalid) {
+    if (lookup(name).Type != Invalid) {
         return lookup(name).DimList;
     }
     else{
@@ -189,7 +221,7 @@ vector<int> checkDimList(char* name) {
 }
 
 void addParamList(char* name, vector<ParamList>& paramlist) {
-    if(SymTab.empty()){
+    if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
     
@@ -200,8 +232,6 @@ void addParamList(char* name, vector<ParamList>& paramlist) {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
-
-
 
 int sizeParamList(char* name) {
     if(SymTab.empty()){
@@ -217,33 +247,45 @@ int sizeParamList(char* name) {
     }    
 }
 
+/*
+* inserts dimList for name in the current scope
+* if found inserts the a copy of the reference in the symbol table, however if dimList has a negative value doesn't insert
+* if not found reports error doesn't exit
+*/
 void addDimList(char* name, vector<int>& dim) {
-    if(SymTab.empty()){
+
+    if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
     
     if (SymTab.back().find(name) != SymTab.back().end()) {
         
-        for(int i=0;i<dim.size();i++){
-            //cout<<dim[i]<<endl;
-            if(dim[i]<0)
+        for(int i = 0;i < dim.size();i++){
+            if (dim[i] < 0)
             {   cerr<<"Array index cannot be negative"<<endl;
                 return;
             }
         }
-        SymTab.back()[name].DimList = dim; //ref destroy while removing
+
+        SymTab.back()[name].DimList = dim; // ref destroy while removing ERROR_RECOVERY
     } 
     else {
         cerr << "Error: " << name << " not found in SymTab." << endl;
     }
 }
 
+/* 
+* inserts a new scope on top of the symbol table 
+*/
 void addSymTabPtr() {
     SymTab.push_back(map<string,STentry>());
 }
 
+/*
+* pops the topmost symbol table if it exists
+*/
 void delSymTabPtr() {
-    if(!SymTab.empty()){
+    if (!SymTab.empty()){
         SymTab.pop_back();
     }
     
@@ -257,7 +299,8 @@ bool funcParamSizeCheck(char *name, vector<ParamList> param) {
 }
 
 void insertConstructTab() {
-    for(int i=0;i<6;i++) {
+
+    for(int i = 0;i < 6;i++) {
         ConstructTab.push_back(map<string,STentry>());
     }
     
@@ -300,23 +343,34 @@ void insertConstructTab() {
     ConstructTab[5]["PERIMETER"]={Func,REAL,{},{}};
 }
 
+/* 
+prints s along with line no 
+exits ERROR_RECOVERY
+*/
 void semanticError(const char* s){
        cerr << yylineno << ": "<< s << "\n";
        exit(1);
 }
   
-enum eletype sumTypeCheck(enum eletype E1, enum eletype E2  ){
+/*
+* Checks if E1, E2 can be added returns the eletype of the result
+* POINT + POINT = POINT
+* LABEL + LABEL = LABEL
+* rest arithCompatible: BOOL < INT < ANGLE < REAL 
+* Here, '<' shows casting order
+*/
+enum eletype sumTypeCheck(enum eletype E1, enum eletype E2){
        
-       if(E1 == LABEL && E2 == LABEL)
+       if (E1 == LABEL && E2 == LABEL)
               return LABEL;
-       else if(E1 == POINT && E2 == POINT)
+       else if (E1 == POINT && E2 == POINT)
               return POINT;
-       else if(arithCompatible(E1) && arithCompatible(E2)){
+       else if (arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes+\n";
-              exit(1);
+            semanticError("Error: Semantic error incompatible datatypes for +\n");
+            exit(1); // ERROR_RECOVERY
        }
 }
 
@@ -326,19 +380,27 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes\n";
-              exit(1);
+            semanticError("Error: Semantic error incompatible datatypes\n");
+            exit(1); // ERROR_RECOVERY
        }
 }
 
-// check int change 
+/* 
+* returns true if e is compatible with arithmetic operations 
+* else returns false
+* REAL, BOOL, INT, ANGLE are arithCompatible
+*/
 bool arithCompatible(int e){
-    //cout<<e<<endl;
        if (e == REAL || e == BOOL || e == INT || e == ANGLE) 
               return true;
        return false;
 }
 
+/* 
+* Checks if x, y can be coordinates of a point
+* retuns POINT eletype 
+* x/y can be : INT, REAL
+*/
 enum eletype pointCheck (enum eletype x, enum eletype y){
        if ((x == INT || x == REAL) && (y == INT || y == REAL ))
               return POINT;
@@ -348,6 +410,11 @@ enum eletype pointCheck (enum eletype x, enum eletype y){
        }
 }
 
+/* 
+* returns true if t1, t2 are interconvertible, 
+* false otherwise 
+* UNDEF can be converted to any type
+*/
 bool coercible(int t1, int t2){
        
        if (arithCompatible(t1) && arithCompatible(t2))
@@ -361,36 +428,37 @@ bool coercible(int t1, int t2){
               return true;
 
        /* 
-              POINT
-              LABEL
-              LINE
-              CIRCLE
-              TRI
-              PARA
-              REGPOLY 
+            POINT
+            LABEL
+            LINE
+            CIRCLE
+            TRI
+            PARA
+            REGPOLY cannot be interconverted
        */
 
        return false;      
 
 }
 
+/*
+* v: is list of identifier names already stored in symbol table 
+* prevType is the type with which the id was initialised (UNDEF if uninitialised)
+*/
 void typeUpdate(vector<char*>* v, enum eletype t){
 
        for (int i = 0;i < v->size();i++){
 
-              int prevType = checkEletype(v->at(i));
+            int prevType = checkEletype(v->at(i));
               
-              
-              if (!coercible(prevType, t))
-              {      
-                     cerr << "Error: " << "types don't match in declaration and initialisation\n";
-                     // exit(1);
-                     // error recovery
+              if (!coercible(prevType, t)){
+
+                semanticError("Error: types don't match in declaration and initialisation\n");
               }
               
               updateType(v->at(i), t);
               
-              free(v->at(i));
+            free(v->at(i));
        }
 
        delete v;
@@ -398,19 +466,26 @@ void typeUpdate(vector<char*>* v, enum eletype t){
        return;
 }
 
+/*
+* inserts name as Array along with its declation dimlist
+* Type is set as UNDEF
+*/
 void insertArray(char* name, vector <int>* dimList){
 
-       insertType(name, Array, UNDEF);
-       addDimList(name, *dimList);
+    insertType(name, Array, UNDEF);
+    addDimList(name, *dimList);
        
 }
 
+/*
+* updates type of array name after checking if the decDimlist and assignDimlist are compatible
+*/
 void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList){
 
        if (decDimList->size() != assignList->size()){
 
-              cerr << "Error: arrays declaration and initialization list don't match\n";
-              exit(1); // not freeing anything
+            // not freeing anything
+            semanticError("Error: arrays declaration and initialization list don't match\n");
        }
 
        if ((*decDimList)[0] == -1)
@@ -419,8 +494,8 @@ void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e,
        for (int i = 0;i < decDimList->size();i++){
 
               if ((*decDimList)[i] < (*assignList)[i]){
-                     cerr << "Error: arrays declaration and initialization list don't match\n";
-                     exit(1); // not freeing anything
+                    semanticError("Error: arrays declaration and initialization list don't match\n");
+                    // not freeing anything
               }
        } 
 
@@ -430,6 +505,30 @@ void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e,
        return;
 }
 
+
+void compareAndInsertLineArr(char* name, vector <int>* decDimList, int count){
+
+    if (decDimList->size() != 1)
+        semanticError("Error: arrays declaration and initialization list don't match :: linarr\n");
+    
+    if ((*decDimList)[0] == -1)
+        (*decDimList)[0] = count;
+    
+    
+    if ((*decDimList)[0] < count){
+        semanticError("Error: arrays declaration and initialization list don't match\n");
+                    // not freeing anything
+    }
+
+    insertType(name, Array, LINE);
+    addDimList(name, *decDimList);
+
+}
+
+
+/*
+* CHECK
+*/
 void updateMaxDim(vector<int>* comma, vector<int>* assign){
 
        if (comma->size() != assign->size()+1){
@@ -450,14 +549,14 @@ void updateMaxDim(vector<int>* comma, vector<int>* assign){
 
 enum eletype parallelCheck(enum eletype E1, enum eletype E2){
 
-    if (!(E1 == BOOL || E1 == LINE)){
+    if (!(E1 == LINE)){
         semanticError("Error: Operands for || can be only bool or line");
-        return BOOL; // so that error won't cascade
+        return BOOL; 
     }
 
-    if (!(E2 == BOOL || E2 == LINE)){
+    if (!(E2 == LINE)){
         semanticError("Error: Operands for || can be only bool or line");
-        return BOOL; // so that error won't cascade
+        return BOOL; 
     }
 
     return BOOL;
@@ -475,17 +574,15 @@ enum eletype perpendicularCheck(enum eletype E1, enum eletype E2){
 
 }
 
+/*
+* CHANGE WITH LINEARR
+*/
 enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
 
        if (E1 == POINT && E2 == POINT){
-              lineArrNo = 1;
-              return LINEARR;
+            return LINE;
        }
 
-       if (E1 == LINEARR && E2 == POINT){
-              lineArrNo++;
-              return LINEARR;
-       }
 
        if (arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
@@ -496,17 +593,26 @@ enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
        }
 }
 
+/*
+* Checks if E1, E2 are compatible for multiplication 
+* returns the type of the result
+* only arithCompatible i.e BOOL < INT < ANGLE < REAL are valid
+* Here: '<' shows type casting order
+*/
 enum eletype mulTypeCheck(enum eletype E1, enum eletype E2){
 
        if (arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
        }
        else {
-              cerr << "Error: Semantic error incompatible datatypes\n";
-              exit(1); // Change Later
+            semanticError("Error: Semantic error incompatible datatypes for * operator\n");
+            exit(1); // ERROR_RECOVERY
        }
 }
 
+/*
+* copies vector pointed by src to vector pointer to dest after inserting x as the first element
+*/
 void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
 
        dest->push_back(x);
@@ -516,11 +622,12 @@ void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x){
 }
 
 int checkDims(char* name,int count) {
-       if(lookupConstructTab2(name).Type!=Invalid) {
+
+       if (lookupConstructTab2(name).Type != Invalid) {
            return 0;
        }
        vector<int> dimlist (checkDimList(name)); 
-       if(dimlist.size() < count) {
+       if (dimlist.size() < count) {
               cerr<<"Error: Dimension not matching"<<endl;
               return -1;
        }
@@ -619,6 +726,9 @@ void figArgumentChecking(vector<types>& passed_params) {
        
 }
 
+/* 
+* prints the symbol table 
+*/
 void printSymbolTable() {
     cout << "Symbol Table:" << endl;
     for (const auto& entry : SymTab.back()) {

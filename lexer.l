@@ -3,17 +3,20 @@
 %{
 
 #include "symbol_table.hpp"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-// #include "y.tab.h"
-#include "parser.tab.h" 
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include "new_parser.tab.h" 
 
-extern FILE *fout_token;
+extern FILE *fout_token; // for generating seq_token.txt used for testing
 
+/* 
+* Creates a copy of src at a new location (on the heap using malloc) and returns the pointer to it
+* The pointer has to be freed (using free)
+*/
 char* dupString(char* src);
 
-//Free all main.text !!!
+// Free all main.text !!!
 
 %}
 
@@ -27,7 +30,7 @@ regPolyConstruct "RegPoly"
 paraConstruct "Para"
 line_op "->"|"<->"
 cmp_op ">="|"<="
-datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"|"linearr"
+datatype "int"|"real"|"bool"|"point"|"angle"|"label"|"line"|"circle"|"tri"|"para"|"regPoly"
 assign "^:="|"/:="|"%:="|"*:="
 unary "++"|"--"
 operators "+"|"*"|"/"|"%"|"^"|"-"
@@ -35,6 +38,12 @@ string_literal (\"([^"]|"\\\"")*\")
 id [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
+
+main {
+    // make it a reserved keyword add in specificaion
+    return MAIN;
+}
+
 {floats} {
     yylval.main.constExp.eletype = REAL;
     yylval.main.constExp.d = atof(yytext);
@@ -81,16 +90,16 @@ id [a-zA-Z_][a-zA-Z0-9_]*
     return *yytext;
 }
 
-printSymbolTable {
+printSymbolTable { // remove later
     printSymbolTable();
 }
 
-scale {  //add main.text ?
+scale {  
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return SCALE;
 }
 
-center {  //add main.text ?
+center {  
     fprintf(fout_token, "KEYWORD: %s\n", yytext);
     return CENTER;
 }
@@ -159,14 +168,14 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 
 "return" {
     yylval.main.text = new string;
-    *yylval.main.text = yytext;
+    *yylval.main.text = "return ";
     fprintf(fout_token, "RETURN: %s\n", yytext);
     return RETURN;
 }
 
 "void" {
     yylval.main.text = new string;
-    *yylval.main.text = yytext;
+    *yylval.main.text = "void ";
     if (strcmp(yytext, "void") == 0) {
         yylval.main.eletype = Void;
     } 
@@ -267,44 +276,65 @@ or {
     
     if (strcmp(yytext, "int") == 0) {
         yylval.main.eletype = INT;
+        yylval.main.text = new string;
+        *yylval.main.text = "int ";
     } 
     else if (strcmp(yytext, "real") == 0) {
         yylval.main.eletype = REAL;
+        yylval.main.text = new string;
+        *yylval.main.text = "double ";
     } 
     else if (strcmp(yytext, "bool") == 0) {
         yylval.main.eletype = BOOL;
+        yylval.main.text = new string;
+        *yylval.main.text = "bool ";
     } 
     else if (strcmp(yytext, "label") == 0) {
         yylval.main.eletype = LABEL;
+        yylval.main.text = new string;
+        *yylval.main.text = "string ";
     } 
     else if (strcmp(yytext, "tri") == 0) {
         yylval.main.eletype = TRI;
+        yylval.main.text = new string;
+        *yylval.main.text = "Tri ";
     } 
     else if (strcmp(yytext, "circle") == 0) {
         yylval.main.eletype = CIRCLE;
+        yylval.main.text = new string;
+        *yylval.main.text = "Circle ";
     } 
     else if (strcmp(yytext, "para") == 0) {
         yylval.main.eletype = PARA;
+        yylval.main.text = new string;
+        *yylval.main.text = "Para ";
     } 
     else if (strcmp(yytext, "regPoly") == 0) {
         yylval.main.eletype = REGPOLY;
+        yylval.main.text = new string;
+        *yylval.main.text = "RegPoly ";
     } 
     else if (strcmp(yytext, "point") == 0) {
         yylval.main.eletype = POINT;
+        yylval.main.text = new string;
+        *yylval.main.text = "Point ";
     } 
     else if (strcmp(yytext, "line") == 0) {
         yylval.main.eletype = LINE;
+        yylval.main.text = new string;
+        *yylval.main.text = "Line ";
     } 
-    else if (strcmp(yytext, "linearr") == 0) {
-        // yylval.eletype = LINEARR;
-        yylval.main.eletype = UNDEF;
-    }
     else if (strcmp(yytext, "angle") == 0) {
         yylval.main.eletype = ANGLE;
+        yylval.main.text = new string;
+        *yylval.main.text = "double ";
     } 
+    else {
 
-    yylval.main.text = new string;
-    *yylval.main.text = yytext;
+        yylval.main.text = new string;
+        *yylval.main.text = "dtype ";
+
+    }
     
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
     return DATATYPE;
@@ -350,7 +380,7 @@ or {
 
 ":=" {
     yylval.main.text = new string;
-    *yylval.main.text = yytext;
+    *yylval.main.text = "=";
     fprintf(fout_token, "EQUAL: %s\n", yytext);
     return EQUAL;
 }
@@ -401,6 +431,10 @@ int  yywrap(){
     return 1;
 }
 
+/* 
+* Creates a copy of src at a new location (on the heap using malloc) and returns the pointer to it
+* The pointer has to be freed (using free)
+*/
 char* dupString(char* src){
 
     char* cpy = (char*)malloc(sizeof(char)*(yyleng+1));

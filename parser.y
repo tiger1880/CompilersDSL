@@ -431,6 +431,7 @@ construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; 
           | constructor '(' ')' {$$.eletype = $1.eletype; *$$.text = *$1.text + "(" + scale + "," + center + ")" ;} 
           ; 
 
+
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;} 
             | CIRCLECONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;} 
             | PARACONSTRUCT { $$.eletype = $1.eletype;*$$.text = *$1.text ;} 
@@ -438,7 +439,8 @@ constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;}
             ;
 
 valid_arg: construct {$$.eletype = $1.eletype; *$$.text = *$1.text;}
-         | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+         | expression { if(global_space &&($$.eletype !=4 ||$$.eletype !=5))  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text;}
+         | const_expr  { $$.eletype = $1.eletype}
          ;
 
 param_list: param_list ',' valid_arg {
@@ -604,10 +606,9 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *
        | /* empty */  {$$.eletype = UNDEF; *$$.text = "";}
        ; 
 
-decl_token: construct  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
-          | expression { if(global_space)  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
-          | const_expr
-          | const_expr2 
+decl_token: construct  { if(global_space)  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
+          | expression { if(global_space &&($$.eletype !=4 ||$$.eletype !=5))  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
+          | const_expr  { $$.eletype = $1.eletype}
        ;
 
 /* Arrays */
@@ -797,12 +798,12 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
        ;          
 
 
-const_expr2 : STRING_TOKEN { $$.eletype = $1.eletype; *$$.text = *$1.text;} 
+/* const_expr2 :   STRING_TOKEN { $$.eletype = $1.eletype; *$$.text = *$1.text;} 
               | point { *$$.text = *$1.text; $$.eletype = $1.eletype;} 
               | const_expr2 '+' const_expr2 { $$.eletype = sumTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "+" + *$3.text; }
               | const_expr2 '-' const_expr2 { $$.eletype = diffTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "-" + *$3.text; } 
               | '(' const_expr2 ')' { *$$.text = "(" + *$2.text + ")"; $$.eletype = $2.eletype; } 
-              ;
+              ; */
 member_access : memb_access {
               if($1.dimCount->empty()) {
                      exit(1);

@@ -7,6 +7,23 @@ int x
 
 
     
-}
 
+
+$$
+point a
+int  x
+
+    repeat ( int i:= x | i < x + 4 | i++ ){
+
+        point x := (3,4)
+    }
+
+    if(x > 0) {
+        a.x := 3
+    }
+    else {
+        a.x := 4
+    }
+
+$$
 

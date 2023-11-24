@@ -16,7 +16,7 @@ fig figure_1 (1,(0,0)){
     tri t := Tri(a,b,c)
     point o := t.CIRCUMCENTER()
     real r := || a-o ||
-    circle c := (o,r)
+    circle c := (r,o)
 }
 
 $ Figure to display a parallelogram and its diagonals and print its area
@@ -31,7 +31,7 @@ fig figure_3(scale := 2, center := (0,0)){
     point p := (0,0)
     int n := 3
     repeat(int i := 1 | i <= n | i++ ){
-        Circle(p,fact(i))
+        Circle(fact(i),p)
         p.x := p.x + 1
     }
 }

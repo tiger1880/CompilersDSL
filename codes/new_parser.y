@@ -55,7 +55,7 @@ int is_decl_stmt = 0;
 
 
 string scale = "1";
-string center = "Point(0, 0, false)";
+string center = "new Point(0, 0, false)";
 string center_x = "0";
 string center_y = "0";
 
@@ -343,6 +343,7 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
                                                         center = "Point(0, 0, false)";
                                                         center_x = "0";
                                                         center_y = "0";
+                                                        cerr << "at fig end " << $ID.name << " " << is_member << "\n";
                                                  } 
 
 params : expression ',' expression { 
@@ -437,7 +438,7 @@ constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.t
             ;
 
 valid_arg: construct {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-         | expression {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
+         | expression {$$.eletype = $1.eletype;$$.text = new string;*$$.text = *$1.text;}
          ;
 
 param_list: param_list ',' valid_arg {
@@ -449,6 +450,7 @@ param_list: param_list ',' valid_arg {
                      vector<int> dim;
                      params.push_back({$3.eletype,Var,dim});   
               }
+              $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text;
           }
           | valid_arg {
@@ -460,6 +462,7 @@ param_list: param_list ',' valid_arg {
                      vector<int> dim;
                      params.push_back({$1.eletype,Var,dim});   
               }
+              $$.text = new string;
               *$$.text = *$1.text;
           }
           ;
@@ -506,34 +509,34 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE; $$.text =
        | '<' vertex vertex vertex '>' {$$.eletype = ANGLE; $$.text = new string; *$$.text = "angleBetweenPoints(" + *$2.text + "," + *$3.text + "," + *$4.text + ")";}
        ;
 
-expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "+" + *$3.text;}
-            | expression '-' expression {  $$.eletype = diffTypeCheck($1.eletype, $3.eletype);$$.text = new string;
+expression:   expression '+' expression { is_member=0; $$.eletype = sumTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "+" + *$3.text;}
+            | expression '-' expression { is_member=0; $$.eletype = diffTypeCheck($1.eletype, $3.eletype);$$.text = new string;
                                             if ($$.eletype == LINE)
                                                  *$$.text = "new Line(" + *$1.text + ", " + *$3.text + ")";
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
-            | expression LINE_OP expression {if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
-            | expression '*' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
-            | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
-            | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
-            | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
-            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "isParallel(" + *$1.text + ", " + *$3.text + ")" ; } //need to change this
-            | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = "isPerpendicular(" + *$1.text + ", " + *$3.text + ")" ;}  //need to change this
-            | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; $$.text = new string;*$$.text = *$2.text;} 
-            | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = "-" + *$2.text;} 
-            | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}
-            | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = *$1.text + *$2.text;}
-            | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = "!" + *$1.text;}
-            | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "&&" + *$3.text; }
-            | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "||" + *$3.text; }
-            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
-            | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;} 
-            | expression '<' expression { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "<" + *$3.text; }
-            | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + ">" + *$3.text; }
-            | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;}
+            | expression LINE_OP expression {is_member=0;if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
+            | expression '*' expression {  is_member=0;$$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
+            | expression '/' expression { is_member=0; $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
+            | expression '%' expression { is_member=0;if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
+            | expression '^' expression { is_member=0;$$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
+            | expression PARALLEL expression {is_member=0; $$.eletype = parallelCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "isParallel(" + *$1.text + ", " + *$3.text + ")" ; } //need to change this
+            | expression PERPENDICULAR expression  {is_member=0;$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = "isPerpendicular(" + *$1.text + ", " + *$3.text + ")" ;}  //need to change this
+            | PARALLEL inside_norm PARALLEL  {is_member=0; $$.eletype = REAL; $$.text = new string;*$$.text = *$2.text;} 
+            | '-' expression %prec NEG {is_member=0;if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = "-" + *$2.text;} 
+            | UNARY member_access {is_member=0;if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}
+            | member_access UNARY {is_member=0;if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = *$1.text + *$2.text;}
+            | NOT expression {is_member=0;if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = "!" + *$1.text;}
+            | expression AND expression {is_member=0;if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "&&" + *$3.text; }
+            | expression OR expression {is_member=0;if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "||" + *$3.text; }
+            | member_access assign       {is_member=0;if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
+            | expression CMP_OP expression {is_member=0;if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;is_member=0;} 
+            | expression '<' expression {is_member=0; if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "<" + *$3.text; }
+            | expression '>' expression  { is_member=0;if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + ">" + *$3.text; }
+            | expression EQ_CMP_OP expression {is_member=0;if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;}
             | member_access {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
-            | '(' expression ')' {$$.eletype = $2.eletype; $$.text = new string;*$$.text = "(" + *$2.text + ")";}
+            | '(' expression ')' {is_member=0;$$.eletype = $2.eletype; $$.text = new string;*$$.text = "(" + *$2.text + ")";}
             | FLOATS {$$.text = new string; *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;} 
             | INTEGERS {$$.text = new string; *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
             | BOOLEAN { $$.text = new string;*$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
@@ -863,7 +866,7 @@ memb_access: memb_access '.' ID  arr_access {
                             $$.dimCount->push_back({count,$3.name});
                      }
                      $$.text = new string;
-                     *$$.text = *$1.text + "." + *$3.text + *$4.text;
+                     *$$.text = *$1.text + "->" + *$3.text + *$4.text;
               }
               | ID arr_access {
                      int count = checkDims($1.name,$2.count);
@@ -896,6 +899,7 @@ func_call : member_access {
        '(' param_list_opt ')' {
 
               if (is_fig){
+                     cout<<params[0].eletype<<params[1].eletype<<endl;
                      figArgumentChecking(params);
                      params.clear();
                      $$.eletype = UNDEF;
@@ -1034,7 +1038,7 @@ string assignOpTranslation(string op) {
               translatedOp = "^=";   //change this later
        }
 
-       return op;
+       return translatedOp;
 
 }
 
@@ -1085,7 +1089,7 @@ string translateLineArr(string linearr){
 
        for (int i = 0;i+2 < args.size();i+=2){
 
-              output = output + "Line(" + args[i] + ", " + args[i+2] + ", " + convertLineOp(args[i+1]) + "), ";
+              output = output + "new Line(" + args[i] + ", " + args[i+2] + ", " + convertLineOp(args[i+1]) + "), ";
        }
 
        output[output.size()-2] = ' ';

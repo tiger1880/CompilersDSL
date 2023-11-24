@@ -250,22 +250,22 @@ public:
     }
 };
 
-double norm(Point p1, Point p2)
+double norm(Point *p1, Point *p2)
 {
-    double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
+    double res = sqrt(pow((p1->x - p2->x), 2) + pow((p1->y - p2->y), 2));
     return res;
 }
 
-double norm(Point p1)
+double norm(Point *p1)
 {
-    double res = sqrt(pow((p1.x), 2) + pow((p1.y), 2));
+    double res = sqrt(pow((p1->x), 2) + pow((p1->y), 2));
     return res;
 }
 
-double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
+double angleBetweenPoints(Point *p1, Point *p2, Point *p3, bool sh = true)
 {
-    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
-    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
+    double m1 = (p2->y - p1->y) / (p2->x - p1->x);
+    double m2 = (p3->y - p2->y) / (p3->x - p2->x);
 
     double theta = atan((m2 - m1) / (1 + m1 * m2));
 
@@ -1022,7 +1022,7 @@ public:
 
     double Perimeter() override
     {
-        return norm(p1, p2) + norm(p2, p3) + norm(p3, p1);
+        return norm(&p1, &p2) + norm(&p2, &p3) + norm(&p3, &p1);
     }
 };
 
@@ -1035,25 +1035,25 @@ class Circle : public Shape
     double scale;
     bool is_show;
 
-    Circle(float radius, Point *Center , Point fcenter = Point(0,0,false),double Scale = 1.0)
+    Circle(float radius, Point *Center , Point *fcenter = new Point(0,0,false),double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;
         scale = Scale;
         center = *Center;
-        figCenter = fcenter;
+        figCenter = *fcenter;
         is_show = true;
         shapeStore.push_back(this);
         
     }
 
-    Circle(float radius, Point *Center ,bool sh ,Point fcenter = Point(0,0,false), double Scale = 1.0)
+    Circle(float radius, Point *Center ,bool sh ,Point *fcenter = new Point(0,0,false), double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;
         scale = Scale;
         center = *Center;
-        figCenter = fcenter;
+        figCenter = *fcenter;
         is_show = sh;
         shapeStore.push_back(this);
         
@@ -1065,7 +1065,7 @@ class Circle : public Shape
         glTranslatef(center.x, center.y, 0.0f);
 
         glBegin(GL_LINE_LOOP);
-        glColor3f(0.0f, 1.0f, 1.0f); // Blue
+        glColor3f(0.0f, 0.0f, 0.0f); // Blue
         GLfloat angle;
         for (int i = 0; i <= 360; i++)
         {
@@ -1186,16 +1186,16 @@ public:
 
     double Area() override
     {
-        double s1 = norm(p1,p2);
-        double s2 = norm(p2,p3);
-        double angle = angleBetweenPoints(p1,p2,p3);
+        double s1 = norm(&p1,&p2);
+        double s2 = norm(&p2,&p3);
+        double angle = angleBetweenPoints(&p1,&p2,&p3);
         return s1 * s2 * sin(angle);
     }
 
     double Perimeter() override
     {
-        double s1 = norm(p1,p2);
-        double s2 = norm(p2,p3);
+        double s1 = norm(&p1,&p2);
+        double s2 = norm(&p2,&p3);
         return 2 * (s1 + s2);
     }
 };
@@ -1233,14 +1233,15 @@ class RegPoly : public Shape
 
     void show()
     {
-        glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
+        
+        //glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
         
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_LINE_LOOP);
-        glColor3f(1.0f, 0.0f, 1.0f); // Yellow
+        glColor3f(0.0f, 0.0f, 0.0f); // Yellow
 
         GLfloat angle = 0;
         for (int i = 0; i < numOfSides; i++)

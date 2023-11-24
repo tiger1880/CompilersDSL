@@ -712,7 +712,7 @@ void figArgumentChecking(vector<types>& passed_params) {
               }
 
               if (passed_params[1].eletype != POINT && passed_params[1].eletype != UNDEF){
-                     
+                     cout<<passed_params[1].eletype<<endl;
                      semanticError("in fig call center has to be a point type");
 
               }  

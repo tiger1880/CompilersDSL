@@ -1,4 +1,4 @@
-$ Change global to constant
+$ Global, Local, arrays, line arrays (only 1d for onre than one line)
 $ Declarations
 
 int a, b := 9, c

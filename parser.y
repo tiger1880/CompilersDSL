@@ -37,6 +37,7 @@ extern int yydebug;
 /*     ONLY FOR  DEBUGGING    */
 
 deque <string> collection;
+deque <string> fig_func;
 string datatypeTranslation(string dtype);
 string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
@@ -50,6 +51,7 @@ int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
+int global_space = 1;
 
 int lineArrNo = 0;
 
@@ -136,7 +138,7 @@ vector<ParamList> func_paramlist;
 
 
 // non-terminals
-%nterm <main> program func fig
+%nterm <main> program func fig 
 %nterm <main> construct constructor
 %nterm <main> arg_list list1 argument params
 %nterm <main> param_list construct_param_list param_list_opt
@@ -144,7 +146,7 @@ vector<ParamList> func_paramlist;
 %nterm <main> assign func_call
 %nterm <main> id_list
 %nterm <main> mult_elements arr1d_in_list
-%nterm <main> const_expr 
+%nterm <main> const_expr const_expr2
 %nterm <main> check_arr dim 
 %nterm <main> arr_assign comma_arr_assign arr_assign_line
 %nterm <main> decl_token decl_assign decl_stmt
@@ -191,8 +193,14 @@ vector<ParamList> func_paramlist;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func { *$$.text = *$1.text + *$2.text;} 
-       | program fig {*$$.text = *$1.text + *$2.text;} 
+program:  program { global_space = 0 ;} func { *$$.text = *$1.text + *$func.text;
+                         fig_func.push_back(*$func.text);
+                         global_space = 1;
+                     } 
+       |   program { global_space = 0 ;} fig {*$$.text = *$1.text + *$fig.text;
+                       fig_func.push_back(*$fig.text);
+                       global_space = 1;
+                     } 
        | program stmt  {
               if ($stmt.stopAdvanceFound) 
                      semanticError("stop/advance cannot be outside the loop");
@@ -592,7 +600,9 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *
        ; 
 
 decl_token: construct  {$$.eletype = $1.eletype; *$$.text = *$1.text;}
-          | expression {$$.eletype = $1.eletype; *$$.text = *$1.text;}
+          | expression { if(global_space)  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
+          | const_expr
+          | const_expr2 
        ;
 
 /* Arrays */
@@ -775,14 +785,19 @@ const_expr: const_expr '+' const_expr {$$.constExp.eletype = sumTypeCheck($1.con
                                           $$.constExp.i = $2.constExp.i;
                                   
                                    *$$.text = "(" + *$2.text  + ")";
-                            } 
+                            }
        | FLOATS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.d = $1.constExp.d;} 
        | INTEGERS { *$$.text = *$1.text; $$.eletype = $1.constExp.eletype;$$.constExp.i = $1.constExp.i;}
        | BOOLEAN { *$$.text = *$1.text; $$.eletype = INT;$$.constExp.i = $1.constExp.i;}
        ;          
 
 
-
+const_expr2 : STRING_TOKEN { $$.eletype = $1.eletype; *$$.text = *$1.text;} 
+              | point { *$$.text = *$1.text; $$.eletype = $1.eletype;} 
+              | const_expr2 '+' const_expr2 { $$.eletype = sumTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "+" + *$3.text; }
+              | const_expr2 '-' const_expr2 { $$.eletype = diffTypeCheck($1.eletype, $3.eletype); *$$.text = *$1.text + "-" + *$3.text; } 
+              | '(' const_expr2 ')' { *$$.text = "(" + *$2.text + ")"; $$.eletype = $2.eletype; } 
+              ;
 member_access : memb_access {
               if($1.dimCount->empty()) {
                      exit(1);
@@ -1093,14 +1108,29 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<iostream>\n");
     fprintf(fout_translated,"#include<vector>\n");
     fprintf(fout_translated,"#include<GL/glut.h>\n");
+    fprintf(fout_translated,"#include<bits/stdc++.h>\n");
     fprintf(fout_translated,"#include<string>\n");
     fprintf(fout_translated,"#include<cstdlib>\n");
     fprintf(fout_translated,"#include<cmath>\n");
     fprintf(fout_translated,"#include<deque>\n");
     fprintf(fout_translated,"#include \"standard_lib.hpp\" \n");
+    fprintf(fout_translated,"using namespace std;\n \n");
+    fprintf(fout_translated,"void initGL() { \n glClearColor(1.0f, 1.0f, 1.0f, 1.0f); \n } \n");
+    fprintf(fout_translated,"void reshape(GLsizei width, GLsizei height)\n{ if (height == 0)\n   height = 1;\nGLfloat aspect = (GLfloat)width / (GLfloat)height; \n glViewport(0, 0, width, height);glMatrixMode(GL_PROJECTION);\n glLoadIdentity();\n if (width >= height) \n{gluOrtho2D(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0);} \nelse \n{gluOrtho2D(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect);}\n}");
+    
     insertConstructTab();
-
     int x = yyparse();
+
+    for(int i = 0;i<fig_func.size();i++)
+       fprintf(fout_translated,"%s\n",fig_func[i].c_str());
+
+    fprintf(fout_translated,"int main(int argc, char** argv){\n");
+    fprintf(fout_translated,"glutInit(&argc, argv);\n  glutInitWindowSize(640, 480);\n  glutInitWindowPosition(50, 50);\n  glutCreateWindow(\"Viewport Transform\");\n  gluOrtho2D(-50.0, 50.0, -50.0, 50.0);\n  glutDisplayFunc(display);\n  initGL();\n  glutMainLoop();\n");
+    /* fprintf(fout_translated,"  glutInit(&argc, argv); \n  glutInitWindowSize(640, 480); \n  glutInitWindowPosition(50, 50);\n  glutCreateWindow(\"Viewport Transform\"); \n  glutDisplayFunc(display);\n glutReshapeFunc(reshape); \n initGL();\n  glutMainLoop();\n") */
+    for(int i=0;i<collection.size();i++){
+       fprintf(fout_translated,"%s\n",collection[i].c_str());
+    }
+    fprintf(fout_translated,"  return 0\n } \n");
 
     fclose(fp);
     fclose(fout_token);

@@ -52,7 +52,8 @@ int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
-
+int global_space = 1;
+int decl = 0;
 
 string scale = "1";
 string center = "Point(0, 0, false)";
@@ -197,8 +198,14 @@ string totalProgram;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;totalProgram = *$$.text;} 
-       | program fig {$$.text = new string;*$$.text = *$1.text + *$2.text; totalProgram = *$$.text;} 
+program:  program { global_space = 0 ;} func { $$.text = new string;*$$.text = *$1.text + *$3.text;totalProgram = *$$.text;
+                     //     fig_func.push_back(*$func.text);
+                         global_space = 1;
+                     } 
+       | program { global_space = 0 ;} fig {$$.text = new string;*$$.text = *$1.text + *$3.text; totalProgram = *$$.text;
+                     //   fig_func.push_back(*$fig.text);
+                       global_space = 1;
+                     } 
        | program stmt  {
               $$.text = new string;
               if ($stmt.stopAdvanceFound) 
@@ -211,12 +218,14 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;total
                      collection.push_back(*$2.text);
                      *$$.text = *$1.text;
               }
-              totalProgram = *$$.text;
+
+             totalProgram = *$$.text;
 
               if(ret_flag) {
                      cerr << "Error: Return statement not allowed outside function" << endl;
                      ret_flag = 0; // to prevent cascading errors
               }
+              
               
               }  //have to consider global statements differently
        | /* empty */ {
@@ -229,6 +238,7 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;total
          }      
        ; 
  
+
 
  /* Function Definition */
 func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {
@@ -435,10 +445,9 @@ constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.t
             | PARACONSTRUCT { $$.eletype = $1.eletype;$$.text = new string;*$$.text = *$1.text ;} 
             | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;$$.text = new string;*$$.text = *$1.text ;}
             ;
-
-valid_arg: construct {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-         | expression {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-         ;
+valid_arg: { decl =1 ;}construct {$$.eletype = $2.eletype; $$.text = new string; *$$.text = *$2.text; decl = 0;}
+         | { decl =1; } expression { $$.eletype = $2.eletype; $$.text = new string; *$$.text = *$2.text; decl = 0;}
+       
 
 param_list: param_list ',' valid_arg {
               if(is_member) {
@@ -522,23 +531,23 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = "isPerpendicular(" + *$1.text + ", " + *$3.text + ")" ;}  //need to change this
             | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; $$.text = new string;*$$.text = *$2.text;} 
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = "-" + *$2.text;} 
-            | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}
-            | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = *$1.text + *$2.text;}
+            | UNARY member_access { if(global_space && decl)semanticError("Error: incorrect global declaration");   if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}
+            | member_access UNARY { if(global_space && decl)semanticError("Error: incorrect global declaration");   if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = *$1.text + *$2.text;}
             | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = "!" + *$1.text;}
             | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "&&" + *$3.text; }
             | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "||" + *$3.text; }
-            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
+            | member_access assign       { if(global_space && decl)semanticError("Error: incorrect global declaration");    if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
             | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;} 
             | expression '<' expression { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "<" + *$3.text; }
             | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + ">" + *$3.text; }
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;}
-            | member_access {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
+            | member_access { if(global_space && decl)semanticError("Error: incorrect global declaration"); $$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
             | '(' expression ')' {$$.eletype = $2.eletype; $$.text = new string;*$$.text = "(" + *$2.text + ")";}
             | FLOATS {$$.text = new string; *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;} 
             | INTEGERS {$$.text = new string; *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
             | BOOLEAN { $$.text = new string;*$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
             | STRING_TOKEN { $$.text = new string;*$$.text = *$1.text ; $$.eletype = $1.eletype;}
-            | func_call {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
+            | func_call { if(global_space && decl)semanticError("Error: incorrect global declaration");   $$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
             | point { $$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
             | angle {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}            
             ; 
@@ -656,8 +665,8 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; $$.text = new string;*$
        | /* empty */  {$$.eletype = UNDEF; $$.text = new string;*$$.text = "";}
        ; 
 
-decl_token: construct  {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-          | expression {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
+decl_token:  { decl = 1;} construct  { $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$2.text; decl = 0; }
+          | {decl=1;} expression { $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$2.text; decl = 0; }
        ;
 
 /* Arrays */

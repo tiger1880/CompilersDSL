@@ -4,22 +4,23 @@ point c := (0, 2)
 int  v := 7
 
 real s := 1.9
-
-
 real s1 := 2
 real s2 := 4
 real ang := 40
 
 real radius := 5
 
-return 9
-$ above not giving error
-
 repeat ( int i := 6 | i < v | i++ )
 {
     para p := Para(s1,ang,s2,false,c +(i,0),s+i)
     circle c1 := Circle(c,radius+i)
     circle c2 := Circle(c,radius+i)
-    $ line diags[] := p.DIAGONAL()
+    $ line diags[] := &p.DIAGONAL()
     $ point inter_circle[] := INTERSECTION_CIRCLE(c1,c2)
 }
+
+
+
+
+
+

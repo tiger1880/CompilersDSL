@@ -1,12 +1,20 @@
-int x
-{
-        real x := 1 + 2.444
-        point p := (3,4)
-        point q := (5,6)
-        point r := (7,8)
+fig figure(scale := 2,center := (1,1)) {
+    point p := (3,4)
+    point q := (4,5)
+    point r := (6.5,3.4)
+    point s := (1,4)
+    line l[4] := p<->r-q->s
 
-        line l := p-q
-        int p := 5 
+    {
+        int arr[][4] := {{1,2,3,4},{5,6,7,8}}
+
+        {
+            angle arr := < (1,2) (2,2) (0,0) >
+        }
+
+        int x := arr[0][6]
+    }
+
 }
 
 

@@ -39,15 +39,6 @@ double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
     return theta;
 }
 
-bool isParallel(Line l1, Line l2)
-{
-    return true;
-}
-
-bool isPerpendicular(Line l1, Line l2)
-{
-    return true;
-}
 
 class Shapes
 {
@@ -569,7 +560,9 @@ class Line : public Shape{
     friend Point INTERSECTION(Line l1, Line l2);
     friend Line& LINE_AT_ANGLE(double a, Line& l, Point p);
     friend vector<Line> ANGLE_BISECTOR(Line a, Line b); // just displaying for now
-
+    friend bool isPerpendicular(Line l1, Line l2);
+    friend bool isParallel(Line l1, Line l2);
+   
     Point MIDPOINT(){
 
         if (t != SEGMENT)
@@ -710,6 +703,22 @@ vector<Line> ANGLE_BISECTOR(Line a, Line b){
 }
 
 // ----------------------- ignore --------------------------------------------------------------------------------------------------------------------
+
+bool isPerpendicular(Line l1, Line l2)
+{
+    if (l1.m*l2.m == -1)
+        return true;
+    return false;
+}
+
+// upgrade after linearr
+bool isParallel(Line l1, Line l2)
+{   
+    if (l1.m == l2.m)
+        return true;
+
+    return true;
+}
 
 
 class Tri : public Shapes

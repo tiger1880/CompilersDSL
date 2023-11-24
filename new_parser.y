@@ -17,6 +17,7 @@ void yyerror(const char *s);
 int yylex();
 extern int yylineno;
 extern char* yytext;
+string translateLineArr(string linearr);
 
 using namespace std;
 
@@ -42,7 +43,6 @@ string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
 string centerTranslation(string center);
 
-/* Linearr left */
 
 int ret_flag = 0;
 int ret_fig_flag = 0;
@@ -51,7 +51,6 @@ int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
 
-int lineArrNo = 0;
 
 string scale = "1";
 string center = "Point(0,0)";
@@ -148,7 +147,7 @@ string totalProgram;
 %nterm <main> mult_elements arr1d_in_list
 %nterm <main> const_expr 
 %nterm <main> check_arr dim 
-%nterm <main> arr_assign comma_arr_assign arr_assign_line
+%nterm <main> arr_assign comma_arr_assign 
 %nterm <main> decl_token decl_assign decl_stmt
 %nterm <main> ret_var return_stmt
 %nterm <main> optional_arg valid_arg
@@ -156,7 +155,7 @@ string totalProgram;
 %nterm <main> memb_access
 %nterm <main> empty_space
 %nterm <main> inside_norm
-%nterm <main> vertex
+%nterm <main> vertex line_op lineArr
 %nterm <main> stmt assign_stmt cond_stmt stmt_list stmt_block stmt_block_for elif_stmt break_stmt 
 %nterm <main> loop for_loop_decl for_loop while_loop
 //%nterm <main.eletype> opt_exp
@@ -202,12 +201,12 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;cout 
               if(is_decl_stmt) {
                      *$$.text = *$1.text + *$2.text;
                      is_decl_stmt = 0;
+                     totalProgram = totalProgram + *$$.text;
               }
               else {
                      collection.push_back(*$2.text);
               }
-              printf("%s", $$.text->c_str());
-              totalProgram = *$$.text;
+              
               }  //have to consider global statements differently
        | /* empty */ {
               if(ret_flag) {
@@ -396,10 +395,18 @@ ret_var : construct {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$
        | /* empty */ {$$.eletype = Void; $$.text = new string;*$$.text = "";}; 
 
        /* Assignment Statement */
-assign_stmt : expression ENDLINE {lineArrNo = 0; $$.text = new string;*$$.text = *$1.text + ";";}
-            | construct ENDLINE  {lineArrNo = 0; $$.text = new string;*$$.text = *$1.text + ";";}
+assign_stmt : expression ENDLINE {$$.text = new string;*$$.text = *$1.text + ";";}
+            | construct ENDLINE  {$$.text = new string;*$$.text = *$1.text + ";";}
             /* | fig_call ENDLINE */
             ;
+
+line_op: LINE_OP {$$.text = new string; *$$.text = *$1.text;}
+       | '-'     {$$.text = new string; *$$.text = "-";}
+       ;
+
+lineArr: lineArr line_op vertex {$$.text = new string; *$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
+       | vertex LINE_OP vertex {$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
+       ;
 
 /* opt_exp: expression {$$ = $1;}
        | {$$ = UNDEF;}
@@ -507,12 +514,17 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE; $$.text =
        ;
 
 expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "+" + *$3.text;}
-            | expression '-' expression {  $$.eletype = diffTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "-" + *$3.text;} 
+            | expression '-' expression {  $$.eletype = diffTypeCheck($1.eletype, $3.eletype);$$.text = new string;
+                                            if ($$.eletype == LINE)
+                                                 *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";
+                                            else 
+                                                 *$$.text = *$1.text + "-" + *$3.text;
+                                         } 
+            | expression LINE_OP expression { $$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
             | expression '*' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
             | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
-            | expression LINE_OP expression {  if(($1.eletype == POINT || $1.eletype == LINEARR) && $3.eletype == POINT) {$$.eletype = LINEARR; lineArrNo++;} else  semanticError("Error: Semantic error incompatible datatype");$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text ;}  // <-> -> //need to change this
             | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text ; } //need to change this
             | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = *$1.text + *$2.text + *$3.text ;}  //need to change this
             | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; $$.text = new string;*$$.text = *$2.text;} 
@@ -522,7 +534,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = "!" + *$1.text;}
             | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "&&" + *$3.text; }
             | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "||" + *$3.text; }
-            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype) || ($1.eletype == LINE && $2.eletype == LINEARR && lineArrNo == 1))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
+            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
             | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;} 
             | expression '<' expression { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "<" + *$3.text; }
             | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + ">" + *$3.text; }
@@ -551,11 +563,11 @@ assign:  EQUAL expression {$$.eletype = $2.eletype;$$.text = new string; *$$.tex
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; $$.text = new string;*$$.text = *$1.text + *$2.text + ";"; }
-          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);lineArrNo = 0; $$.text = new string;*$$.text = *$1.text + *$2.text + ";";}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + ";"; }
+          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + ";";}
           ;
 
-id_list: id_list ',' ID check_arr EQUAL arr_assign_line 
+id_list: id_list ',' ID check_arr EQUAL arr_assign
        {
               $$.nameList = $1.nameList;
               $$.nameList->push_back($3.name);
@@ -587,13 +599,22 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign_line
               $$.text = new string;
               *$$.text = *$1.text + *$2.text;
        }
-       | ID check_arr EQUAL arr_assign_line 
+       | ID check_arr EQUAL arr_assign
        {
               $$.nameList = new vector<char*>;
               $$.nameList->push_back($1.name);
               compareAndInsertArray($1.name, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text + *$3.text + *$4.text;
+       }
+       | ID check_arr EQUAL lineArr {
+
+              if ($2.dimList->size() != 1){
+                     semanticError("Dimensions of linearr don't match");
+              }
+              $$.text = new string;
+              *$$.text = *$1.text + *$2.text  + "=" + translateLineArr(*$4.text);
+
        }
        | ID decl_assign 
        {
@@ -642,23 +663,6 @@ dim : dim '[' const_expr ']' {$$.dimList = $1.dimList;
     ;
 
 /* NEED TO ADD EMPTY SPACE WHEREEVER POSSIBLE IN ARRAY ASSIGN */
-
-arr_assign_line : arr_assign {
-                            $$.listAndType.dimList = $1.listAndType.dimList;
-                            $$.listAndType.eletype = $1.listAndType.eletype;
-                            $$.text = new string;
-                            *$$.text = *$1.text;
-                     }
-                | expression {
-                            if ($1.eletype != LINEARR) 
-                                   semanticError("Error: Invalid Datatypes\n");
-                            $$.listAndType.dimList = new vector<int>;
-                            $$.listAndType.dimList->push_back(lineArrNo);
-                            lineArrNo = 0;
-                            $$.text = new string;
-                            *$$.text = *$1.text;
-                     }
-                ;
 
 arr_assign : '{'  arr1d_in_list '}' 
               {
@@ -1028,6 +1032,51 @@ string assignTranslation(string assignText,string memText) {
        return translation;
 }
 
+string convertLineOp(string s){
+
+       if (s == "-")
+              return "SEGMENT";
+       else if (s == "->")
+              return "RAY";
+       else if (s == "<->")
+              return "LINE";
+       
+       return "";
+
+}
+
+string translateLineArr(string linearr){
+
+       int prevIndex = 0;
+
+       vector<string> args;
+
+       for (int i = 0;i < linearr.size();i++){
+
+              if (linearr[i] == '|'){
+
+                     args.push_back(linearr.substr(prevIndex, i-prevIndex));
+                     prevIndex = i+1;
+              }
+       }
+
+       args.push_back(linearr.substr(prevIndex));
+
+
+       string output = "{ ";
+
+       for (int i = 0;i+2 < args.size();i+=2){
+
+              output = output + "Line(" + args[i] + ", " + args[i+2] + ", " + convertLineOp(args[i+1]) + "), ";
+       }
+
+       output[output.size()-2] = ' ';
+
+       output = output + "}";
+
+       return output;
+}
+
 /*
 string datatypeTranslation(string dtype) {
 
@@ -1138,15 +1187,13 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<cstdlib>\n");
     fprintf(fout_translated,"#include<cmath>\n");
     fprintf(fout_translated,"#include<deque>\n");
-    fprintf(fout_translated,"#include \"standard_lib.hpp\" \n");
-    
+    fprintf(fout_translated,"#include \"standard_lib.hpp\" \n\n\n");
     
 
     insertConstructTab();
 
     int x = yyparse();
     
-    cout << "hello: " << totalProgram.c_str() << "\n";
 
     fprintf(fout_translated, "%s", totalProgram.c_str());
 

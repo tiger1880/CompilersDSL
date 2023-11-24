@@ -369,7 +369,8 @@ enum eletype sumTypeCheck(enum eletype E1, enum eletype E2){
               return max(E1, E2);
        }
        else {
-              semanticError("Error: Semantic error incompatible datatypes for +\n");
+            semanticError("Error: Semantic error incompatible datatypes for +\n");
+            exit(1); // ERROR_RECOVERY
        }
 }
 
@@ -380,6 +381,7 @@ enum eletype arithTypeCheck(enum eletype E1, enum eletype E2  ){
        }
        else {
             semanticError("Error: Semantic error incompatible datatypes\n");
+            exit(1); // ERROR_RECOVERY
        }
 }
 
@@ -557,14 +559,9 @@ enum eletype perpendicularCheck(enum eletype E1, enum eletype E2){
 enum eletype diffTypeCheck(enum eletype E1, enum eletype E2){
 
        if (E1 == POINT && E2 == POINT){
-              lineArrNo = 1;
-              return LINEARR;
+            return LINE;
        }
 
-       if (E1 == LINEARR && E2 == POINT){
-              lineArrNo++;
-              return LINEARR;
-       }
 
        if (arithCompatible(E1) && arithCompatible(E2)){
               return max(E1, E2);
@@ -587,7 +584,8 @@ enum eletype mulTypeCheck(enum eletype E1, enum eletype E2){
               return max(E1, E2);
        }
        else {
-              semanticError("Error: Semantic error incompatible datatypes for * operator\n");
+            semanticError("Error: Semantic error incompatible datatypes for * operator\n");
+            exit(1); // ERROR_RECOVERY
        }
 }
 

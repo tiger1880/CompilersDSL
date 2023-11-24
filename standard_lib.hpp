@@ -11,7 +11,7 @@
 using namespace std;
 
 const double  PI  = 3.14;
-double height = 500, width = 500, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
+double height = 640, width = 480, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
 
 vector<Shape*> shapeStore;

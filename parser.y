@@ -1121,8 +1121,6 @@ int main(int argc, char*argv[])
     fprintf(fout_translated,"#include<deque>\n");
     fprintf(fout_translated,"#include \"standard_lib.hpp\" \n");
     fprintf(fout_translated,"using namespace std;\n \n");
-    fprintf(fout_translated,"void initGL() { \n glClearColor(1.0f, 1.0f, 1.0f, 1.0f); \n } \n");
-    fprintf(fout_translated,"void reshape(GLsizei width, GLsizei height)\n{ if (height == 0)\n   height = 1;\nGLfloat aspect = (GLfloat)width / (GLfloat)height; \n glViewport(0, 0, width, height);glMatrixMode(GL_PROJECTION);\n glLoadIdentity();\n if (width >= height) \n{gluOrtho2D(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0);} \nelse \n{gluOrtho2D(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect);}\n}");
     
     insertConstructTab();
     int x = yyparse();
@@ -1131,11 +1129,12 @@ int main(int argc, char*argv[])
        fprintf(fout_translated,"%s\n",fig_func[i].c_str());
 
     fprintf(fout_translated,"int main(int argc, char** argv){\n");
-    fprintf(fout_translated,"glutInit(&argc, argv);\n  glutInitWindowSize(640, 480);\n  glutInitWindowPosition(50, 50);\n  glutCreateWindow(\"Viewport Transform\");\n  gluOrtho2D(-50.0, 50.0, -50.0, 50.0);\n  glutDisplayFunc(display);\n  initGL();\n  glutMainLoop();\n");
-    /* fprintf(fout_translated,"  glutInit(&argc, argv); \n  glutInitWindowSize(640, 480); \n  glutInitWindowPosition(50, 50);\n  glutCreateWindow(\"Viewport Transform\"); \n  glutDisplayFunc(display);\n glutReshapeFunc(reshape); \n initGL();\n  glutMainLoop();\n") */
+    
+    
     for(int i=0;i<collection.size();i++){
        fprintf(fout_translated,"%s\n",collection[i].c_str());
     }
+
     fprintf(fout_translated,"  return 0\n } \n");
 
     fclose(fp);

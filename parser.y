@@ -435,7 +435,7 @@ constructor : TRICONSTRUCT { $$.eletype = $1.eletype; *$$.text = *$1.text ;}
 
 valid_arg: construct {$$.eletype = $1.eletype; *$$.text = *$1.text;}
          | expression { if(global_space &&($$.eletype !=4 ||$$.eletype !=5))  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text;}
-         | const_expr 
+         | const_expr  { $$.eletype = $1.eletype}
          ;
 
 param_list: param_list ',' valid_arg {
@@ -603,7 +603,7 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; *$$.text = *$1.text + *
 
 decl_token: construct  { if(global_space)  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
           | expression { if(global_space &&($$.eletype !=4 ||$$.eletype !=5))  semanticError("Error: Global variables are declared incorrectly"); $$.eletype = $1.eletype; *$$.text = *$1.text; }
-          | const_expr 
+          | const_expr  { $$.eletype = $1.eletype}
        ;
 
 /* Arrays */

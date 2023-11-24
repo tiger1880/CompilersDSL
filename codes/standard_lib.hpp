@@ -123,6 +123,30 @@ public:
         is_show = true;
         shapeStore.push_back(this);
     }
+
+    Point(double a, double b)
+    {
+        scale = 1;
+        center_x = 0;
+        center_y = 0;
+        x = a;
+        y = b;
+        tag = "A";
+        is_show = true;
+        shapeStore.push_back(this);
+    }
+
+    Point(double a, double b, bool sh)
+    {
+        scale = 1;
+        center_x = 0;
+        center_y = 0;
+        x = a;
+        y = b;
+        tag = "A";
+        is_show = sh;
+        shapeStore.push_back(this);
+    }
     
     Point(double a, double b, string s, bool sh, double Scale, double cx, double cy)
     {

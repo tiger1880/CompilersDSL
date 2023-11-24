@@ -458,10 +458,8 @@ void typeUpdate(vector<char*>* v, enum eletype t){
               
               updateType(v->at(i), t);
               
-            free(v->at(i));
-       }
-
-       delete v;
+            
+       } 
 
        return;
 }

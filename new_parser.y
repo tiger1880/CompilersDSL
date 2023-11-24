@@ -185,14 +185,14 @@ string totalProgram;
 /*
        1.) Func,fig(arguments),store scale,center in gloabl variables - Done
        2.) construct - insert center and scale in constructor - Done (point left)
-       3.) norm, perpandicular,parallel,line op
+       3.) norm
        4.) assign op ^:= into pow - Done
        5.) Global statements except declaration in int main - Done for now change decl_stmt grammar if that is final
 
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;cout << "hello: " << *$$.text << "\n";totalProgram = *$$.text;} 
+program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;totalProgram = *$$.text;} 
        | program fig {$$.text = new string;*$$.text = *$1.text + *$2.text; totalProgram = *$$.text;} 
        | program stmt  {
               $$.text = new string;
@@ -201,11 +201,12 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;cout 
               if(is_decl_stmt) {
                      *$$.text = *$1.text + *$2.text;
                      is_decl_stmt = 0;
-                     totalProgram = *$$.text;
               }
               else {
                      collection.push_back(*$2.text);
+                     *$$.text = *$1.text;
               }
+              totalProgram = *$$.text;
               
               }  //have to consider global statements differently
        | /* empty */ {

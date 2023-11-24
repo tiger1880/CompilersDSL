@@ -780,7 +780,7 @@ public:
         vector<Line> l1;
         vector<Line> l2;
         vector<Line> l3;
-
+        cerr << "hi";
         l1 = ANGLE_BISECTOR(a, b);
         l2 = ANGLE_BISECTOR(b, c);
         l3 = ANGLE_BISECTOR(c, a);
@@ -1127,7 +1127,7 @@ vector<Point>
         return p;
     }
 
-    vector<class Line> COMMON_TANGENT(class Circle c1, class Circle c2) {
+    vector<Line> COMMON_TANGENT(class Circle c1, class Circle c2) {
         vector<Line> tangents;
         double c1c2 = norm(c1.center,c2.center);
 
@@ -1284,10 +1284,15 @@ vector<Point>
 
 
 // main for testing
-
+/*
 int main(int argc, char* argv[]){
 
-    Circle c(5, Point(1, 2));
+    // Circle c(5, Point(1, 2));
+    // Tri t(Point(0,0),Point(3,0),Point(0,4));
+
+    // t.EXCENTER(Point(0,0));
+
+    for (int )
 
     glutInit(&argc, argv);
 
@@ -1307,3 +1312,4 @@ int main(int argc, char* argv[]){
     glutMainLoop();
 
 }
+*/

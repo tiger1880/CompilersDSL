@@ -1,23 +1,13 @@
-func point func_1(int x){
-
-    point p[4]
-
-    repeat ( int i:= x | i< x + 4 | i++ ){
-
-        p[i-1] := ( i, i+2)
-    }
-
-    return p[3]
-    
-}
-
-
-
-func real func_2(line l1, line l2)
+int x
 {
+        real x := 1 + 2.444
+        point p := (3,4)
+        point q := (5,6)
+        point r := (7,8)
 
-    point p := func_1(2)
-    return ||p||
-  
+        line l := p-q
+        int p := 5 
 }
+
+
 

@@ -212,6 +212,11 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;total
                      *$$.text = *$1.text;
               }
               totalProgram = *$$.text;
+
+              if(ret_flag) {
+                     cerr << "Error: Return statement not allowed outside function" << endl;
+                     ret_flag = 0; // to prevent cascading errors
+              }
               
               }  //have to consider global statements differently
        | /* empty */ {

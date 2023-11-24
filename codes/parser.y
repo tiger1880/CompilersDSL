@@ -212,6 +212,9 @@ program:  program { global_space = 0 ;} func { *$$.text = *$1.text + *$func.text
               else {
                      collection.push_back(*$2.text);
               }
+
+             
+              
               
               }  //have to consider global statements differently
        | /* empty */ {

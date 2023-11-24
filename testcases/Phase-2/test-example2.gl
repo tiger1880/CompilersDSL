@@ -1,29 +1,3 @@
-fig figure_1(1,(1,0))
-{
-    line l[2] := p-q<->r
-    bool flag := 0
-    repeat(int i:=0|i<l.length()-1|i++)
-    {   
-        $  To Check if all lines in an array are parallel or not
-        if(not(l[i]||l[i+1]))
-        {
-            print("lines are not parallel")
-            flag := 1
-        }
-    }
-    if(flag)
-    {
-        print("lines are  parallel")
-    }
-
-    circle c1 := Circle((2,3),2.5)
-    circle c2 := Circle((4,5), 3.6)
-    point p :=  INTERSECTION(c1,c2)
-
-}
-
-figure_1()
-
 $ Usage of norm is shown below.
 point p := (2,3), q := (6,8)
 repeat(int i:= ||p||+||q|| | i < 20  | i++)
@@ -36,6 +10,31 @@ repeat(int i:= ||p||+||q|| | i < 20  | i++)
     {
         int dist := SHORTEST_DISTANCE(p,q)
         dist++
-        STOP
+        stop
     }
 }
+
+fig figure_1(1,(1,0))
+{
+    line l[2] := p-q<->r
+    bool flag := 0
+    repeat(int i:=0|5-1|i++)
+    {   
+        $  To Check if all lines in an array are parallel or not
+        if(not(l[i]||l[i+1]))
+        {
+            flag := 1
+        }
+    }
+    if(flag)
+    {
+      flag := 0
+    }
+
+    circle c1 := Circle((2,3),2.5)
+    circle c2 := Circle((4,5), 3.6)
+    point p :=  INTERSECTION(c1,c2)
+
+}
+
+figure_1()

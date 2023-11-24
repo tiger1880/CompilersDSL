@@ -12,6 +12,8 @@ real ang := 40
 
 real radius := 5
 
+return 9
+$ above not giving error
 
 repeat ( int i := 6 | i < v | i++ )
 {
@@ -19,9 +21,5 @@ repeat ( int i := 6 | i < v | i++ )
     circle c1 := Circle(c,radius+i)
     circle c2 := Circle(c,radius+i)
     $ line diags[] := p.DIAGONAL()
-    point inter_circle[] := INTERSECTION_CIRCLE(c1,c2)
+    $ point inter_circle[] := INTERSECTION_CIRCLE(c1,c2)
 }
-
-
-
-

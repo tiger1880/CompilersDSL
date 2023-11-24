@@ -185,7 +185,7 @@ int checkType(char* name) {
 * otherwise returns -1 
 */ 
 int checkEletype(char* name) {
-
+    
     if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
@@ -504,6 +504,27 @@ void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e,
 
        return;
 }
+
+
+void compareAndInsertLineArr(char* name, vector <int>* decDimList, int count){
+
+    if (decDimList->size() != 1)
+        semanticError("Error: arrays declaration and initialization list don't match :: linarr\n");
+    
+    if ((*decDimList)[0] == -1)
+        (*decDimList)[0] = count;
+    
+    
+    if ((*decDimList)[0] < count){
+        semanticError("Error: arrays declaration and initialization list don't match\n");
+                    // not freeing anything
+    }
+
+    insertType(name, Array, LINE);
+    addDimList(name, *decDimList);
+
+}
+
 
 /*
 * CHECK

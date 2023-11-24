@@ -107,6 +107,7 @@ extern void insert(char* name, vector<int>* dim, enum eletype t); // WHERE IS TH
 extern void addFrontAndCopy(vector<int>* dest, vector<int>* src , int x); /* copies vector pointed by src to vector pointer to dest after inserting x as the first element */
 extern void updateMaxDim(vector<int>* comma, vector<int>* assign); // for now have to be equal // CHECK
 extern void compareAndInsertArray(char* name, vector <int>* decDimList, enum eletype e, vector<int>* assignList); /* updates type of array name after checking if the decDimlist and assignDimlist are compatible */
+extern void compareAndInsertLineArr(char* name, vector <int>* decDimList, int count);
 extern void insertArray(char* name, vector <int>* dimList); /* inserts name as Array along with its declation dimlist */
 
 extern int checkDims(char* name,int count);

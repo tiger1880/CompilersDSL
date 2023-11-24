@@ -323,9 +323,12 @@ or {
         yylval.main.text = new string;
         *yylval.main.text = "double ";
     } 
+    else {
 
-    // yylval.main.text = new string;
-    // *yylval.main.text = yytext;
+        yylval.main.text = new string;
+        *yylval.main.text = "dtype ";
+
+    }
     
     fprintf(fout_token, "DATATYPE: %s\n", yytext);
     return DATATYPE;

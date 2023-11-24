@@ -404,8 +404,8 @@ line_op: LINE_OP {$$.text = new string; *$$.text = *$1.text;}
        | '-'     {$$.text = new string; *$$.text = "-";}
        ;
 
-lineArr: lineArr line_op vertex {$$.text = new string; *$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
-       | vertex LINE_OP vertex {$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
+lineArr: lineArr line_op vertex {$$.count = $$.count + 1;$$.text = new string; *$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
+       | vertex line_op vertex {$$.count = 1;$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        ;
 
 /* opt_exp: expression {$$ = $1;}
@@ -520,7 +520,7 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
-            | expression LINE_OP expression { $$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
+            | expression LINE_OP expression { if ($1.eletype != POINT || $2.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
             | expression '*' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
@@ -609,9 +609,15 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
        }
        | ID check_arr EQUAL lineArr {
 
+              $$.nameList = new vector<char*>;
+              $$.nameList->push_back($1.name);
+
               if ($2.dimList->size() != 1){
                      semanticError("Dimensions of linearr don't match");
               }
+
+              compareAndInsertLineArr($1.name, $2.dimList, $4.count);
+
               $$.text = new string;
               *$$.text = *$1.text + *$2.text  + "=" + translateLineArr(*$4.text);
 
@@ -1123,7 +1129,7 @@ string centerTranslation(string center) {
 int main(int argc, char*argv[])
 {    
 
-    /* yydebug = 1; */
+    yydebug = 1;
 
     if (argc < 2){
 

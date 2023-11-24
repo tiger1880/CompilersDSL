@@ -1030,13 +1030,14 @@ public:
     Point center; 
     bool show;
 
-    Para(double s1, double ang, double s2, Point center = Point(0, 0, false), double scale = 1.0)
+    Para(double s1, double ang, double s2, bool sh = true,class Point center = Point(0, 0, false), double scale = 1.0)
     {
         
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
         p4 = Point(s2 * cos(ang), s2 * sin(ang));
+        show = sh;
         shapeStore.push_back(this);
 
     }
@@ -1055,6 +1056,15 @@ public:
         // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
+    }
+
+    vector<Line> DIAGONAL() {
+        vector<Line> diagonals;
+
+        diagonals.push_back(Line(p1,p3));
+        diagonals.push_back(Line(p2,p4));
+
+        return diagonals;
     }
 
     // vector<class Line> DIAGONAL(){

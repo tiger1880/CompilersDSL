@@ -525,8 +525,8 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression '/' expression {  $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
             | expression '^' expression { $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "pow(" + *$1.text + "," + *$3.text + ")";}
-            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text ; } //need to change this
-            | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = *$1.text + *$2.text + *$3.text ;}  //need to change this
+            | expression PARALLEL expression { $$.eletype = parallelCheck($1.eletype, $3.eletype);$$.text = new string;*$$.text = "isParallel(" + *$1.text + ", " + *$3.text + ")" ; } //need to change this
+            | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = "isPerpendicular(" + *$1.text + ", " + *$3.text + ")" ;}  //need to change this
             | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; $$.text = new string;*$$.text = *$2.text;} 
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = "-" + *$2.text;} 
             | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}

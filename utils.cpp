@@ -528,14 +528,14 @@ void updateMaxDim(vector<int>* comma, vector<int>* assign){
 
 enum eletype parallelCheck(enum eletype E1, enum eletype E2){
 
-    if (!(E1 == BOOL || E1 == LINE)){
+    if (!(E1 == LINE)){
         semanticError("Error: Operands for || can be only bool or line");
-        return BOOL; // so that error won't cascade
+        return BOOL; 
     }
 
-    if (!(E2 == BOOL || E2 == LINE)){
+    if (!(E2 == LINE)){
         semanticError("Error: Operands for || can be only bool or line");
-        return BOOL; // so that error won't cascade
+        return BOOL; 
     }
 
     return BOOL;

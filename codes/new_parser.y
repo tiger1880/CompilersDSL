@@ -983,14 +983,6 @@ void yyerror(const char * s)
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
 
-/* string function_translation(string text) {
-       return "true";
-}
-
-string fig_translation(string text) {
-       return "true";
-} */
-
 string assignOpTranslation(string op) {
 
        string translatedOp;
@@ -1067,29 +1059,6 @@ string translateLineArr(string linearr){
 
        return output;
 }
-
-/*
-string datatypeTranslation(string dtype) {
-
-       string type;
-
-       if (dtype == "real") {
-              type = "double";
-       }
-       else if (dtype == "angle") {
-              type = "double";
-       }
-       else if (dtype == "label") {
-              type = "string";
-       }
-       else {
-              type = dtype;
-       }
-
-       return type;
-       
-}
-*/
 
 string centerTranslation(string center) {
        string translatedCenter;

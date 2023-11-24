@@ -13,8 +13,21 @@ using namespace std;
 const double  PI  = 3.14;
 double height = 640, width = 480, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
+class Shape;
 
 vector<Shape*> shapeStore;
+
+class Shape
+{
+
+public:
+    virtual double Area() = 0;
+    virtual double Perimeter() = 0;
+    Shape(){
+       ;
+    }
+    virtual void show(){}
+};
 
 
 // OPENGL --------------------------------------
@@ -100,50 +113,13 @@ void renderBitmapString(float x, float y, const char *string) {
 
 // OPENGL --------------------------------------
 
-double norm(Point p1, Point p2)
-{
-    double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
-    return res;
-}
-
-double norm(Point p1)
-{
-    double res = sqrt(pow((p1.x), 2) + pow((p1.y), 2));
-    return res;
-}
-
-double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
-{
-    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
-    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
-
-    double theta = atan((m2 - m1) / (1 + m1 * m2));
-
-    theta = theta * 180.0 / M_PI;
-
-    return theta;
-}
-
-
-class Shape
-{
-
-public:
-    virtual double Area() = 0;
-    virtual double Perimeter() = 0;
-    Shape(){
-       ;
-    }
-    virtual void show(){}
-};
-
 class Point : public Shape
 {
 public:
     double x;
     double y;
     string tag;
-    bool show;
+    bool is_show;
     double scale;
     double center_x;
     double center_y;
@@ -162,7 +138,7 @@ public:
         x = a;
         y = b;
         tag = s;
-        show = sh;
+        is_show = sh;
         shapeStore.push_back(this);
     }
     
@@ -173,7 +149,7 @@ public:
         center_y = cy;
         x = a;
         y = b;
-        show = sh;
+        is_show = sh;
         shapeStore.push_back(this);
     }
 
@@ -212,6 +188,31 @@ public:
     }
 };
 
+double norm(Point p1, Point p2)
+{
+    double res = sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2));
+    return res;
+}
+
+double norm(Point p1)
+{
+    double res = sqrt(pow((p1.x), 2) + pow((p1.y), 2));
+    return res;
+}
+
+double angleBetweenPoints(Point p1, Point p2, Point p3, bool sh = true)
+{
+    double m1 = (p2.y - p1.y) / (p2.x - p1.x);
+    double m2 = (p3.y - p2.y) / (p3.x - p2.x);
+
+    double theta = atan((m2 - m1) / (1 + m1 * m2));
+
+    theta = theta * 180.0 / M_PI;
+
+    return theta;
+}
+
+
 /*
 Ignore 
     1) testing some parts is left in Line
@@ -233,7 +234,7 @@ class Line : public Shape {
     // if both points are same then shows a point
     Point a;
     Point b;
-    bool show;
+    bool is_show;
 
     // y = mx+c
     double m;
@@ -287,7 +288,7 @@ class Line : public Shape {
     a(x1),
     b(x2),
     t(type),
-    show(sh),
+    is_show(sh),
     m(0),
     c(0),
     scale(Scale),
@@ -321,7 +322,7 @@ class Line : public Shape {
     Line(double m1, double c1, bool sh = false,Point Center = Point(0, 0, false),double Scale = 1.0):
     m(m1),
     c(c1),
-    show(sh),
+    is_show(sh),
     scale(Scale),
     center(Center)
     {
@@ -335,7 +336,7 @@ class Line : public Shape {
         b.y = m+c;
 
         angle = atan(m1)*180/PI;
-        show = true;
+        is_show = true;
         t = LINE;
 
         shapeStore.push_back(this);
@@ -346,7 +347,7 @@ class Line : public Shape {
     Line(const Line& l){
         a = l.a;
         b = l.b;
-        show = l.show; // if its true already pushed
+        is_show = l.is_show; // if its true already pushed
         angle =  l.angle;
         c = l.c;
         m = l.m;
@@ -360,7 +361,7 @@ class Line : public Shape {
 
         a = l.a;
         b = l.b;
-        show = l.show; // if its true already pushed
+        is_show = l.is_show; // if its true already pushed
         angle =  l.angle;
         c = l.c;
         m = l.m;
@@ -382,7 +383,7 @@ class Line : public Shape {
 
     void setDisplay(bool d){
 
-        show = d;
+        is_show = d;
         return;
     }
 
@@ -682,7 +683,7 @@ public:
     Point p1;
     Point p2;
     Point p3;
-    bool show;
+    bool is_show;
     double scale;
     Point center; 
 
@@ -696,7 +697,7 @@ public:
         p1 = point1;
         p2 = point2;
         p3 = point3;
-        show = sh;
+        is_show = sh;
         scale = Scale;
         center = Center;
         shapeStore.push_back(this);
@@ -711,7 +712,7 @@ public:
         double a = (s2 * s2 + s1 * s1 - s3 * s3) / (2 * s1);
         double b = sqrt(s2 * s2 - a * a);
         p3 = Point(a, b);
-        show = sh;
+        is_show = sh;
         shapeStore.push_back(this);
 
        
@@ -722,7 +723,7 @@ public:
         p1 = Point(0, 0);
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
-        show = sh;
+        is_show = sh;
         shapeStore.push_back(this);
 
     }
@@ -897,7 +898,7 @@ class Circle : public Shape
     float radius;
     Point center;
     double scale;
-    bool show;
+    bool is_show;
 
     Circle(float radius, Point Center = Point(0,0),bool sh = true, double Scale = 1.0)
     {   
@@ -905,7 +906,7 @@ class Circle : public Shape
         this->center = center;
         scale = Scale;
         center = Center;
-        show = sh;
+        is_show = sh;
         shapeStore.push_back(this);
         
     }
@@ -964,7 +965,7 @@ public:
     Point p4;
     double scale;
     Point center; 
-    bool show;
+    bool is_show;
 
     Para(double s1, double ang, double s2, bool sh = true,class Point center = Point(0, 0, false), double scale = 1.0)
     {
@@ -973,7 +974,7 @@ public:
         p2 = Point(s1, 0);
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
         p4 = Point(s2 * cos(ang), s2 * sin(ang));
-        show = sh;
+        is_show = sh;
         shapeStore.push_back(this);
 
     }
@@ -1003,21 +1004,6 @@ public:
         return diagonals;
     }
 
-    // vector<class Line> DIAGONAL(){
-    //     vector<Line> l;
-    //     l.push_back(Line((0,0),(s2*cos(angle)+s1,s2*sin(angle))));
-    //     l.push_back(Line((s2*cos(angle),s2*sin(angle)),(s1,0)));
-
-    //     glColor3b(0,0,0);
-    //     glBegin(GL_LINES);
-    //         glVertex2d(l[0].p1.x,l[0].p1.y);
-    //         glVertex2d(l[0].p2.x,l[0].p2.y);
-    //         glVertex2d(l[1].p1.x,l[1].p1.y);
-    //         glVertex2d(l[1].p2.x,l[1].p2.y);
-    //     glEnd();
-    //     return l;
-    // }
-
     double Area() override
     {
         double s1 = norm(p1,p2);
@@ -1040,14 +1026,15 @@ class RegPoly : public Shape
     double sideLength;
     double scale;
     Point center;
-    bool show; 
+    bool is_show; 
 
-    RegPoly(int numOfSides, double sideLength, Point Center = Point(0, 0, false), double Scale = 1.0)
+    RegPoly(int numOfSides, double sideLength, bool sh = true,Point Center = Point(0, 0, false), double Scale = 1.0)
     {
         scale = Scale;
         center = Center;
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
+        is_show = sh;
         shapeStore.push_back(this);
         
     }
@@ -1184,15 +1171,20 @@ vector<class Point>
             q.x = (c2.radius*c1.center.x + c1.radius*c2.center.x) / (c2.radius + c1.radius);
             q.y = (c2.radius*c1.center.y + c1.radius*c2.center.y) / (c2.radius + c1.radius);
             double d2 = norm(q,c1.center);
-            Circle c = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
+            Circle c_ = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
             vector<Point> intersect2;
-            intersect2 = INTERSECTION_CIRCLE(c1,c);
+            intersect2 = INTERSECTION_CIRCLE(c1,c_);
             tangents.push_back(Line(q,intersect2[0]));
             tangents.push_back(Line(q,intersect2[1]));
             return tangents;
         }
 
+        return tangents;
+
     }
+
+
+
 
 
 

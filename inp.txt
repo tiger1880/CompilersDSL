@@ -1,13 +1,17 @@
 
 int x
 {
-        real x := a + 2.444
+        real x := 1 + 2.444
 }
 
 
+fig fure_1(1,(0,0)) {
+        repeat(int i:= 0 | i < 4 | i++){
 
-    
+        point x := (3+i,4+i)
+    }
 
+}
 
 $$
 point a
@@ -26,4 +30,8 @@ int  x
     }
 
 $$
+
+
+
+
 

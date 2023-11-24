@@ -1190,19 +1190,19 @@ int main(int argc, char*argv[])
 
     fprintf(fout_translated, "%s", totalProgram.c_str());
 
-    fprintf(fout_translated, "\n\nint main(){\n");
+    fprintf(fout_translated, "\n\nint main(int argc,char** argv){\n");
 
     for (int i = 0;i < collection.size();i++)
        fprintf(fout_translated, "%s", collection[i].c_str());
     
-    fprintf(fout_translated,"glutInit(&argc, argv);\n  \
-                             glutInitWindowSize(640, 480);\n  \
-                             glutInitWindowPosition(50, 50);\n \
-                             glutCreateWindow(\"Figure\");\n  \
-                             glutDisplayFunc(display);\n \
-                             glutReshapeFunc(reshape);
-                             init();\n  \
-                             glutMainLoop();\n");
+    fprintf(fout_translated,"glutInit(&argc, argv);\n" 
+                            "glutInitWindowSize(640, 480);\n" 
+                            "glutInitWindowPosition(50, 50);\n" 
+                            "glutCreateWindow(\"Figure\");\n"  
+                            "glutDisplayFunc(display);\n "
+                            "glutReshapeFunc(reshape);"
+                            "init();\n" 
+                            "glutMainLoop();\n");
     
 
     fprintf(fout_translated, "\n return 0;\n}\n");

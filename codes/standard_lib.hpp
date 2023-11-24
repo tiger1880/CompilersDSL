@@ -596,6 +596,7 @@ class Line : public Shape {
     friend vector<Line> ANGLE_BISECTOR(Line *a, Line *b); 
     friend bool isPerpendicular(Line *l1, Line *l2);
     friend bool isParallel(Line *l1, Line *l2);
+    friend double SHORTEST_DISTANCE(Line* l1, Line* l2);
    
     Point MIDPOINT(){
 
@@ -740,6 +741,14 @@ vector<Line> ANGLE_BISECTOR(Line *a, Line *b){
 
     return *x;
 
+}
+
+double SHORTEST_DISTANCE(Line* l1, Line* l2){
+
+    if (l1->m == l2->m)
+        return 0;
+    
+    return abs(l1->c - l2->c)/pow(1 + l1->m*l1->m, 0.5);
 }
 
 

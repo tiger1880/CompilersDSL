@@ -283,7 +283,7 @@ class Line : public Shape {
 
     Line(){}
 
-    Line(Point x1, Point x2,  bool sh = true, lineType type = SEGMENT, double Scale = 1.0, Point Center = Point(0, 0, false)):
+    Line(Point x1, Point x2,  bool sh = true, lineType type = SEGMENT,Point Center = Point(0, 0, false), double Scale = 1.0):
     a(x1),
     b(x2),
     t(type),
@@ -318,7 +318,7 @@ class Line : public Shape {
 
     // m, c constructor
     // y = mx + c
-    Line(double m1, double c1, double Scale = 1.0, Point Center = Point(0, 0, false), bool sh = false):
+    Line(double m1, double c1, bool sh = false,Point Center = Point(0, 0, false),double Scale = 1.0):
     m(m1),
     c(c1),
     show(sh),

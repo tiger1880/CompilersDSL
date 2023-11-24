@@ -340,8 +340,6 @@ params : expression ',' expression {
                      semanticError("Error: Semantic error incompatible datatype..") ;
               scale = *$1.text;
               center = centerTranslation(*$3.text);
-              center_x = *$1.text;
-              center_y = *$3.text;
               $$.text = new string;
               *$$.text = "double scale = " + *$1.text + " , Point center = " + *$3.text; 
        }
@@ -349,9 +347,9 @@ params : expression ',' expression {
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
               scale = *$3.text;
-              center = centerTranslation(*$3.text);
-              center_x = *$3.text;
-              center_y = *$7.text;
+              center = centerTranslation(*$7.text);
+              // center_x = *$3.text;
+              // center_y = *$7.text;
               $$.text = new string;
               *$$.text = "double scale = " + *$3.text + " , Point center = " + *$7.text;
        }
@@ -486,8 +484,8 @@ construct_param_list: construct_param_list ',' valid_arg {
           ;
 
 //scale,center?
-point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "Point(" + *$2.text + "," + *$4.text + "," + *$6.text + ")"; }
-       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "Point(" + *$2.text + "," + *$4.text +  ")";}
+point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "Point(" + *$2.text + "," + *$4.text + "," + *$6.text + "," + scale + "," + center_x + "," + center_y +")"; }
+       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "Point(" + *$2.text + "," + *$4.text +  "," + scale + "," + center_x + "," + center_y + ")";}
        ; 
 
 // NOT TESTED
@@ -985,14 +983,6 @@ void yyerror(const char * s)
     fprintf(stderr, "Error: Syntax error on line %d: %s at or near %s\n", yylineno, s, yytext);
 }
 
-/* string function_translation(string text) {
-       return "true";
-}
-
-string fig_translation(string text) {
-       return "true";
-} */
-
 string assignOpTranslation(string op) {
 
        string translatedOp;
@@ -1070,29 +1060,6 @@ string translateLineArr(string linearr){
        return output;
 }
 
-/*
-string datatypeTranslation(string dtype) {
-
-       string type;
-
-       if (dtype == "real") {
-              type = "double";
-       }
-       else if (dtype == "angle") {
-              type = "double";
-       }
-       else if (dtype == "label") {
-              type = "string";
-       }
-       else {
-              type = dtype;
-       }
-
-       return type;
-       
-}
-*/
-
 string centerTranslation(string center) {
        string translatedCenter;
        if(center[0]=='(') {
@@ -1100,12 +1067,16 @@ string centerTranslation(string center) {
               if(idx!=string::npos) {
                      string x = center.substr(1,idx-1);
                      string y = center.substr(idx+1,center.size()-idx-1);
+                     center_x = x;
+                     center_y = y;
                      translatedCenter = "Point(" + x + "," + y + ", false)";
               }
        }
        else {
               string x = center + ".x";
               string y = center + ".y";
+              center_x = x;
+              center_y = y;
               translatedCenter = "Point(" + x + "," + y + ", false)";
        }
 
@@ -1188,19 +1159,19 @@ int main(int argc, char*argv[])
 
     fprintf(fout_translated, "%s", totalProgram.c_str());
 
-    fprintf(fout_translated, "\n\nint main(){\n");
+    fprintf(fout_translated, "\n\nint main(int argc,char** argv){\n");
 
     for (int i = 0;i < collection.size();i++)
        fprintf(fout_translated, "%s", collection[i].c_str());
     
-    fprintf(fout_translated,"glutInit(&argc, argv);\n  \
-                             glutInitWindowSize(640, 480);\n  \
-                             glutInitWindowPosition(50, 50);\n \
-                             glutCreateWindow(\"Figure\");\n  \
-                             glutDisplayFunc(display);\n \
-                             glutReshapeFunc(reshape);
-                             init();\n  \
-                             glutMainLoop();\n");
+    fprintf(fout_translated,"glutInit(&argc, argv);\n" 
+                            "glutInitWindowSize(640, 480);\n" 
+                            "glutInitWindowPosition(50, 50);\n" 
+                            "glutCreateWindow(\"Figure\");\n"  
+                            "glutDisplayFunc(display);\n "
+                            "glutReshapeFunc(reshape);"
+                            "init();\n" 
+                            "glutMainLoop();\n");
     
 
     fprintf(fout_translated, "\n return 0;\n}\n");

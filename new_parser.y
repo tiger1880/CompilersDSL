@@ -331,6 +331,8 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
                                                         // reset scale and center
                                                         scale = "1.0";
                                                         center = "Point(0, 0, false)";
+                                                        center_x = "0";
+                                                        center_y = "0";
                                                  } 
 
 params : expression ',' expression { 
@@ -1197,7 +1199,7 @@ int main(int argc, char*argv[])
                              glutCreateWindow(\"Figure\");\n  \
                              glutDisplayFunc(display);\n \
                              glutReshapeFunc(reshape);
-                             initGL();\n  \
+                             init();\n  \
                              glutMainLoop();\n");
     
 

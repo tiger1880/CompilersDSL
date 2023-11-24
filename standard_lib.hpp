@@ -203,25 +203,16 @@ public:
         return 0;
     }
 
+    bool operator==(const Point& r){
 
+        if (r.x == x && r.y == y)
+            return true;
+        
+        return false;
+    }
 };
 
 /*
-class Line : public Shape
-{
-    double scale;
-    class Point center;
-    double Area() override
-    {
-        // Implementation for Line Area
-    }
-
-    double Perimeter() override
-    {
-        // Implementation for Line Perimeter
-    }
-};
-
 
 Ignore 
     1) testing some parts is left in Line
@@ -229,8 +220,6 @@ Ignore
     3) Test the extension fo 6 cases => change so that if initial points are outofRange update Range, => Depends on our set Range
     4) Have to display midpoint ? 
     5) we will have to use new update constructors properly and delete in main after MainLoop
-
-
 
 class Point : public Shape{
 
@@ -347,7 +336,9 @@ class Line : public Shape {
 
     public:
 
-    Line(Point x1, Point x2, lineType type = SEGMENT, double Scale = 1.0, Point Center = Point(0, 0, false), bool sh = true):
+    Line(){}
+
+    Line(Point x1, Point x2,  bool sh = true, lineType type = SEGMENT, double Scale = 1.0, Point Center = Point(0, 0, false)):
     a(x1),
     b(x2),
     t(type),
@@ -583,7 +574,7 @@ class Line : public Shape {
         if (t != SEGMENT)
             return b;
         
-        Point p = new Point((a.x+b.x)/2, (a.y+b.y)/2); 
+        Point p = Point((a.x+b.x)/2, (a.y+b.y)/2);  // SEGFAULT
 
         return p;
 
@@ -667,7 +658,7 @@ Point INTERSECTION(Line l1, Line l2){
         return l1.a;
     }
 
-    Point p = new Point(0.0, 0.0);  // WTH
+    Point p = Point(0.0, 0.0);  // SEGFAULT
     
     if (l1.angle == 90){
         p.x = l1.a.x;
@@ -963,7 +954,7 @@ class Circle : public Shape
     double scale;
     bool show;
 
-    Circle(float radius, Point Center = Point(0,0),bool sh = true, double scale = 1.0)
+    Circle(float radius, Point Center = Point(0,0),bool sh = true, double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;

@@ -337,6 +337,8 @@ void insertConstructTab() {
 
     /*Parallelogram*/
     ConstructTab[4]["DIAGONAL"]={Func,LINE,{},{}};
+    ConstructTab[3]["AREA"] = {Func,REAL,{},{}};
+    ConstructTab[3]["PERIMETER"] = {Func,REAL,{},{}};
 
     /*Regular Polygon*/
     ConstructTab[5]["AREA"]={Func,REAL,{},{}};

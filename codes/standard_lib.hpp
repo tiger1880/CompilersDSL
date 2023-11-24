@@ -11,7 +11,7 @@
 using namespace std;
 
 const double  PI  = 3.14;
-double height = 640, width = 480, axisLength = 50, aspectRatio = 1, xAxis = 10, yAxis = 10;
+double height = 640, width = 480, axisLength = 10, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
 class Shape;
 
@@ -131,8 +131,10 @@ public:
         center_y = 0;
         x = a;
         y = b;
-        tag = "A";
+        tag = "";
         is_show = true;
+        cerr<<shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -143,7 +145,7 @@ public:
         center_y = 0;
         x = a;
         y = b;
-        tag = "A";
+        tag = "";
         is_show = sh;
         shapeStore.push_back(this);
     }
@@ -167,6 +169,7 @@ public:
         center_y = cy;
         x = a;
         y = b;
+        tag = "";
         is_show = sh;
         shapeStore.push_back(this);
     }
@@ -178,20 +181,20 @@ public:
         center_y = cy;
         x = a;
         y = b;
+        tag = "";
         is_show = true;
         shapeStore.push_back(this);
     }
 
     void show() {
-
+        glLoadIdentity();
         glTranslatef(center_x, center_y, 0.0f);
-        glScalef(scale, scale, 0.0f);
+        // glScalef(scale, scale, 0.0f);
         glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_POINTS);
         glVertex2f(x,y);
         glEnd();
-
         renderBitmapString(x + 0.01,y + 0.01, tag.c_str());
         glLoadIdentity();
 
@@ -218,6 +221,32 @@ public:
             return true;
         
         return false;
+    }
+
+    Point(const Point& p){
+
+        scale = p.scale;
+        center_x = p.center_x;
+        center_y = p.center_y;
+        x = p.x;
+        y = p.y;
+        tag = p.tag;
+        is_show = p.is_show;
+
+    }
+
+    Point& operator=(const Point& p){
+
+        scale = p.scale;
+        center_x = p.center_x;
+        center_y = p.center_y;
+        x = p.x;
+        y = p.y;
+        tag = p.tag;
+        is_show = p.is_show;
+
+
+        return *this;
     }
 };
 
@@ -250,21 +279,14 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT); 
     glLoadIdentity(); 
 
-    glColor3f(0.0, 0.0, 0.0); // black everything
+    glColor3f(0.0, 0.0, 0.0); 
 
-    
-    // glPointSize(5); // how to get circular points
-
-    
-    // draw
 
     for (int i = 0;i < shapeStore.size();i++){
-
-        cout << ((Point*)shapeStore[i])->y << "\n";
+        cerr<< "i: " << i<<" "<<shapeStore[i]<<endl;
         if (shapeStore[i]->getIs_show())
             shapeStore[i]->show();
     }
-
     // switch buffers
     glutSwapBuffers();
 
@@ -376,7 +398,7 @@ class Line : public Shape {
 
     // m, c constructor
     // y = mx + c
-    Line(double m1, double c1, bool sh = false,Point Center = Point(0, 0, false),double Scale = 1.0):
+    Line(double m1, double c1, bool sh = false, Point Center = Point(0, 0, false),double Scale = 1.0):
     m(m1),
     c(c1),
     is_show(sh),
@@ -753,32 +775,37 @@ public:
         ;
     }
 
-    Tri(Point *point1, Point *point2, Point *point3, Point *Center = new Point(0, 0, false),double Scale = 1.0)
-    {
+    Tri(Point *point1, Point *point2, Point *point3, Point* Center = new Point(0, 0, false),double Scale = 1.0)
+    { 
+        
         p1 = *point1;
         p2 = *point2;
         p3 = *point3;
+        
         is_show = true;
         scale = Scale;
         center = *Center;
+        
+        //cerr << this << " " << shapeStore.size() << "\n";
         shapeStore.push_back(this);
+        
 
     }
 
-    Tri(Point *point1, Point *point2, Point *point3, bool sh, Point *Center = new Point(0, 0, false),double Scale = 1.0)
+    Tri(Point *point1, Point *point2, Point *point3, bool sh, Point Center = Point(0, 0, false),double Scale = 1.0)
     {
         p1 = *point1;
         p2 = *point2;
         p3 = *point3;
         is_show = sh;
         scale = Scale;
-        center = *Center;
+        center = Center;
         shapeStore.push_back(this);
 
     }
 
 
-    Tri(double s1, double s2, double s3,Point *center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double s1, double s2, double s3,Point *Center = new Point(0, 0, false),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
@@ -786,12 +813,13 @@ public:
         double b = sqrt(s2 * s2 - a * a);
         p3 = Point(a, b);
         is_show = true;
+        center = *Center;
         shapeStore.push_back(this);
 
        
     }
 
-    Tri(double s1, double s2, double s3, bool sh , Point *center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double s1, double s2, double s3, bool sh ,Point *Center = new Point(0, 0, false),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
@@ -799,33 +827,39 @@ public:
         double b = sqrt(s2 * s2 - a * a);
         p3 = Point(a, b);
         is_show = sh;
+        center = *Center;
         shapeStore.push_back(this);
 
        
     }
 
-    Tri(double h, double s, Point *center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double h, double s, Point *Center = new Point(0, 0, false),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
+        center = *Center;
         is_show = true;
+        
         shapeStore.push_back(this);
 
     }
 
-    Tri(double h, double s, bool sh, Point *center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double h, double s, bool sh, Point *Center = new Point(0, 0, false),double scale = 1.0)
     {
         p1 = Point(0, 0);
         p2 = Point(s, 0);
         p3 = Point(0, sqrt(h * h - s * s));
+        center = *Center;
         is_show = sh;
+        
         shapeStore.push_back(this);
 
     }
 
     void show()
-    {   
+    {  
+        
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
@@ -1001,25 +1035,25 @@ class Circle : public Shape
     double scale;
     bool is_show;
 
-    Circle(float radius, Point *Center , Point* fcenter = new Point(0,0),double Scale = 1.0)
+    Circle(float radius, Point *Center , Point fcenter = Point(0,0,false),double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;
         scale = Scale;
         center = *Center;
-        figCenter = *fcenter;
+        figCenter = fcenter;
         is_show = true;
         shapeStore.push_back(this);
         
     }
 
-    Circle(float radius, Point *Center ,bool sh ,Point* fcenter = new Point(0,0), double Scale = 1.0)
+    Circle(float radius, Point *Center ,bool sh ,Point fcenter = Point(0,0,false), double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;
         scale = Scale;
         center = *Center;
-        figCenter = *fcenter;
+        figCenter = fcenter;
         is_show = sh;
         shapeStore.push_back(this);
         
@@ -1085,34 +1119,46 @@ public:
     Point center; 
     bool is_show;
 
-    Para(double s1, double ang, double s2, Point *center = new Point(0, 0, false), double scale = 1.0)
+    Para(double s1, double ang, double s2, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         
-        p1 = Point(0, 0);
-        p2 = Point(s1, 0);
-        p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
-        p4 = Point(s2 * cos(ang), s2 * sin(ang));
+        p1.x = 0;
+        p1.y = 0;
+        p2.x = s1;
+        p2.y = 0;
+        p3.x = s2 * cos(ang) + s1; 
+        p3.y = s2 * sin(ang);
+        p4.x = s2 * cos(ang);
+        p4.y = s2 * sin(ang);
         is_show = true;
+        center = *Center;
+        scale = Scale;
         shapeStore.push_back(this);
 
     }
 
-    Para(double s1, double ang, double s2, bool sh ,Point *center = new Point(0, 0, false), double scale = 1.0)
+    Para(double s1, double ang, double s2, bool sh ,Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         
-        p1 = Point(0, 0);
-        p2 = Point(s1, 0);
-        p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
-        p4 = Point(s2 * cos(ang), s2 * sin(ang));
+        p1.x = 0;
+        p1.y = 0;
+        p2.x = s1;
+        p2.y = 0;
+        p3.x = s2 * cos(ang) + s1; 
+        p3.y = s2 * sin(ang);
+        p4.x = s2 * cos(ang);
+        p4.y = s2 * sin(ang);
         is_show = sh;
+        center = *Center;
+        scale = Scale;
         shapeStore.push_back(this);
 
     }
 
     void show(){
         
-        glTranslatef(center.x, center.y, 0.0f);
-        glScalef(scale, scale, 0.0f);
+        //glTranslatef(center.x, center.y, 0.0f);
+        //glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
         glBegin(GL_LINE_LOOP);
         glVertex2d(p1.x, p1.y);
@@ -1156,19 +1202,31 @@ public:
 
 class RegPoly : public Shape
 {
+    public:
     int numOfSides;
     double sideLength;
     double scale;
     Point center;
     bool is_show; 
 
-    RegPoly(int numOfSides, double sideLength, bool sh = true,Point Center = Point(0, 0, false), double Scale = 1.0)
+    RegPoly(int numOfSides, double sideLength, bool sh ,Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         scale = Scale;
-        center = Center;
+        center = *Center;
         this->numOfSides = numOfSides;
         this->sideLength = sideLength;
         is_show = sh;
+        shapeStore.push_back(this);
+        
+    }
+
+    RegPoly(int numOfSides, double sideLength, Point *Center = new Point(0, 0, false), double Scale = 1.0)
+    {
+        scale = Scale;
+        center = *Center;
+        this->numOfSides = numOfSides;
+        this->sideLength = sideLength;
+        is_show = true;
         shapeStore.push_back(this);
         
     }

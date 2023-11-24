@@ -17,7 +17,7 @@ void yyerror(const char *s);
 int yylex();
 extern int yylineno;
 extern char* yytext;
-string translateLineArr(string linearr);
+
 
 using namespace std;
 
@@ -43,7 +43,8 @@ string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
 string centerTranslation(string center);
 string declStmtTranslation(vector<char*>* names);
-
+string translateLineArr(string linearr);
+string starAddDatatype(string s);
 
 int ret_flag = 0;
 int ret_fig_flag = 0;
@@ -252,7 +253,8 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
                      $$.text = new string;
-                     *$$.text = *$2.text + *$ID.text + "(" + *($[arg_list].text) + ")" +  *($[empty_space].text) + *($[stmt_block].text);
+
+                     *$$.text = starAddDatatype(*$2.text) + *$ID.text + "(" + *($[arg_list].text) + ")" +  *($[empty_space].text) + *($[stmt_block].text);
               }
               |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3.name,paramslist);
@@ -344,17 +346,15 @@ params : expression ',' expression {
               scale = *$1.text;
               center = centerTranslation(*$3.text);
               $$.text = new string;
-              *$$.text = "double scale = " + *$1.text + " , Point center = " + *$3.text; 
+              *$$.text = "double scale = " + *$1.text + " , Point *center = " + center; 
        }
        | SCALE EQUAL expression ',' CENTER EQUAL expression { 
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
               scale = *$3.text;
               center = centerTranslation(*$7.text);
-              // center_x = *$3.text;
-              // center_y = *$7.text;
-              $$.text = new string;
-              *$$.text = "double scale = " + *$3.text + " , Point center = " + *$7.text;
+               $$.text = new string;
+              *$$.text = "double scale = " + *$3.text + " , Point *center = " + center;
        }
 
  /* Statements */
@@ -504,7 +504,7 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE; $$.text =
 expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "+" + *$3.text;}
             | expression '-' expression {  $$.eletype = diffTypeCheck($1.eletype, $3.eletype);$$.text = new string;
                                             if ($$.eletype == LINE)
-                                                 *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";
+                                                 *$$.text = "new Line(" + *$1.text + ", " + *$3.text + ")";
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
@@ -552,8 +552,9 @@ assign:  EQUAL expression {$$.eletype = $2.eletype;$$.text = new string; *$$.tex
 
        /* Declaration Statement */
 decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;
-                                          if (*$DATATYPE.text == "Point ")
-                                                 *$$.text = *$1.text + *$2.withStarText + ";"; 
+
+                                          if ("Tri " == *$DATATYPE.text || "Circle " == *$DATATYPE.text || "Para " == *$DATATYPE.text || "RegPoly " == *$DATATYPE.text || "Point " == *$DATATYPE.text || "Line " == *$DATATYPE.text) 
+                                                 *$$.text = *$DATATYPE.text + *$2.withStarText + ";"; 
                                           else 
                                                  *$$.text = *$1.text + *$2.text + ";" ;
                                           }
@@ -1090,8 +1091,15 @@ string translateLineArr(string linearr){
 }
 
 string centerTranslation(string center) {
-       string translatedCenter;
-       if(center[0]=='(') {
+       /* string translatedCenter; */
+
+       // remove new at beginning
+
+
+       if(center.find(")") != std::string::npos) {
+               center = center.substr(4);
+               center = "new " + center;
+              /*
               int idx = center.find(',');
               if(idx!=string::npos) {
                      string x = center.substr(1,idx-1);
@@ -1099,17 +1107,17 @@ string centerTranslation(string center) {
                      center_x = x;
                      center_y = y;
                      translatedCenter = "Point(" + x + "," + y + ", false)";
-              }
+              } */
        }
-       else {
+       /* else {
               string x = center + ".x";
               string y = center + ".y";
               center_x = x;
               center_y = y;
               translatedCenter = "Point(" + x + "," + y + ", false)";
-       }
+       } */
 
-       return translatedCenter;
+       return center;
 }
 
 string declStmtTranslation(vector<char*>* names) {
@@ -1127,6 +1135,15 @@ string declStmtTranslation(vector<char*>* names) {
        delete names;
 
        return output;
+}
+
+string starAddDatatype(string s){
+    if ("Tri " == s || "Circle " == s || "Para " == s || "RegPoly " == s || "Point " == s || "Line " == s) {
+        s = s + "* "; 
+    } 
+
+    return s;
+    
 }
 
 

@@ -14,7 +14,7 @@ fig figure_1 (1,(0,0)){
     point b := (2,7)
     point c := (7,1)
     tri t := Tri(a,b,c)
-    point o := t.CIRCUMCENTRE()
+    point o := t.CIRCUMCENTER()
     real r := || a-o ||
     circle c := (o,r)
 }

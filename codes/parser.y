@@ -52,6 +52,7 @@ int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
 int global_space = 1;
+int decl = 0;
 
 
 string scale = "1";
@@ -212,6 +213,9 @@ program:  program { global_space = 0 ;} func { *$$.text = *$1.text + *$func.text
               else {
                      collection.push_back(*$2.text);
               }
+
+             
+              
               
               }  //have to consider global statements differently
        | /* empty */ {

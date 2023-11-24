@@ -17,7 +17,7 @@ void yyerror(const char *s);
 int yylex();
 extern int yylineno;
 extern char* yytext;
-string translateLineArr(string linearr);
+
 
 using namespace std;
 
@@ -42,7 +42,9 @@ deque <string> collection;
 string assignOpTranslation(string op);
 string assignTranslation(string assignText,string memText);
 string centerTranslation(string center);
-
+string declStmtTranslation(vector<char*>* names);
+string translateLineArr(string linearr);
+string starAddDatatype(string s);
 
 int ret_flag = 0;
 int ret_fig_flag = 0;
@@ -50,7 +52,8 @@ int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
 int is_decl_stmt = 0;
-
+int global_space = 1;
+int decl = 0;
 
 string scale = "1";
 string center = "Point(0, 0, false)";
@@ -102,6 +105,8 @@ string totalProgram;
        };
 
        string* text;
+
+       string* withStarText;
        
     } main;
     
@@ -193,8 +198,14 @@ string totalProgram;
 */
 
 /* a program is a series of functions, figures and statements */
-program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;totalProgram = *$$.text;} 
-       | program fig {$$.text = new string;*$$.text = *$1.text + *$2.text; totalProgram = *$$.text;} 
+program:  program { global_space = 0 ;} func { $$.text = new string;*$$.text = *$1.text + *$3.text;totalProgram = *$$.text;
+                     //     fig_func.push_back(*$func.text);
+                         global_space = 1;
+                     } 
+       | program { global_space = 0 ;} fig {$$.text = new string;*$$.text = *$1.text + *$3.text; totalProgram = *$$.text;
+                     //   fig_func.push_back(*$fig.text);
+                       global_space = 1;
+                     } 
        | program stmt  {
               $$.text = new string;
               if ($stmt.stopAdvanceFound) 
@@ -207,7 +218,14 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;total
                      collection.push_back(*$2.text);
                      *$$.text = *$1.text;
               }
-              totalProgram = *$$.text;
+
+             totalProgram = *$$.text;
+
+              if(ret_flag) {
+                     cerr << "Error: Return statement not allowed outside function" << endl;
+                     ret_flag = 0; // to prevent cascading errors
+              }
+              
               
               }  //have to consider global statements differently
        | /* empty */ {
@@ -220,6 +238,7 @@ program: program func {$$.text = new string;*$$.text = *$1.text + *$2.text;total
          }      
        ; 
  
+
 
  /* Function Definition */
 func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr(); } '(' arg_list {
@@ -249,7 +268,8 @@ func:  FUNC DATATYPE  ID { insertType($3.name, Func, $2.eletype); addSymTabPtr()
                      delete $ID.name;
                      delSymTabPtr();
                      $$.text = new string;
-                     *$$.text = *$2.text + *$ID.text + "(" + *($[arg_list].text) + ")" +  *($[empty_space].text) + *($[stmt_block].text);
+
+                     *$$.text = starAddDatatype(*$2.text) + *$ID.text + "(" + *($[arg_list].text) + ")" +  *($[empty_space].text) + *($[stmt_block].text);
               }
               |  FUNC VOID ID { insertType($3.name, Func, $2.eletype);  addSymTabPtr(); } '(' arg_list {if(paramslist.size()>0) {
                      addParamList($3.name,paramslist);
@@ -341,17 +361,15 @@ params : expression ',' expression {
               scale = *$1.text;
               center = centerTranslation(*$3.text);
               $$.text = new string;
-              *$$.text = "double scale = " + *$1.text + " , Point center = " + *$3.text; 
+              *$$.text = "double scale = " + *$1.text + " , Point *center = " + center; 
        }
        | SCALE EQUAL expression ',' CENTER EQUAL expression { 
               if(!(arithCompatible($3.eletype) && $7.eletype == POINT)) 
                      semanticError("Error: Semantic error incompatible datatype") ;
               scale = *$3.text;
               center = centerTranslation(*$7.text);
-              // center_x = *$3.text;
-              // center_y = *$7.text;
-              $$.text = new string;
-              *$$.text = "double scale = " + *$3.text + " , Point center = " + *$7.text;
+               $$.text = new string;
+              *$$.text = "double scale = " + *$3.text + " , Point *center = " + center;
        }
 
  /* Statements */
@@ -418,8 +436,8 @@ lineArr: lineArr line_op vertex {$$.count = $$.count + 1;$$.text = new string; *
        | vertex line_op vertex {$$.count = 1;$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        ;
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = *$1.text + "(" + *$3.text + "," + center + "," + scale + ")" ;} 
-          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text + "(" + center + "," + scale + ")" ;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = "new " + *$1.text + "(" + *$3.text + "," + center + "," + scale + ")" ;} 
+          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = "new " + *$1.text + "(" + center + "," + scale + ")" ;} 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text ;} 
@@ -427,10 +445,9 @@ constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.t
             | PARACONSTRUCT { $$.eletype = $1.eletype;$$.text = new string;*$$.text = *$1.text ;} 
             | REGPOLYCONSTRUCT { $$.eletype = $1.eletype;$$.text = new string;*$$.text = *$1.text ;}
             ;
-
-valid_arg: construct {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-         | expression {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-         ;
+valid_arg: { decl =1 ;}construct {$$.eletype = $2.eletype; $$.text = new string; *$$.text = *$2.text; decl = 0;}
+         | { decl =1; } expression { $$.eletype = $2.eletype; $$.text = new string; *$$.text = *$2.text; decl = 0;}
+       
 
 param_list: param_list ',' valid_arg {
               if(is_member) {
@@ -484,8 +501,8 @@ construct_param_list: construct_param_list ',' valid_arg {
           ;
 
 //scale,center?
-point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "Point(" + *$2.text + "," + *$4.text + "," + *$6.text + "," + scale + "," + center_x + "," + center_y +")"; }
-       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "Point(" + *$2.text + "," + *$4.text +  "," + scale + "," + center_x + "," + center_y + ")";}
+point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "new Point(" + *$2.text + "," + *$4.text + "," + *$6.text + "," + scale + "," + center_x + "," + center_y +")"; }
+       |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "new Point(" + *$2.text + "," + *$4.text +  "," + scale + "," + center_x + "," + center_y + ")";}
        ; 
 
 // NOT TESTED
@@ -501,7 +518,7 @@ angle : '<' vertex vertex vertex ',' BOOLEAN '>'  {$$.eletype = ANGLE; $$.text =
 expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "+" + *$3.text;}
             | expression '-' expression {  $$.eletype = diffTypeCheck($1.eletype, $3.eletype);$$.text = new string;
                                             if ($$.eletype == LINE)
-                                                 *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";
+                                                 *$$.text = "new Line(" + *$1.text + ", " + *$3.text + ")";
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
@@ -514,23 +531,23 @@ expression:   expression '+' expression {  $$.eletype = sumTypeCheck($1.eletype,
             | expression PERPENDICULAR expression  {$$.eletype = perpendicularCheck($1.eletype, $3.eletype); $$.text = new string; *$$.text = "isPerpendicular(" + *$1.text + ", " + *$3.text + ")" ;}  //need to change this
             | PARALLEL inside_norm PARALLEL  { $$.eletype = REAL; $$.text = new string;*$$.text = *$2.text;} 
             | '-' expression %prec NEG {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = "-" + *$2.text;} 
-            | UNARY member_access {if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}
-            | member_access UNARY {if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = *$1.text + *$2.text;}
+            | UNARY member_access { if(global_space && decl)semanticError("Error: incorrect global declaration");   if(!($2.eletype == INT || $2.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$1.text + *$2.text;}
+            | member_access UNARY { if(global_space && decl)semanticError("Error: incorrect global declaration");   if(!($1.eletype == INT || $1.eletype == REAL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = *$1.text + *$2.text;}
             | NOT expression {if (!arithCompatible($2.eletype)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = "!" + *$1.text;}
             | expression AND expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "&&" + *$3.text; }
             | expression OR expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "||" + *$3.text; }
-            | member_access assign       {if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
+            | member_access assign       { if(global_space && decl)semanticError("Error: incorrect global declaration");    if (!(($1.eletype == $2.eletype) || coercible($1.eletype, $2.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = $1.eletype;  $$.text = new string;*$$.text = assignTranslation(*$2.text,*$1.text);}
             | expression CMP_OP expression {if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL;$$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;} 
             | expression '<' expression { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + "<" + *$3.text; }
             | expression '>' expression  { if(!(arithCompatible($1.eletype) && arithCompatible($3.eletype)) && ($1.eletype!=LABEL || $3.eletype != LABEL)) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + ">" + *$3.text; }
             | expression EQ_CMP_OP expression {if(!((arithCompatible($1.eletype) && arithCompatible($3.eletype)) || ($1.eletype == $3.eletype))) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = BOOL; $$.text = new string;*$$.text = *$1.text + *$2.text + *$3.text;}
-            | member_access {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
+            | member_access { if(global_space && decl)semanticError("Error: incorrect global declaration"); $$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
             | '(' expression ')' {$$.eletype = $2.eletype; $$.text = new string;*$$.text = "(" + *$2.text + ")";}
             | FLOATS {$$.text = new string; *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;} 
             | INTEGERS {$$.text = new string; *$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
             | BOOLEAN { $$.text = new string;*$$.text = *$1.text ; $$.eletype = $1.constExp.eletype;}
             | STRING_TOKEN { $$.text = new string;*$$.text = *$1.text ; $$.eletype = $1.eletype;}
-            | func_call {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
+            | func_call { if(global_space && decl)semanticError("Error: incorrect global declaration");   $$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
             | point { $$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}
             | angle {$$.eletype = $1.eletype;$$.text = new string; *$$.text = *$1.text;}            
             ; 
@@ -548,8 +565,14 @@ assign:  EQUAL expression {$$.eletype = $2.eletype;$$.text = new string; *$$.tex
        ;
 
        /* Declaration Statement */
-decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + ";"; }
-          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;*$$.text = *$1.text + *$2.text + ";";}
+decl_stmt : DATATYPE id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string;
+
+                                          if ("Tri " == *$DATATYPE.text || "Circle " == *$DATATYPE.text || "Para " == *$DATATYPE.text || "RegPoly " == *$DATATYPE.text || "Point " == *$DATATYPE.text || "Line " == *$DATATYPE.text) 
+                                                 *$$.text = *$DATATYPE.text + *$2.withStarText + ";"; 
+                                          else 
+                                                 *$$.text = *$1.text + *$2.text + ";" ;
+                                          }
+          | constructor id_list ENDLINE {typeUpdate($2.nameList, $1.eletype);$$.text = new string; *$$.text = *$1.text + *$2.withStarText + ";" ;}
           ;
 
 id_list: id_list ',' ID check_arr EQUAL arr_assign
@@ -559,6 +582,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               compareAndInsertArray($3.name, $4.dimList, $6.listAndType.eletype, $6.listAndType.dimList);
               $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text + *$4.text + *$5.text  + *$6.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = *$1.withStarText + ", *" + *$3.text + *$4.text + *$5.text  + *$6.text;
        }
        | id_list ',' ID check_arr  
        {
@@ -567,6 +593,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertArray($3.name, $4.dimList);
               $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text + *$4.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = *$1.withStarText + ", *" + *$3.text + *$4.text;
        }       
        | id_list ',' ID decl_assign 
        {
@@ -575,6 +604,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertType($3.name, Var, $4.eletype);
               $$.text = new string;
               *$$.text = *$1.text + "," + *$3.text + *$4.text;
+              
+              $$.withStarText = new string;
+              *$$.withStarText = *$1.withStarText + ", *" + *$3.text + *$4.text;
        }
        | ID check_arr  
        {
@@ -583,6 +615,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertArray($1.name, $2.dimList);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = " *" + *$1.text + *$2.text;
        }
        | ID check_arr EQUAL arr_assign
        {
@@ -591,6 +626,10 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               compareAndInsertArray($1.name, $2.dimList, $4.listAndType.eletype, $4.listAndType.dimList);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text + *$3.text + *$4.text;
+
+              $$.withStarText = new string;
+              *$$.withStarText = " *" +  *$1.text + *$2.text + *$3.text + *$4.text;
+
        }
        | ID check_arr EQUAL lineArr {
 
@@ -606,6 +645,9 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               $$.text = new string;
               *$$.text = *$1.text + *$2.text  + "=" + translateLineArr(*$4.text);
 
+              $$.withStarText = new string;
+              *$$.withStarText = " *" +  *$1.text + *$2.text  + "=" + translateLineArr(*$4.text);
+
        }
        | ID decl_assign 
        {
@@ -614,6 +656,8 @@ id_list: id_list ',' ID check_arr EQUAL arr_assign
               insertType($1.name, Var, $2.eletype);
               $$.text = new string;
               *$$.text = *$1.text + *$2.text;
+              $$.withStarText = new string;
+              *$$.withStarText = " *" +  *$1.text + *$2.text;
        }
        ;
 
@@ -621,8 +665,8 @@ decl_assign: EQUAL decl_token {$$.eletype = $2.eletype ; $$.text = new string;*$
        | /* empty */  {$$.eletype = UNDEF; $$.text = new string;*$$.text = "";}
        ; 
 
-decl_token: construct  {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
-          | expression {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text;}
+decl_token:  { decl = 1;} construct  { $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$2.text; decl = 0; }
+          | {decl=1;} expression { $$.eletype = $2.eletype; $$.text = new string;*$$.text = *$2.text; decl = 0; }
        ;
 
 /* Arrays */
@@ -1061,8 +1105,15 @@ string translateLineArr(string linearr){
 }
 
 string centerTranslation(string center) {
-       string translatedCenter;
-       if(center[0]=='(') {
+       /* string translatedCenter; */
+
+       // remove new at beginning
+
+
+       if(center.find(")") != std::string::npos) {
+               center = center.substr(4);
+               center = "new " + center;
+              /*
               int idx = center.find(',');
               if(idx!=string::npos) {
                      string x = center.substr(1,idx-1);
@@ -1070,17 +1121,43 @@ string centerTranslation(string center) {
                      center_x = x;
                      center_y = y;
                      translatedCenter = "Point(" + x + "," + y + ", false)";
-              }
+              } */
        }
-       else {
+       /* else {
               string x = center + ".x";
               string y = center + ".y";
               center_x = x;
               center_y = y;
               translatedCenter = "Point(" + x + "," + y + ", false)";
+       } */
+
+       return center;
+}
+
+string declStmtTranslation(vector<char*>* names) {
+
+       string output = "  ";
+
+       for (int i = 0;i < names->size();i++){
+              /* printf("%s\n", names->at(i)); */
+              output = output + " *" + string(names->at(i)) + ", ";
+              free(names->at(i));
        }
 
-       return translatedCenter;
+       output[output.size()-2] = ' ';
+
+       delete names;
+
+       return output;
+}
+
+string starAddDatatype(string s){
+    if ("Tri " == s || "Circle " == s || "Para " == s || "RegPoly " == s || "Point " == s || "Line " == s) {
+        s = s + "* "; 
+    } 
+
+    return s;
+    
 }
 
 

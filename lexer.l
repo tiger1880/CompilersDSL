@@ -175,7 +175,7 @@ $.*     { fprintf(fout_token, "LINE COMMENT: %s\n", yytext);}
 
 "void" {
     yylval.main.text = new string;
-    *yylval.main.text = yytext;
+    *yylval.main.text = "void ";
     if (strcmp(yytext, "void") == 0) {
         yylval.main.eletype = Void;
     } 

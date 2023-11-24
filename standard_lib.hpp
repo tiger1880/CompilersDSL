@@ -791,7 +791,7 @@ public:
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
-        glBegin(GL_TRIANGLES);
+        glBegin(GL_LINE_LOOP);
         glVertex2d(p1.x, p1.y);
         glVertex2d(p2.x, p2.y);
         glVertex2d(p3.x, p3.y);
@@ -1037,7 +1037,7 @@ public:
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
-        glBegin(GL_QUADS);
+        glBegin(GL_LINE_LOOP);
         glVertex2d(p1.x, p1.y);
         glVertex2d(p2.x, p2.y);
         glVertex2d(p3.x, p3.y);

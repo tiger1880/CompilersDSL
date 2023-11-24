@@ -412,8 +412,8 @@ lineArr: lineArr line_op vertex {$$.count = $$.count + 1;$$.text = new string; *
        | vertex line_op vertex {$$.count = 1;$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        ;
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = *$1.text + "(" + *$3.text + "," + scale + "," + center + ")" ;} 
-          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text + "(" + scale + "," + center + ")" ;} 
+construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = *$1.text + "(" + *$3.text + "," + center + "," + scale + ")" ;} 
+          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text + "(" + center + "," + scale + ")" ;} 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text ;} 

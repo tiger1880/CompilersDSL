@@ -284,7 +284,7 @@ class Line : public Shape {
 
     Line(){}
 
-    Line(Point x1, Point x2, lineType type = SEGMENT, bool sh = true, double Scale = 1.0, Point Center = Point(0, 0, false)):
+    Line(Point x1, Point x2, lineType type = SEGMENT, bool sh = true, Point Center = Point(0, 0, false), double Scale = 1.0):
     a(x1),
     b(x2),
     t(type),
@@ -319,7 +319,7 @@ class Line : public Shape {
 
     // m, c constructor
     // y = mx + c
-    Line(double m1, double c1, double Scale = 1.0, Point Center = Point(0, 0, false), bool sh = false):
+    Line(double m1, double c1,  bool sh = false, Point Center = Point(0, 0, false), double Scale = 1.0):
     m(m1),
     c(c1),
     toDisplay(sh),
@@ -897,10 +897,11 @@ class Circle : public Shape
     public:
     float radius;
     Point center;
+    Point figCenter;
     double scale;
     bool toDisplay;
 
-    Circle(float radius, Point Center = Point(0,0),bool sh = true, double Scale = 1.0)
+    Circle(float radius, Point center, bool sh = true, Point Center = Point(0, 0, false), double Scale = 1.0)
     {   
         this->radius = radius;
         this->center = center;
@@ -967,9 +968,11 @@ public:
     Point center; 
     bool toDisplay;
 
-    Para(double s1, double ang, double s2, bool sh = true,class Point center = Point(0, 0, false), double scale = 1.0)
+    Para(double s1, double ang, double s2, bool sh = true,class Point Center = Point(0, 0, false), double Scale = 1.0)
     {
         
+        scale = Scale;
+        center = Center;
         p1 = Point(0, 0);
         p2 = Point(s1, 0);
         p3 = Point(s2 * cos(ang) + s1, s2 * sin(ang));
@@ -1284,16 +1287,7 @@ vector<Point>
 
 int main(int argc, char* argv[]){
 
-    Point p(0, 10);
-
-    Line l = Line(p, Point(1, 2), LINE);
-
-
-    for (int i = 0;i < 10;i ++){
-
-        Point p = Point(0, i);
-    }
-
+    Circle c(5, Point(1, 2));
 
     glutInit(&argc, argv);
 

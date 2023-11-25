@@ -1,88 +1,41 @@
-fig fig1(1, (0, 0)){
-
-    $$
-    line l1 := (0, 0)-(5,5)
-    line l2 := (1, 0)-(2, -1)
-
-    INTERSECTION(l1, l2)
-
-    point p := (1, 2, "P")
-
-
-    
-    $ ANGLE_BISECTOR(l1, l2)
-
-    repeat(int i := 10|i <= 180|i+:=10){
-        LINE_AT_ANGLE(i, l1, (0, 0))
-
+$ Usage of norm is shown below.
+point p := (2,3), q := (6,8),r := (4,4)
+repeat(int i:= ||p||+||q|| | i < 20  | i++)
+{
+    if(i%2==0 and (i > 5 and i<15))
+    {
+       p.x +:= 4 
     }
-    $$
-
-
-    tri t := Tri(3,4,5)
-    point q := t.INCENTER()
-    point r := t.EXCENTER((0,0))
-
-    $$
-
-        circle c := Circle(5,(0,0))
-        point p := (3,4)
-        c.TANGENT(p)
-    $$
+    else
+    {
+        int dist := 0
+        dist++
+        stop
+    }
 }
 
-fig1()
+fig figure_1(1,(1,0))
+{
+    line l[2] := p-q<->r
+    bool flag := 0
+    repeat(int i:=0|5-1|i++)
+    {   
+        $  To Check if all lines in an array are parallel or not
+        if(not (l[i]||l[i+1]))
+        {
+            flag := 1
+        }
+    }
+    if(flag)
+    {
+      flag := 0
+    }
 
+    circle c1 := Circle(2.5,(2,3))
+    circle c2 := Circle(3.6,(4,5))
+    
 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+figure_1()
 

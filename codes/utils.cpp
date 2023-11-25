@@ -404,10 +404,10 @@ bool arithCompatible(int e){
 * x/y can be : INT, REAL
 */
 enum eletype pointCheck (enum eletype x, enum eletype y){
-       if ((x == INT || x == REAL) && (y == INT || y == REAL ))
+       if ((arithCompatible(x) && arithCompatible(y)))
               return POINT;
        else {
-              cerr << "Error: Semantic error invalid point \n";
+              semanticError("Error: Semantic error invalid point \n");
               exit(1);
        }
 }

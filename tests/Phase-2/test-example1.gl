@@ -1,0 +1,50 @@
+$ Two concentric circles of radii R and 2R with n circles of radius R/2 equally spaced between the concentric circles
+
+func real sin(real x) {
+    
+    real result := 0.0
+    real term := x
+    int sign := 1
+    
+    repeat (int i := 1| i <= 10| i +:= 2) {
+        result +:= sign * term
+        sign *:= -1
+        term *:= (x * x) / (i * (i + 1))
+    }
+
+    return result
+}
+
+func real cos(real x) {
+    real result := 0.0
+    real term := 1.0
+    int sign := -1
+    int i := 2
+
+    repeat (| i <= 10| i +:= 2) {
+        result +:= sign * term
+        sign *:= -1
+        term *:= (x * x) / (i * (i - 1))
+    }
+
+    return result
+}
+
+$ global variables
+int R := 10
+int n := 5
+real pi := 3.141592
+
+fig circles_fig(0.5, (0, 0)) {
+
+    real theta := 0
+
+    until(theta < 2*pi)
+    {
+        Circle(R/2.0,(3.0*R/2*sin(theta), 3.0*R/2*cos(theta)))
+        theta +:= pi/n
+    }
+}
+
+circles_fig(1, (0, 0))
+circles_fig(0.5, (0, 5))

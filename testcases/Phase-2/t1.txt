@@ -41,7 +41,7 @@ fig circles_fig(0.5, (0, 0)) {
 
     until(theta < 2*pi)
     {
-        Circle((3.0*R/2*sin(theta), 3.0*R/2*cos(theta)), R/2.0)
+        Circle(R/2.0,(3.0*R/2*sin(theta), 3.0*R/2*cos(theta)))
         theta +:= pi/n
     }
 }

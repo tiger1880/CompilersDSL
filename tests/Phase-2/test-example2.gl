@@ -1,14 +1,14 @@
 $ Usage of norm is shown below.
-point p := (2,3), q := (6,8)
+point p := (2,3), q := (6,8),r := (4,4)
 repeat(int i:= ||p||+||q|| | i < 20  | i++)
 {
     if(i%2==0 and (i > 5 and i<15))
     {
-        print(||p-q||)
+       p.x +:= 4 
     }
     else
     {
-        int dist := SHORTEST_DISTANCE(p,q)
+        int dist := 0
         dist++
         stop
     }
@@ -21,7 +21,7 @@ fig figure_1(1,(1,0))
     repeat(int i:=0|5-1|i++)
     {   
         $  To Check if all lines in an array are parallel or not
-        if(not(l[i]||l[i+1]))
+        if(not (l[i]||l[i+1]))
         {
             flag := 1
         }
@@ -31,9 +31,9 @@ fig figure_1(1,(1,0))
       flag := 0
     }
 
-    circle c1 := Circle((2,3),2.5)
-    circle c2 := Circle((4,5), 3.6)
-    point p :=  INTERSECTION(c1,c2)
+    circle c1 := Circle(2.5,(2,3))
+    circle c2 := Circle(3.6,(4,5))
+    
 
 }
 

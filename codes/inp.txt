@@ -1,51 +1,87 @@
-$ check new constructs norm, ||, |-, ^=, ^ along with the rest
+fig fig1(1, (0, 0)){
 
-func bool isRight(point p, point q,point r) {
-    real s1 := || p - q ||
-    real s2 := || q - r ||
-    real s3 := || r - p ||
+    $$
+    line l1 := (0, 0)-(5,5)
+    line l2 := (1, 0)-(2, -1)
 
-    if(s1 > s2 and s1 > s3) {
-        if(s1^2 == s2^2 + s3^2) {
-            return true
-        }
-        else {
-            return false
-        }
+    INTERSECTION(l1, l2)
+
+    point p := (1, 2, "P")
+
+
+    
+    $ ANGLE_BISECTOR(l1, l2)
+
+    repeat(int i := 10|i <= 180|i+:=10){
+        LINE_AT_ANGLE(i, l1, (0, 0))
+
     }
-    elif(s2 > s3 and s2 > s1) {
-        if(s2^2 == s1^2 + s3^2) {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-    elif(s3 > s2 and s3 > s1) {
-        if(s3^2 == s1^2 + s2^2) {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-    else {
-        return false
-    }
+    $$
+
+
+    tri t := Tri(3,4,5)
+    point q := t.INCENTER()
+    point r := t.EXCENTER((0,0))
+
+    $$
+
+        circle c := Circle(5,(0,0))
+        point p := (3,4)
+        c.TANGENT(p)
+    $$
 }
 
-int x := 4
+fig1()
 
-point p := (0,0)
-point q := (8,9)
-point r := (x--,++x)
 
-real d
 
-if(isRight(p,q,r)) {
-    d := ||r||
-    d ^:= 2
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

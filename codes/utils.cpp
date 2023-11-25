@@ -684,7 +684,7 @@ void argumentTypeChecking(vector<ParamList> &func_params,vector<types> &passed_p
        }
        else {
               for(int i = 0;i<func_params.size();i++) {
-                     if(func_params[i].Eletype==passed_params[i].eletype) {
+                     if(coercible(func_params[i].Eletype, passed_params[i].eletype)) {
                             bool isEqual = 0;
                             if(equal(func_params[i].dim.begin(),func_params[i].dim.end(),passed_params[i].dim.begin(),passed_params[i].dim.end())) {
                                    isEqual = 1;

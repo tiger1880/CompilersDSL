@@ -1366,7 +1366,7 @@ Point*
     {
         Point* p = NULL;
         // Finding quadratic equation and then sove it.
-        double d = sqrt(pow((c1->center.x - c2->center.x), 2) + pow((c1->center.y - c2->center.y), 2));
+        double d = norm(&c1->center,&c2->center);
         if (d > c1->radius + c2->radius)
             return p;
         if (d < abs(c1->radius - c2->radius))
@@ -1374,7 +1374,7 @@ Point*
         if (d == 0 && (c1->radius - c2->radius) == 0)
             return p;
         double c, k;
-        c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->center.x * c2->center.x + c2->center.y * c2->center.y) - (c1->center.x * c1->center.x + c1->center.x * c1->center.x)) / (2 * (c2->center.x - c1->center.x));
+        c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->center.x * c2->center.x + c2->center.y * c2->center.y) - (c1->center.x * c1->center.x + c1->center.y * c1->center.y)) / (2 * (c2->center.x - c1->center.x));
         k = (c1->center.y - c2->center.y) / (c2->center.x - c1->center.x);
         double D = (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2)) - 4 * (k * k + 1) * (c1->center.x * c1->center.x + c1->center.y * c1->center.y + c * c - c1->radius * c1->radius - 2 * c * c1->radius);
         
@@ -1386,11 +1386,13 @@ Point*
         }
         else
         {
+            
             p = new Point[2];
             p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-            p[1].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+            p[1].y =  1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
             p[0].x = k * p[0].y + c;
-            p[0].x = k * p[1].y + c;
+            p[1].x = k * p[1].y + c;
+
         }
 
         return p;

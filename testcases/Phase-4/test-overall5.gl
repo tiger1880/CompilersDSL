@@ -1,0 +1,8 @@
+fig figure_1(1,(0,0)) {
+    tri t := Tri(3.0,4.0,5.0)
+    point p:= t.CIRCUMCENTER()
+    real r := || p ||
+    circle c := Circle(r,p)
+}
+
+figure_1()

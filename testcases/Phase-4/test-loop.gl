@@ -8,7 +8,7 @@ repeat(int i:=0 | i < a | i++) {
     sum +:= i
 }
 
-while(sum > a) {
+until (sum > a) {
     sum -:= 4
     label s := "Helloooo!!!"
 }

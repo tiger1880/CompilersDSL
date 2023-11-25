@@ -3,7 +3,7 @@ $ check new constructs norm, ||, |-, ^=, ^ along with the rest
 func bool isRight(point p, point q,point r) {
     real s1 := || p - q ||
     real s2 := || q - r ||
-    real s3 := || r - s ||
+    real s3 := || r - p ||
 
     if(s1 > s2 and s1 > s3) {
         if(s1^2 == s2^2 + s3^2) {
@@ -13,7 +13,7 @@ func bool isRight(point p, point q,point r) {
             return false
         }
     }
-    else if(s2 > s3 and s2 > s1) {
+    elif(s2 > s3 and s2 > s1) {
         if(s2^2 == s1^2 + s3^2) {
             return true
         }
@@ -21,7 +21,7 @@ func bool isRight(point p, point q,point r) {
             return false
         }
     }
-    else if(s3 > s2 and s3 > s1) {
+    elif(s3 > s2 and s3 > s1) {
         if(s3^2 == s1^2 + s2^2) {
             return true
         }

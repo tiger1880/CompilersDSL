@@ -1,0 +1,7 @@
+fig polygon(1,(0,0)) {
+    repeat(int i := 1 | i<5 | i++) {
+        RegPoly(5,i)
+    }
+}
+
+polygon()

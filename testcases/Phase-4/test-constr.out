@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include <GL/glut.h>
+#include <string>
+#include <cstdlib>
+#include <cmath>
+#include <deque>
+#include "standard_lib.hpp"
+
+Point *p = new Point(3.2, 4, 1, 0, 0);
+Point *q = new Point(4, 5.5, 1, 0, 0);
+Point *r = new Point(7, 8, 1, 0, 0);
+Tri *t1 = new Tri(p, q, r, new Point(0, 0, false), 1);
+void figure_1(double scale = 2.0, Point *center = new Point(6, 6, 1, 0, 0))
+{
+    Tri *t2 = new Tri(7, 5.5, 10, new Point(6, 6, 1, 0, 0), 2.0);
+    Circle *c = new Circle(3.5, r, new Point(6, 6, 1, 0, 0), 2.0);
+}
+void figure_2(double scale = 3, Point *center = new Point(3, 3, 1.0, 0, 0))
+{
+    Tri *t3 = new Tri(4, 5, new Point(3, 3, 1.0, 0, 0), 3);
+    Para *p = new Para(6, 60, 6, new Point(3, 3, 1.0, 0, 0), 3);
+    RegPoly *r = new RegPoly(6, 3, new Point(3, 3, 1.0, 0, 0), 3);
+}
+Point *s = new Point(4, 4, 1.0, 0, 0);
+Point *k = new Point(8, 8, 1.0, 0, 0);
+Line *l = new Line(s, k);
+
+int main(int argc, char **argv)
+{
+
+    figure_1();
+    figure_2();
+
+    glutInit(&argc, argv);
+    glutInitWindowSize(640, 480);
+    glutInitWindowPosition(50, 50);
+    glutCreateWindow("Figure");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    init();
+    glutMainLoop();
+
+    return 0;
+}

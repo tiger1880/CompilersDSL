@@ -1,0 +1,78 @@
+#include <iostream>
+#include <vector>
+#include <GL/glut.h>
+#include <string>
+#include <cstdlib>
+#include <cmath>
+#include <deque>
+#include "standard_lib.hpp"
+
+bool isRight(Point *p, Point *q, Point *r)
+{
+    double s1 = norm(p, q);
+    double s2 = norm(q, r);
+    double s3 = norm(r, p);
+    if (s1 > s2 && s1 > s3)
+    {
+        if (pow(s1, 2) == pow(s2, 2) + pow(s3, 2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else if (s2 > s3 && s2 > s1)
+    {
+        if (pow(s2, 2) == pow(s1, 2) + pow(s3, 2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else if (s3 > s2 && s3 > s1)
+    {
+        if (pow(s3, 2) == pow(s1, 2) + pow(s2, 2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+int x = 4;
+Point *p = new Point(0, 0, 1, 0, 0);
+Point *q = new Point(8, 9, 1, 0, 0);
+Point *r = new Point(x--, ++x, 1, 0, 0);
+double d;
+
+int main(int argc, char **argv)
+{
+
+    if (isRight(p, q, r))
+    {
+        d = norm(r);
+        d = pow(d, 2);
+    }
+
+    glutInit(&argc, argv);
+    glutInitWindowSize(640, 480);
+    glutInitWindowPosition(50, 50);
+    glutCreateWindow("Figure");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    init();
+    glutMainLoop();
+
+    return 0;
+}

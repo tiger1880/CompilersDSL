@@ -1,11 +1,11 @@
 $ verify how scale and center is being stored
 
-fig kite(scale := 2, center := (1, 2)){
+fig kite(scale := 1, center := (2, 2)){
 
     point p1 := (0, 1)
     point p2 := (0, -1)
     point p3 := (1, 0)
-    point p4 := (0, 1)
+    point p4 := (-1, 0)
 
 }
 

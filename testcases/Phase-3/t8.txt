@@ -1,0 +1,26 @@
+$ verify how scale and center is being stored
+
+fig kite(scale := 1, center := (2, 2)){
+
+    point p1 := (0, 1)
+    point p2 := (0, -1)
+    point p3 := (1, 0)
+    point p4 := (-1, 0)
+
+}
+
+fig singleStep(scale := 1, center := (0, 0)){
+
+    para p := Para(5, 90, 12) $ single staircase step
+}
+
+repeat(int i := 1|i < 10|i++){
+
+    kite(i*i, (0, i))
+}
+
+$ creates a staircase
+repeat (int i := -10|i >= 0|i++){
+    
+    singleStep(1, (i, i))
+}

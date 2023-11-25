@@ -1,0 +1,17 @@
+func bool verifyCircleTangent(point q, point p,real r){
+    circle c:= Circle(r,s)
+    line l := c.TANGENT(p)
+
+    line l2 := q <-> p
+
+    if(l |- l2) {
+        return true
+    }
+    else {
+        return false
+    }
+
+
+}
+
+verifyCircleTangent((0,0),(0,2),2)

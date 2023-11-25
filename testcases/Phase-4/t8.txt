@@ -1,0 +1,30 @@
+func bool circleAndTangents(point p,point q,point r, real s) {
+    circle c := Circle(s,p)
+
+    line l1 := c.TANGENT(q)
+    line l2 := c.TANGENT(r)
+
+    line l[1] := p-q->r
+    
+    l := ANGLE_BISECTOR(l1,l2)
+
+    line d1 := l[0]
+    line d2 := l[1]
+
+    if(d1.passesThrough(p) or d2.passesThrough(p)) {
+        return true
+    }
+
+    return false
+
+
+}
+
+circleAndTangents((0,0),(0,2),(2,0),2)
+
+
+
+
+
+
+

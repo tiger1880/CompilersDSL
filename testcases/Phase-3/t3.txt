@@ -1,0 +1,36 @@
+real a := .3
+
+func int foo(int c, bool f) {
+    regPoly p := RegPoly(3,3)
+
+    Circle c := Circle((2,2),1)
+
+    return c
+}
+
+fig figure(scale := 2,center := (1,1)) {
+    point p := (3,4)
+    point q := (4,5)
+    point r := (6.5,3.4)
+    point s := (1,4)
+    line l := p<->r-q->s
+
+    {
+        int arr[][4] := {{1,2,3,4},{5,6,7,8}}
+
+        {
+            angle arr := < (1,2) (2,2) (0,0) >
+        }
+    }
+
+}
+
+label s := "LABEL"
+
+Para p
+
+{
+    int _p
+    bool f := true
+}
+

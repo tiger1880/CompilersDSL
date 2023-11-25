@@ -312,9 +312,10 @@ void insertConstructTab() {
     /*Line*/
     ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
-    ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    //ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
     ConstructTab[1]["SHORTEST_DISTANCE"] = {Func,REAL,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
+    ConstructTab[1]["passesThrough"] = {Func,BOOL,{{Var,POINT,"a",{}}},{}};
     ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
 
     /*Circle*/
@@ -351,7 +352,7 @@ exits ERROR_RECOVERY
 */
 void semanticError(const char* s){
        cerr << yylineno << ": "<< s << "\n";
-       exit(1);
+       //exit(1);
 }
   
 /*

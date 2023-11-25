@@ -835,29 +835,29 @@ class Line : public Shape {
     friend bool isParallel(Line *l1, Line *l2);
     friend double SHORTEST_DISTANCE(Line* l1, Line* l2);
    
-    Point MIDPOINT(){
+    Point *MIDPOINT_LINE(){
 
         if (t != SEGMENT)
-            return b;
+            return &b;
         
-        Point p = Point((a.x+b.x)/2, (a.y+b.y)/2);  // SEGFAULT
+        Point *p = new Point((a.x+b.x)/2, (a.y+b.y)/2);  
 
         return p;
 
     }
 
-    bool passesThrough(Point p){
+    bool passesThrough(Point *p){
 
 
         if (angle == 90){
             
-            if (p.x == a.x)
+            if (p->x == a.x)
                 return true;
             return false;
 
         }
 
-        if (p.y == (m*p.x + c))
+        if (p->y == (m*p->x + c))
             return true;
         
         return false;
@@ -887,7 +887,7 @@ Point* rotatePoint(Point* point, Point* center, double theta) {
 Line *LINE_AT_ANGLE(double a, Line *l, Point *p){
 
 
-    if (!l->passesThrough(*p)){
+    if (!l->passesThrough(p)){
 
         cout << "LINE_AT_ANGLE: p doesn't pass through l\n";
         return l;
@@ -944,9 +944,7 @@ Line* ANGLE_BISECTOR(Line *a, Line *b){
 
 
     Line* x = new Line[2];
-    a->printEquation();
-    b->printEquation();
-
+  
     if (a->angle == 90 && b->angle == 90){
 
         cout << "Parallel lines cannot have angle bisectors\n";

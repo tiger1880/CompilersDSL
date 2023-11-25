@@ -10,7 +10,7 @@
 using namespace std;
 
 const double  PI  = 3.14;
-double height = 640, width = 480, axisLength = 10, aspectRatio = 1, xAxis = 10, yAxis = 10;
+double height = 640, width = 480, axisLength = 11, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
 class Shape;
 
@@ -110,12 +110,12 @@ public:
         scale = 1;
         center_x = 0;
         center_y = 0;
+        tag = "";
         cerr<< "constr 1: "<< shapeStore.size()<<" "<<this<<endl;
         cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
-    // store globally center aswell
     Point(double a, double b, string s,double Scale, double cx, double cy)
     {
         scale = Scale;
@@ -196,11 +196,12 @@ public:
         tag = "";
         is_show = true;
         cerr<< "constr 7: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        cerr << x << " " << y << endl;
         shapeStore.push_back(this);
     }
 
     void show() {
+
         glLoadIdentity();
         glTranslatef(center_x, center_y, 0.0f);
         glScalef(scale, scale, 0.0f);
@@ -213,6 +214,19 @@ public:
         glLoadIdentity();
 
 
+    }
+
+    void printPoint(){
+
+        cout << "--------------------------------------------------\n";
+        cout << "x: " << x << "\n";
+        cout << "y: " << y << "\n";
+        cout << "tag: " << tag << "\n";
+        cout << "scale: " << scale << "\n";
+        cout << "center_x: " << center_x << "\n";
+        cout << "center_y: " << center_y << "\n";
+        cout << "is_show: " << is_show << "\n";
+        cout << "--------------------------------------------------\n";
     }
 
     bool getIs_show(){
@@ -372,19 +386,16 @@ class Line : public Shape {
         shapeStore.push_back(this);
     }
 
-    Line(Point *x1, Point *x2,  bool sh = true, lineType type = SEGMENT,Point *Center = new Point(0, 0, false), double Scale = 1.0):
+    Line(Point *x1, Point *x2, lineType type = SEGMENT,Point *Center = new Point(0, 0, false), double Scale = 1.0):
     a(*x1),
     b(*x2),
     t(type),
-    is_show(sh),
+    is_show(true),
     m(0),
     c(0),
     scale(Scale),
     center(*Center)
     {
-        // if (x1 != x2){
-            cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
-        // }
 
         cout << this << "\n";
 
@@ -656,10 +667,10 @@ class Line : public Shape {
 };
 
 
-Point rotatePoint(const Point& point, const Point& center, double theta) {
-    double x = center.x + (point.x - center.x) * std::cos(theta) - (point.y - center.y) * std::sin(theta);
-    double y = center.y + (point.x - center.x) * std::sin(theta) + (point.y - center.y) * std::cos(theta);
-    return {x, y};
+Point* rotatePoint(Point* point, Point* center, double theta) {
+    double x = center->x + (point->x - center->x) * std::cos(theta) - (point->y - center->y) * std::sin(theta);
+    double y = center->y + (point->x - center->x) * std::sin(theta) + (point->y - center->y) * std::cos(theta);
+    return new Point(x, y);
 }
 
 Line *LINE_AT_ANGLE(double a, Line *l, Point *p){
@@ -671,38 +682,29 @@ Line *LINE_AT_ANGLE(double a, Line *l, Point *p){
         return l;
     }
 
-    Point rotatePoint1(0, 0, false);
-    Point rotatePoint2(0, 0, false);
+    Point* rotatePoint1 = new Point(0, 0, false);
+    Point* rotatePoint2  = new Point (0, 0, false);
 
     while (a >= 180)
         a -= 180;
 
-    rotatePoint1 = rotatePoint(l->a, *p, a*PI/180);
-    rotatePoint2 = rotatePoint(l->b, *p, a*PI/180);
+    rotatePoint1 = rotatePoint(&l->a, p, a*PI/180);
+    rotatePoint2 = rotatePoint(&l->b, p, a*PI/180);
 
-    Line* l1 = new Line(&rotatePoint1, &rotatePoint2, LINE); // defaulting it LINE for now
+    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE for now
 
-    return l1; // delete ??
+    return l1; 
 
 }
 
-// add test cases
 Point *INTERSECTION(Line *l1, Line *l2){
-
-
-    // if (l1->t != LINE || l2->t != LINE){
-
-    //     cout << "Define intersection for the rest" << "\n";
-
-    //     return &l1->a;
-    // }
 
     if (l1->m == l2->m){
         cout << "Do not intersect parallel" << "\n";
         return &l1->a;
     }
 
-    Point *p =  new Point(0.0, 0.0);  // SEGFAULT
+    Point *p =  new Point(0.0, 0.0, 1.0, 0, 0);  
     
     if (l1->angle == 90){
         p->x = l1->a.x;
@@ -715,8 +717,6 @@ Point *INTERSECTION(Line *l1, Line *l2){
     if (l2->angle == 90){
         p->x = l2->a.x;
         p->y = l1->m*p->x + l1->c;
-        cout << l1->m << " " << l1->c << "\n";
-
 
         return p;
     }
@@ -978,9 +978,14 @@ public:
 
     Point *EXCENTER(Point *p)
     {
-        Line *a = new Line(&p1, &p2, false);
-        Line *b = new Line(&p2, &p3, false);
-        Line *c = new Line(&p3, &p1, false);
+        Line *a = new Line(&p1, &p2);
+        Line *b = new Line(&p2, &p3);
+        Line *c = new Line(&p3, &p1);
+
+        a->setDisplay(false);
+        b->setDisplay(false);
+        c->setDisplay(false);
+
 
         Line* l1;
         Line* l2;
@@ -1020,9 +1025,13 @@ public:
 
     Point *INCENTER() // SEGFAULT
     {
-        Line *a = new Line(&p1, &p2, false);
-        Line *b = new Line(&p2, &p3, false);
-        Line *c = new Line(&p3, &p1, false);
+        Line *a = new Line(&p1, &p2);
+        Line *b = new Line(&p2, &p3);
+        Line *c = new Line(&p3, &p1);
+
+        a->setDisplay(false);
+        b->setDisplay(false);
+        c->setDisplay(false);
 
         Line* l1;
         Line* l2;

@@ -45,6 +45,7 @@ string centerTranslation(string center);
 string declStmtTranslation(vector<char*>* names);
 string translateLineArr(string linearr);
 string starAddDatatype(string s);
+string convertLineOp(string s);
 
 int ret_flag = 0;
 int ret_fig_flag = 0;
@@ -510,7 +511,7 @@ construct_param_list: construct_param_list ',' valid_arg {
           ;
 
 //scale,center?
-point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "new Point(" + *$2.text + "," + *$4.text + "," + *$6.text + "," + scale + "," + center_x + "," + center_y +")"; }
+point : '(' expression ','  expression ',' STRING_TOKEN ')' { $$.eletype = pointCheck($2.eletype, $4.eletype); $$.text = new string; *$$.text = "new Point(" + *$2.text + "," + *$4.text + ", string(" + *$6.text + ") ," + scale + "," + center_x + "," + center_y +")"; }
        |  '(' expression ','  expression  ')'  { $$.eletype = pointCheck($2.eletype, $4.eletype);$$.text = new string;*$$.text = "new Point(" + *$2.text + "," + *$4.text +  "," + scale + "," + center_x + "," + center_y + ")";}
        ; 
 
@@ -531,7 +532,7 @@ expression:   expression '+' expression { is_member=0; $$.eletype = sumTypeCheck
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
-            | expression LINE_OP expression {is_member=0;if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "new Line(" + *$1.text + ", " + *$3.text + ")";} 
+            | expression LINE_OP expression {is_member=0;if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "new Line(" + *$1.text + ", " + *$3.text + "," + convertLineOp(*$2.text) + " )";} 
             | expression '*' expression {  is_member=0;$$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
             | expression '/' expression { is_member=0; $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { is_member=0;if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}

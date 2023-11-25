@@ -7,6 +7,9 @@
 - make Commands
 - Authors
 
+## Installing OpenGL
+- Install GLUT,GLU, OpenGL and necessary dependencies
+
 ## Running
 To run the parser:
 

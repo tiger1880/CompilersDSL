@@ -111,8 +111,8 @@ public:
         center_x = 0;
         center_y = 0;
         tag = "";
-        cerr<< "constr 1: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        // cerr<< "constr 1: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -125,8 +125,8 @@ public:
         y = b;
         tag = s;
         is_show = true;
-        cerr<< "constr 2: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        // cerr<< "constr 2: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -139,8 +139,8 @@ public:
         y = b;
         tag = "";
         is_show = true;
-        cerr<< "constr 3: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        // cerr<< "constr 3: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -153,8 +153,8 @@ public:
         y = b;
         tag = "";
         is_show = sh;
-        cerr<< "constr 4: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        // cerr<< "constr 4: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
     
@@ -167,8 +167,8 @@ public:
         y = b;
         tag = s;
         is_show = sh;
-        cerr<< "constr 5: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        // cerr<< "constr 5: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -181,8 +181,8 @@ public:
         y = b;
         tag = "";
         is_show = sh;
-        cerr<< "constr 6: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr<<x<<" "<<y<<endl;
+        // cerr<< "constr 6: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -195,8 +195,8 @@ public:
         y = b;
         tag = "";
         is_show = true;
-        cerr<< "constr 7: "<< shapeStore.size()<<" "<<this<<endl;
-        cerr << x << " " << y << endl;
+        // cerr<< "constr 7: "<< shapeStore.size()<<" "<<this<<endl;
+        // cerr << x << " " << y << endl;
         shapeStore.push_back(this);
     }
 
@@ -311,7 +311,7 @@ void display() {
 
 
     for (int i = 0;i < shapeStore.size();i++){
-        cerr<< "i: " << i<<" "<<shapeStore[i]<<endl;
+        // cerr<< "i: " << i<<" "<<shapeStore[i]<<endl;
         if (shapeStore[i]->getIs_show())
             shapeStore[i]->show();
     }
@@ -397,7 +397,6 @@ class Line : public Shape {
     center(*Center)
     {
 
-        cout << this << "\n";
 
         shapeStore.push_back(this);
         
@@ -453,9 +452,7 @@ class Line : public Shape {
         c = l.c;
         m = l.m;
         t = l.t;
-        // shapeStore.push_back(this);
         
-        // cout << "copy called\n";
     }
 
     // copy assignment operator
@@ -468,10 +465,8 @@ class Line : public Shape {
         c = l.c;
         m = l.m;
         t = l.t;
-        // cerr << shapeStore.size() << "\n";
-        // shapeStore.push_back(this);
         
-        // cout << "assignment called\n";
+        
 
         return *this;
 
@@ -511,7 +506,7 @@ class Line : public Shape {
 
         double xFinal, yFinal;
 
-        double r, r1, r2;   
+        double r, rx, ry;   
 
          if (a == b){
             xFinal = b.x;
@@ -519,36 +514,83 @@ class Line : public Shape {
         }
         else {
 
-            // positive
-            r = R(true, a, b);
+            
+           r = (b.x - a.x)/cos(angle*PI/180);
 
-            xFinal = b.x + r*cos(angle*PI/180);
-            yFinal = b.y + r*sin(angle*PI/180); 
+           if (r > 0){
 
-            double flag = 0;
+                if (b.x - a.x > 0){
 
-            // check same side
-            if (a.x != b.x)
-                flag = (xFinal - a.x)/(b.x - a.x);
-            else 
-                flag = (yFinal - a.y)/(b.y - a.y);
+                    r = (xAxis - a.x)/cos(angle*PI/180);
+                }
+                else {
 
-            if (flag < 0){
-                
-                // negative
-                r = R(false, a, b);
-                xFinal = b.x - r*cos(angle*PI/180);
-                yFinal = b.y - r*sin(angle*PI/180); 
-                
-            }
-        
+                    r = (-xAxis - a.x)/cos(angle*PI/180);
+
+                }
+
+                rx = r;
+
+                if (b.y - a.y > 0){
+                    r = (yAxis - a.y)/sin(angle*PI/180);
+                }
+                else {
+                    r = (-yAxis - a.y)/sin(angle*PI/180);
+                }
+
+                ry = r;
+
+                r = abs(min(rx, ry));
+
+                if (r >= norm(&a, &b)+1)
+                    r = abs(r-1);
+
+                xFinal = a.x + r*cos(angle*PI/180);
+                yFinal = a.y + r*sin(angle*PI/180);
+           
+           }
+           else {
+
+                if (b.x - a.x > 0){
+
+                    r = (a.x - xAxis)/cos(angle*PI/180);
+                }
+                else {
+
+                    r = (xAxis + a.x)/cos(angle*PI/180);
+
+                }
+
+                rx = r;
+
+                if (b.y - a.y > 0){
+                    r = (-yAxis + a.y)/sin(angle*PI/180);
+                }
+                else {
+                    r = (yAxis + a.y)/sin(angle*PI/180);
+                }
+
+                ry = r;
+
+                r = abs(min(rx, ry));
+
+                if (r >= norm(&a, &b)+1)
+                    r = abs(r-1);
+
+                xFinal = a.x - r*cos(angle*PI/180);
+                yFinal = a.y - r*sin(angle*PI/180);
+           
+           }
+
+
         }
+        
 
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3f(0.0, 0.0, 0.0);
 
-        glBegin(GL_LINES);
+        glBegin(GL_POINTS);
         glVertex2f(a.x, a.y); 
         glVertex2f(b.x, b.y);
         glEnd();
@@ -577,21 +619,190 @@ class Line : public Shape {
         // glVertex2f(0, 0);
         // glVertex2f(, );
         // glEnd();
-
     }
+
 
     void showLine(){
 
 
-        showRay();
+        double r, rx, ry, xFinal1, yFinal1, xFinal2, yFinal2;
 
-        swap(a.x, b.x);
-        swap(a.y, b.y);
 
-        showRay();
-        
-        swap(a.x, b.x);
-        swap(a.y, b.y);
+        if (a == b){
+            xFinal1 = b.x;
+            yFinal1 = b.y;
+            xFinal2 = a.x;
+            yFinal2 = a.y;
+        }
+        else {
+
+           r = (b.x - a.x)/cos(angle*PI/180);
+
+           if (r > 0){
+
+                if (b.x - a.x > 0){
+
+                    r = (xAxis - a.x)/cos(angle*PI/180);
+                }
+                else {
+
+                    r = (-xAxis - a.x)/cos(angle*PI/180);
+
+                }
+
+                rx = r;
+
+                if (b.y - a.y > 0){
+                    r = (yAxis - a.y)/sin(angle*PI/180);
+                }
+                else {
+                    r = (-yAxis - a.y)/sin(angle*PI/180);
+                }
+
+                ry = r;
+
+                r = abs(min(rx, ry));
+
+                if (r >= norm(&a, &b)+1)
+                    r = abs(r-1);
+
+                xFinal1 = a.x + r*cos(angle*PI/180);
+                yFinal1 = a.y + r*sin(angle*PI/180);
+           
+           }
+           else {
+
+                if (b.x - a.x > 0){
+
+                    r = (a.x - xAxis)/cos(angle*PI/180);
+                }
+                else {
+
+                    r = (xAxis + a.x)/cos(angle*PI/180);
+
+                }
+
+                rx = r;
+
+                if (b.y - a.y > 0){
+                    r = (-yAxis + a.y)/sin(angle*PI/180);
+                }
+                else {
+                    r = (yAxis + a.y)/sin(angle*PI/180);
+                }
+
+                ry = r;
+
+                r = abs(min(rx, ry));
+
+                if (r >= norm(&a, &b)+1)
+                    r = abs(r-1);
+
+                xFinal1 = a.x - r*cos(angle*PI/180);
+                yFinal1 = a.y - r*sin(angle*PI/180);
+           
+           }
+
+            swap(a.x, b.x);
+            swap(a.y, b.y);
+
+
+            r = (b.x - a.x)/cos(angle*PI/180);
+
+           if (r > 0){
+
+                if (b.x - a.x > 0){
+
+                    r = (xAxis - a.x)/cos(angle*PI/180);
+                }
+                else {
+
+                    r = (-xAxis - a.x)/cos(angle*PI/180);
+
+                }
+
+                rx = r;
+
+                if (b.y - a.y > 0){
+                    r = (yAxis - a.y)/sin(angle*PI/180);
+                }
+                else {
+                    r = (-yAxis - a.y)/sin(angle*PI/180);
+                }
+
+                ry = r;
+
+                r = abs(min(rx, ry));
+
+                if (r >= norm(&a, &b)+1)
+                    r = abs(r-1);
+
+                xFinal2 = a.x + r*cos(angle*PI/180);
+                yFinal2 = a.y + r*sin(angle*PI/180);
+           
+           }
+           else {
+
+                if (b.x - a.x > 0){
+
+                    r = (a.x - xAxis)/cos(angle*PI/180);
+                }
+                else {
+
+                    r = (xAxis + a.x)/cos(angle*PI/180);
+
+                }
+
+                rx = r;
+
+                if (b.y - a.y > 0){
+                    r = (-yAxis + a.y)/sin(angle*PI/180);
+                }
+                else {
+                    r = (yAxis + a.y)/sin(angle*PI/180);
+                }
+
+                ry = r;
+
+                r = abs(min(rx, ry));
+
+                if (r >= norm(&a, &b)+1)
+                    r = abs(r-1);
+
+                xFinal2 = a.x - r*cos(angle*PI/180);
+                yFinal2 = a.y - r*sin(angle*PI/180);
+           
+           }
+
+            swap(a.x, b.x);
+            swap(a.y, b.y);
+
+
+        }
+
+        glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
+        glColor3f(0.0, 0.0, 0.0);
+
+        glBegin(GL_POINTS);
+        glVertex2f(a.x, a.y); 
+        glVertex2f(b.x, b.y);
+        glEnd();
+
+        glBegin(GL_LINES);
+        glVertex2f(xFinal1, yFinal1);
+        glVertex2f(xFinal2, yFinal2);
+        glEnd();
+
+
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin(GL_POINTS);
+        glVertex2f(xFinal1, yFinal1);
+        glVertex2f(xFinal2, yFinal2);
+        glEnd();
+
+        glLoadIdentity();
+        glColor3f(0.0, 0.0, 0.0);
 
     }
 
@@ -691,7 +902,7 @@ Line *LINE_AT_ANGLE(double a, Line *l, Point *p){
     rotatePoint1 = rotatePoint(&l->a, p, a*PI/180);
     rotatePoint2 = rotatePoint(&l->b, p, a*PI/180);
 
-    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE for now
+    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE 
 
     return l1; 
 
@@ -951,13 +1162,13 @@ public:
     }
 
     Point *CIRCUMCENTER() 
-    { // Check once again
+    { 
         double a = (p1.y * p1.y + p2.x * p3.x) * (p2.x - p3.x) + (p2.y * p2.y + p3.x * p1.x) * (p3.x - p1.x) + (p3.y * p3.y + p1.x * p2.x) * (p1.x - p2.x);
         double b = (p1.x * p1.x + p2.y * p3.y) * (p2.y - p3.y) + (p2.x * p2.x + p3.y * p1.y) * (p3.y - p1.y) + (p3.x * p3.x + p1.y * p2.y) * (p1.y - p2.y);
         double c = p2.y * (p3.x - p1.x) - p2.x * (p3.y - p1.y) - (p1.y * p3.x - p3.y * p1.x);
         double k = a / (2 * c);
         double h = -b / (2 * c);
-        // cout << "k: " << k << " " << "h: " << h << "\n";
+        
         return new Point(h, k);
     }
 
@@ -995,26 +1206,26 @@ public:
         l2 = ANGLE_BISECTOR(b, c);
         l3 = ANGLE_BISECTOR(c, a);
 
-        cout<<p->x<<" "<<p->y<<endl;
-        cout<<p1.x<<" "<<p1.y<<endl;
-        cout<<p2.x<<" "<<p2.y<<endl;
-        cout<<p3.x<<" "<<p3.y<<endl;
+        // cout<<p->x<<" "<<p->y<<endl;
+        // cout<<p1.x<<" "<<p1.y<<endl;
+        // cout<<p2.x<<" "<<p2.y<<endl;
+        // cout<<p3.x<<" "<<p3.y<<endl;
 
         Point *q;
 
         if (p1.x == p->x && p1.y == p->y)
         {
-            cout<<"Hi"<<endl;
+            
             return INTERSECTION(&l2[1], &l3[1]); // Assuming 1st index will give external angle bisector
         }
         else if (p2.x == p->x && p2.y == p->y)
         {
-            cout<<"Hi1"<<endl;
+            
             return INTERSECTION(&l3[1], &l1[1]);
         }
         else if (p3.x == p->x && p3.y == p->y)
         {
-            cout<<"Hi2"<<endl;
+            
             return INTERSECTION(&l1[1], &l2[1]);
         }
         else
@@ -1023,7 +1234,7 @@ public:
         }
     }
 
-    Point *INCENTER() // SEGFAULT
+    Point *INCENTER() 
     {
         Line *a = new Line(&p1, &p2);
         Line *b = new Line(&p2, &p3);
@@ -1042,7 +1253,7 @@ public:
         return i;
     }
 
-    Line *MEDIAN(Point *p) // will SEGFAULT
+    Line *MEDIAN(Point *p) 
     {
         Point *q;
         if (p1.x == p->x && p1.y == p->y)
@@ -1068,7 +1279,7 @@ public:
 
     Line*
     ALTITUDE(Point *p)
-    { // Check once again // will SEGFAULT
+    { 
         Point *q;
         if (p1.x == p->x && p1.y == p->y)
         {
@@ -1177,7 +1388,7 @@ class Circle : public Shape
         double m;
         m = (center.y - q->y) / (center.x - q->x);
         Line *l;
-        l = new Line(-(1/m), q->y + (1/m)*q->x); // will SEGFAULT
+        l = new Line(-(1/m), q->y + (1/m)*q->x); 
         return l;
     }
 
@@ -1196,7 +1407,7 @@ class Circle : public Shape
 class Para : public Shape
 {
 public:
-    Point p1;    //p1,p2,p3,p4 are attributes 
+    Point p1;    // p1,p2,p3,p4 are attributes 
     Point p2;
     Point p3;
     Point p4;
@@ -1242,8 +1453,8 @@ public:
 
     void show(){
         
-        //glTranslatef(center.x, center.y, 0.0f);
-        //glScalef(scale, scale, 0.0f);
+        glTranslatef(center.x, center.y, 0.0f);
+        glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
         glBegin(GL_LINE_LOOP);
         glVertex2d(p1.x, p1.y);
@@ -1263,7 +1474,6 @@ public:
     Line** DIAGONAL() {
 
         Line** diagonals = new Line*[2]; // free
-        // vector<Line*>* diagonals;s
         
         diagonals[0] = new Line(&p1,&p3);
         diagonals[1] = new Line(&p2,&p4);
@@ -1320,8 +1530,6 @@ class RegPoly : public Shape
 
     void show()
     {
-        
-        //glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer with current clearing color
         
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);

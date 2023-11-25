@@ -22,5 +22,3 @@ repeat ( int i := 6 | i < v | i++ )
 
 
 
-
-

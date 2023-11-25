@@ -314,7 +314,7 @@ void insertConstructTab() {
     ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
     ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
     ConstructTab[1]["SHORTEST_DISTANCE"] = {Func,REAL,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
-    ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,POINT,"b",{}}},{}};
+    ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
 
     /*Circle*/
@@ -326,8 +326,8 @@ void insertConstructTab() {
 
     /*Triangle*/
     ConstructTab[3]["CIRCUMCENTER"] = {Func,POINT,{},{}};
-    ConstructTab[3]["EXCENTER"] = {Func,POINT,{},{}};
-    ConstructTab[3]["INCENTRE"] = {Func,POINT,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["EXCENTER"] = {Func,POINT,{{Var,POINT,"a",{}}},{}};
+    ConstructTab[3]["INCENTER"] = {Func,POINT,{},{}};
     ConstructTab[3]["ORTHOCENTER"]={Func,POINT,{},{}};
     ConstructTab[3]["ALTITUDE"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
     ConstructTab[3]["MEDIAN"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};

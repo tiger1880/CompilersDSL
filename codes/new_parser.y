@@ -326,7 +326,13 @@ argument : DATATYPE ID check_arr {
               paramslist.push_back(param);
               delete $ID.name;
               $$.text = new string;
-              *$$.text = *$1.text + *$ID.text;
+              if(*$1.text=="Point "||*$1.text=="Line "||*$1.text=="Circle "||*$1.text=="Tri "||*$1.text=="Para "||*$1.text=="RegPoly ") {
+                    *$$.text = *$1.text + " *" + *$ID.text; 
+              }
+              else {
+                     *$$.text = *$1.text + *$ID.text;
+              }
+              
 
        }
        ;
@@ -525,7 +531,7 @@ expression:   expression '+' expression { is_member=0; $$.eletype = sumTypeCheck
                                             else 
                                                  *$$.text = *$1.text + "-" + *$3.text;
                                          } 
-            | expression LINE_OP expression {is_member=0;if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "Line(" + *$1.text + ", " + *$3.text + ")";} 
+            | expression LINE_OP expression {is_member=0;if ($1.eletype != POINT || $3.eletype != POINT) semanticError("Incompatible datatypes\n");$$.eletype = LINE;$$.text = new string; *$$.text = "new Line(" + *$1.text + ", " + *$3.text + ")";} 
             | expression '*' expression {  is_member=0;$$.eletype = mulTypeCheck($1.eletype, $3.eletype); $$.text = new string;*$$.text = *$1.text + "*" + *$3.text;}
             | expression '/' expression { is_member=0; $$.eletype = mulTypeCheck($1.eletype, $3.eletype);$$.text = new string; *$$.text = *$1.text + "/" + *$3.text;}
             | expression '%' expression { is_member=0;if ($1.eletype != INT || $3.eletype != INT) semanticError("Error: Semantic error incompatible datatype"); $$.eletype = INT; $$.text = new string;*$$.text = *$1.text + "%" + *$3.text;}
@@ -1079,7 +1085,6 @@ string convertLineOp(string s){
 string translateLineArr(string linearr){
 
        int prevIndex = 0;
-
        vector<string> args;
 
        for (int i = 0;i < linearr.size();i++){

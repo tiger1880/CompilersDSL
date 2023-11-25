@@ -22,8 +22,8 @@ class Shape
 
 public:
     virtual bool getIs_show() = 0;
-    virtual double Area() = 0;
-    virtual double Perimeter() = 0;
+    virtual double AREA() = 0;
+    virtual double PERIMETER() = 0;
     Shape(){
        ;
     }
@@ -106,7 +106,12 @@ public:
     double center_y;
 
     Point()
-    {
+    {   
+        scale = 1;
+        center_x = 0;
+        center_y = 0;
+        cerr<< "constr 1: "<< shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -120,6 +125,8 @@ public:
         y = b;
         tag = s;
         is_show = true;
+        cerr<< "constr 2: "<< shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -132,7 +139,7 @@ public:
         y = b;
         tag = "";
         is_show = true;
-        cerr<<shapeStore.size()<<" "<<this<<endl;
+        cerr<< "constr 3: "<< shapeStore.size()<<" "<<this<<endl;
         cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
@@ -146,6 +153,8 @@ public:
         y = b;
         tag = "";
         is_show = sh;
+        cerr<< "constr 4: "<< shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
     
@@ -158,6 +167,8 @@ public:
         y = b;
         tag = s;
         is_show = sh;
+        cerr<< "constr 5: "<< shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -170,6 +181,8 @@ public:
         y = b;
         tag = "";
         is_show = sh;
+        cerr<< "constr 6: "<< shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -182,6 +195,8 @@ public:
         y = b;
         tag = "";
         is_show = true;
+        cerr<< "constr 7: "<< shapeStore.size()<<" "<<this<<endl;
+        cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
 
@@ -204,12 +219,12 @@ public:
         return is_show;
     }
 
-    double Area() override
+    double AREA() override
     {
         return 0;
     }
 
-    double Perimeter() override
+    double PERIMETER() override
     {
         return 0;
     }
@@ -291,14 +306,7 @@ void display() {
 
 
 }
-/*
-Ignore 
-    1) testing some parts is left in Line
-    2) replace with loop and check .. Maybe should start properly => angle bisector
-    3) Test the extension fo 6 cases => change so that if initial points are outofRange update Range, => Depends on our set Range
-    4) Have to display midpoint ? 
-    5) we will have to use new update constructors properly and delete in main after MainLoop
-*/
+
 
 enum lineType {
     SEGMENT, 
@@ -360,7 +368,9 @@ class Line : public Shape {
 
     public:
 
-    Line(){}
+    Line(){
+        shapeStore.push_back(this);
+    }
 
     Line(Point *x1, Point *x2,  bool sh = true, lineType type = SEGMENT,Point *Center = new Point(0, 0, false), double Scale = 1.0):
     a(*x1),
@@ -375,6 +385,8 @@ class Line : public Shape {
         // if (x1 != x2){
             // cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
         // }
+
+        cout << this << "\n";
 
         shapeStore.push_back(this);
         
@@ -397,12 +409,12 @@ class Line : public Shape {
 
     // m, c constructor
     // y = mx + c
-    Line(double m1, double c1, bool sh = false, Point Center = Point(0, 0, false),double Scale = 1.0):
+    Line(double m1, double c1, bool sh = false, Point* Center = new Point(0, 0, false),double Scale = 1.0):
     m(m1),
     c(c1),
     is_show(sh),
     scale(Scale),
-    center(Center)
+    center(*Center)
     {
 
         // (0, c), (1, m+c) taken as points
@@ -430,6 +442,7 @@ class Line : public Shape {
         c = l.c;
         m = l.m;
         t = l.t;
+        // shapeStore.push_back(this);
         
         // cout << "copy called\n";
     }
@@ -444,6 +457,8 @@ class Line : public Shape {
         c = l.c;
         m = l.m;
         t = l.t;
+        // cerr << shapeStore.size() << "\n";
+        // shapeStore.push_back(this);
         
         // cout << "assignment called\n";
 
@@ -628,12 +643,12 @@ class Line : public Shape {
         
     }
 
-    double Area() override
+    double AREA() override
     {
         return 0;
     }
 
-    double Perimeter() override
+    double PERIMETER() override
     {
         return 0;
     }
@@ -675,15 +690,15 @@ Line *LINE_AT_ANGLE(double a, Line *l, Point *p){
 Point *INTERSECTION(Line *l1, Line *l2){
 
 
-    if (l1->t != LINE || l2->t != LINE){
+    // if (l1->t != LINE || l2->t != LINE){
 
-        cout << "Define intersection for the rest" << "\n";
+    //     cout << "Define intersection for the rest" << "\n";
 
-        return &l1->a;
-    }
+    //     return &l1->a;
+    // }
 
     if (l1->m == l2->m){
-        cout << "Do not intersect" << "\n";
+        cout << "Do not intersect parallel" << "\n";
         return &l1->a;
     }
 
@@ -736,14 +751,26 @@ Line* ANGLE_BISECTOR(Line *a, Line *b){
     double d1 = pow(1 + a->m*a->m, 0.5);
     double d2 = pow(1 + b->m*b->m, 0.5);
 
-    Line* l1 = new Line((a->m*d2 - b->m*d1)/(d2 - d1), (a->c*d2 - b->c*d1)/(d2-d1), true);
-    Line* l2 = new Line((a->m*d2 + b->m*d1)/(d2 + d1), (a->c*d2 + b->c*d1)/(d2+d1), true);
+    cerr << "d1: " << d1 << "\n";
+    cerr << "d2: " << d2 << "\n";
 
+    Line* l1, *l2;
+
+    if (d1 == d2){
+        l1 = new Line(new Point(0, 0), new Point(0, 5));
+        l2 = new Line(0.0, 0.0, true);
+    }
+    else {
+        l1 = new Line((a->m*d2 - b->m*d1)/(d2 - d1), (a->c*d2 - b->c*d1)/(d2-d1), true);
+        l2 = new Line((a->m*d2 + b->m*d1)/(d2 + d1), (a->c*d2 + b->c*d1)/(d2+d1), true);
+    }
+
+    
     // x->push_back(*l1);
     // x->push_back(*l2);
     x[0] = *l1;
     x[1] = *l2;
-
+    
     return x;
 
 }
@@ -785,7 +812,8 @@ public:
 
     Tri()
     {
-        ;
+        scale = 1;
+        center = *(new Point(0, 0, false));
     }
 
     Tri(Point *point1, Point *point2, Point *point3, Point* Center = new Point(0, 0, false),double Scale = 1.0)
@@ -818,61 +846,72 @@ public:
     }
 
 
-    Tri(double s1, double s2, double s3,Point *Center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double s1, double s2, double s3,Point *Center = new Point(0, 0, false),double Scale = 1.0)
     {
-        p1 = Point(0, 0);
-        p2 = Point(s1, 0);
+        p1.x = 0;
+        p2.x = 0;
+        p2.x = s1;
+        p2.y = 0;
         double a = (s2 * s2 + s1 * s1 - s3 * s3) / (2 * s1);
         double b = sqrt(s2 * s2 - a * a);
-        p3 = Point(a, b);
+        p3.x = a;
+        p3.y = b;
         is_show = true;
         center = *Center;
+        scale = Scale;
         shapeStore.push_back(this);
 
        
     }
 
-    Tri(double s1, double s2, double s3, bool sh ,Point *Center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double s1, double s2, double s3, bool sh ,Point *Center = new Point(0, 0, false),double Scale = 1.0)
     {
-        p1 = Point(0, 0);
-        p2 = Point(s1, 0);
+        p1.x = 0;
+        p2.x = 0;
+        p2.x = s1;
+        p2.y = 0;
         double a = (s2 * s2 + s1 * s1 - s3 * s3) / (2 * s1);
         double b = sqrt(s2 * s2 - a * a);
-        p3 = Point(a, b);
+        p3.x = a;
+        p3.y = b;
         is_show = sh;
         center = *Center;
+        scale = Scale;
         shapeStore.push_back(this);
 
        
     }
 
-    Tri(double h, double s, Point *Center = new Point(0, 0, false),double scale = 1.0)
+    Tri(double h, double s, Point *Center = new Point(0, 0, false),double Scale = 1.0)
     {
-        p1 = Point(0, 0);
-        p2 = Point(s, 0);
-        p3 = Point(0, sqrt(h * h - s * s));
+        p1.x = 0;
+        p2.x = 0;
+        p2.x = s;
+        p2.y = 0;
+        p3.x = 0;
+        p3.y = sqrt(h * h - s * s);
         center = *Center;
         is_show = true;
+        scale = Scale;
         
         shapeStore.push_back(this);
 
     }
 
-    Tri(double h, double s, bool sh, Point *Center = new Point(0, 0, false),double scale = 1.0)
-    {
-        p1 = Point(0, 0);
-        p2 = Point(s, 0);
-        p3 = Point(0, sqrt(h * h - s * s));
-        center = *Center;
-        is_show = sh;
+    // Tri(double h, double s, Point *Center = new Point(0, 0, false),double scale = 1.0,bool sh)
+    // {
+    //     p1 = Point(0, 0);
+    //     p2 = Point(s, 0);
+    //     p3 = Point(0, sqrt(h * h - s * s));
+    //     center = *Center;
+    //     is_show = sh;
         
-        shapeStore.push_back(this);
+    //     shapeStore.push_back(this);
 
-    }
+    // }
 
     void show()
     {  
-        
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
@@ -882,7 +921,6 @@ public:
         glVertex2d(p3.x, p3.y);
 
         glEnd();
-        // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
         glScalef((1.0/scale), (1.0/scale), 0.0f);
 
@@ -892,14 +930,14 @@ public:
         return is_show;
     }
 
-    Point *CIRCUMCENTER() // SEGFAULT
+    Point *CIRCUMCENTER() 
     { // Check once again
         double a = (p1.y * p1.y + p2.x * p3.x) * (p2.x - p3.x) + (p2.y * p2.y + p3.x * p1.x) * (p3.x - p1.x) + (p3.y * p3.y + p1.x * p2.x) * (p1.x - p2.x);
         double b = (p1.x * p1.x + p2.y * p3.y) * (p2.y - p3.y) + (p2.x * p2.x + p3.y * p1.y) * (p3.y - p1.y) + (p3.x * p3.x + p1.y * p2.y) * (p1.y - p2.y);
-        double c = p2.y * (p3.x - p1.x) - p1.x * (p3.y - p1.y) - (p1.y * p3.x - p3.y * p1.x);
-        double k = a / 2 * c;
-        double h = -b / 2 * c;
-
+        double c = p2.y * (p3.x - p1.x) - p2.x * (p3.y - p1.y) - (p1.y * p3.x - p3.y * p1.x);
+        double k = a / (2 * c);
+        double h = -b / (2 * c);
+        // cout << "k: " << k << " " << "h: " << h << "\n";
         return new Point(h, k);
     }
 
@@ -932,18 +970,23 @@ public:
         l2 = ANGLE_BISECTOR(b, c);
         l3 = ANGLE_BISECTOR(c, a);
 
+        cout<<p->x<<" "<<p->y<<endl;
+
         Point *q;
 
         if (p1.x == p->x && p1.y == p->y)
         {
+            cout<<"Hi"<<endl;
             return INTERSECTION(&l2[1], &l3[1]); // Assuming 1st index will give external angle bisector
         }
         else if (p2.x == p->x && p2.y == p->y)
         {
+            cout<<"Hi1"<<endl;
             return INTERSECTION(&l3[1], &l1[1]);
         }
         else if (p3.x == p->x && p3.y == p->y)
         {
+            cout<<"Hi2"<<endl;
             return INTERSECTION(&l1[1], &l2[1]);
         }
         else
@@ -1025,7 +1068,7 @@ public:
         }
     }
 
-    double Area() override
+    double AREA() override
     {
         double area;
         area = abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;
@@ -1033,7 +1076,7 @@ public:
         return area;
     }
 
-    double Perimeter() override
+    double PERIMETER() override
     {
         return norm(&p1, &p2) + norm(&p2, &p3) + norm(&p3, &p1);
     }
@@ -1109,13 +1152,13 @@ class Circle : public Shape
         return l;
     }
 
-    double Area()
+    double AREA()
     {
         return 3.14 * radius * radius;
     }
 
-    // Here perimeter means circumference
-    double Perimeter()
+    // Here PERIMETER means circumference
+    double PERIMETER()
     {
         return 2 * 3.14 * radius;
     }
@@ -1199,7 +1242,7 @@ public:
         return diagonals;
     }
 
-    double Area() override
+    double AREA() override
     {
         double s1 = norm(&p1,&p2);
         double s2 = norm(&p2,&p3);
@@ -1207,7 +1250,7 @@ public:
         return s1 * s2 * sin(angle);
     }
 
-    double Perimeter() override
+    double PERIMETER() override
     {
         double s1 = norm(&p1,&p2);
         double s2 = norm(&p2,&p3);
@@ -1276,12 +1319,12 @@ class RegPoly : public Shape
         return is_show;
     }
 
-    double Area()
+    double AREA()
     {
         return ((numOfSides * sideLength * sideLength) / (4 * tan(PI / numOfSides)));
     }
 
-    double Perimeter()
+    double PERIMETER()
     {
         return numOfSides * sideLength;
     }

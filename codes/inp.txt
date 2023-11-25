@@ -1,58 +1,17 @@
+fig fig1(1, (0, 0)){
 
-func int ggg() {
+    $$
+    line l1 := (0, 0)-(1, 2)
+    line l2 := (0, 0)-(-1, 2)
+    ANGLE_BISECTOR(l1, l2)
+    $$
 
-    int a := 1
-    int b := 10
-
-    until (a < b)
-    {
-        a +:= (b-a)/2
-    }
-    r := ggg()
-    return 2
+    tri t := Tri(3,4,5)
+    point q := t.INCENTER()
+    point r := t.EXCENTER((0,0))
 }
-point p := (2,3), q := (6,8)
-int 
-r := p
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+fig1()
 
 
 

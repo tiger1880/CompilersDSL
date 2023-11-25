@@ -1,0 +1,47 @@
+#include <iostream>
+#include <vector>
+#include <GL/glut.h>
+#include <string>
+#include <cstdlib>
+#include <cmath>
+#include <deque>
+#include "standard_lib.hpp"
+
+int a = 45;
+bool b;
+Point *x = new Point(4, 5, 1, 0, 0);
+Point *y = new Point(5, 6, 1, 0, 0);
+Point *z = new Point(7, 8, 1, 0, 0);
+
+int main(int argc, char **argv)
+{
+
+    if (angleBetweenPoints(x, y, z) > a)
+    {
+        b = true;
+    }
+    else if (angleBetweenPoints(x, y, z) == a)
+    {
+        b = false;
+    }
+
+    if (b)
+    {
+        x->x = 3;
+    }
+    else
+    {
+        x->x = 8;
+    }
+
+    glutInit(&argc, argv);
+    glutInitWindowSize(640, 480);
+    glutInitWindowPosition(50, 50);
+    glutCreateWindow("Figure");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    init();
+    glutMainLoop();
+
+    return 0;
+}

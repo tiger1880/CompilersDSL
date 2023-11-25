@@ -1,16 +1,18 @@
-int factorial(int n){
+func int factorial(int n){
 
-    if (n == 0)
+    if (n == 0) {
         return 1
+    }
+        
     
     return n*factorial(n-1)
 }
 
 
 $ draws nested squares with side increasing as factorial
-void drawSquares(int n){
+func void drawSquares(int n){
 
-    repeat(int i = 0|i <= n|i++){
+    repeat(int i := 0|i <= n|i++){
 
         regPoly p := RegPoly(4, factorial(i))
     }

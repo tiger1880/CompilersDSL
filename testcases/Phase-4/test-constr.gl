@@ -10,19 +10,19 @@ tri t1 := Tri(p,q,r)
 
 fig figure_1(scale := 2.0,center := (6,6)) {
     tri t2 := Tri(7,5.5,10)
-    circle c := Circle(r,7.5)
+    circle c := Circle(3.5,r)
 }
 
 fig figure_2(3,(3,3)) {
     tri t3 := Tri(4,5)
     para p := Para(6,60,6)
-    regPoly r := RegPoly(5,4)
+    regPoly r := RegPoly(6,3)
 }
 
 point s := (4,4)
-point r := (8,8)
+point k := (8,8)
 
-line l := s<->r
+line l := s<->k
 
 figure_1()
 figure_2()

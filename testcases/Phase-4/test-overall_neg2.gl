@@ -6,7 +6,7 @@ tri t1 := Tri(p,q,r)
 
 fig figure_1(scale := 2.0,center := 4.0) {
     tri t2 := Tri(7,5.5,10)
-    circle c := Circle(r,7.5)
+    circle c := Circle(7.5,r)
 }
 
 fig figure_2(3,(3,3)) {

@@ -1,0 +1,38 @@
+#include <iostream>
+#include <vector>
+#include <GL/glut.h>
+#include <string>
+#include <cstdlib>
+#include <cmath>
+#include <deque>
+#include "standard_lib.hpp"
+
+int a, b = 1 + 1;
+double f = .9, g = 0.75;
+bool l = true;
+Point *p = new Point(0 + 1, 0, 1, 0, 0);
+double q = angleBetweenPoints(p, p, p);
+string s = "escaped \" quotes work";
+RegPoly *d = new RegPoly(6, 2, new Point(0, 0, false), 1);
+Circle *c = new Circle(q, p, new Point(0, 0, false), 1);
+Tri *d1 = new Tri(p, p, p, new Point(0, 0, false), 1);
+Line *l1 = new Line(p, p);
+Line *l2[] = {new Line(p, p, SEGMENT), new Line(p, p, RAY), new Line(p, p, LINE)};
+int k[] = {1, 2, 3, 4, 5};
+int g2[][2] = {{1, 2}, {3}};
+int g1[][4] = {{1, 2}, {3}};
+
+int main(int argc, char **argv)
+{
+
+    glutInit(&argc, argv);
+    glutInitWindowSize(640, 480);
+    glutInitWindowPosition(50, 50);
+    glutCreateWindow("Figure");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    init();
+    glutMainLoop();
+
+    return 0;
+}

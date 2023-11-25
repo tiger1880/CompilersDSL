@@ -11,8 +11,8 @@ angle q := < p p p >
 label s := "escaped \" quotes work"
 
 regPoly d := RegPoly(6, 2)
-circle c := Circle(p, q)
-tri d1 := Tri()
+circle c := Circle(q, p)
+tri d1 := Tri(p,p,p)
 
 $ line array
 line l1 := p-p

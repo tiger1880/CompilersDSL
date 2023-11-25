@@ -7,18 +7,18 @@ point x := (4,5)
 point y := (5,6)
 poiny z := (7,8)
 
-if(<x,y,z> > a) {
+if(<x y z> > a) {
     b := true
 }
-else if(<x,y,z> == a){
+elif(<x y z> == a){
     b := false
 }
 
 if(b) {
-    x.x = 3
+    x.x := 3
 }
 else {
-    x.x = 8
+    x.x := 8
 }
 
 

@@ -1,37 +1,49 @@
-int a, b := 9, c
-int a, b, c
-int a, a := 1+1, b := RegPoly()
-real f := .9, g := 0.75
-bool b := true
-point p := (0+1, 0)
-angle a := < a b c >, b := < a b c , true >
-label s := "escaped \" quotes work", c := "c", s2 := "No char data type, just unit length label"
-circle c := Circle(p, q), d := Tri() 
-regPoly r := RegPoly(1, 2, 3, 4)
-line l := p-q
+$ check new constructs norm, ||, |-, ^=, ^ along with the rest
 
-func int func_1(int x){
+func bool isRight(point p, point q,point r) {
+    real s1 := || p - q ||
+    real s2 := || q - r ||
+    real s3 := || r - s ||
 
-    point p[4]
-
-    repeat ( int i:= x | i< x + 4 | i++ ){
-        p[i-1] := ( i, i+2)
+    if(s1 > s2 and s1 > s3) {
+        if(s1^2 == s2^2 + s3^2) {
+            return true
+        }
+        else {
+            return false
+        }
     }
-
-    return 0
-    
+    else if(s2 > s3 and s2 > s1) {
+        if(s2^2 == s1^2 + s3^2) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    else if(s3 > s2 and s3 > s1) {
+        if(s3^2 == s1^2 + s2^2) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    else {
+        return false
+    }
 }
 
-fig tri(1, (1,0)){
+int x := 4
 
-    linearr l = func_1(1)
+point p := (0,0)
+point q := (8,9)
+point r := (x--,++x)
 
-    tri t := Tri(l[0], l[1], l[2])
+real d
 
-    point p = t.CENTROID()
-
-    p.y +:= p.x
-    
+if(isRight(p,q,r)) {
+    d := ||r||
+    d ^:= 2
 }
 
-tri()

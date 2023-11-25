@@ -742,19 +742,42 @@ Line* ANGLE_BISECTOR(Line *a, Line *b){
         return x;
     }
 
-    if (a->m == b->m){
+    Line* l1, *l2;
+    double d1 = pow(1 + a->m*a->m, 0.5);
+    double d2 = pow(1 + b->m*b->m, 0.5);
 
+    if (a->angle == 90){
+
+        l1 = new Line(b->m - d2, b->c + a->a.x*d2, true);
+        l2 = new Line(b->m + d2, b->c - a->a.x*d2, true);
+
+        x[0] = *l1;
+        x[1] = *l2;
+    
+        return x;
+
+    }
+    else if (b->angle == 90){
+
+        l1 = new Line(a->m - d1, a->c + b->a.x*d1, true);
+        l2 = new Line(a->m + d1, a->c - b->a.x*d1, true);
+
+        x[0] = *l1;
+        x[1] = *l2;
+    
+        return x;
+
+    }
+
+    if (a->m == b->m){
+        a->printEquation();
+        b->printEquation();
         cout << "Parallel lines cannot have angle bisectors\n";
         return x;
     }
 
-    double d1 = pow(1 + a->m*a->m, 0.5);
-    double d2 = pow(1 + b->m*b->m, 0.5);
+    
 
-    cerr << "d1: " << d1 << "\n";
-    cerr << "d2: " << d2 << "\n";
-
-    Line* l1, *l2;
 
     if (d1 == d2){
         l1 = new Line(new Point(0, 0), new Point(0, 5));
@@ -968,6 +991,9 @@ public:
         l3 = ANGLE_BISECTOR(c, a);
 
         cout<<p->x<<" "<<p->y<<endl;
+        cout<<p1.x<<" "<<p1.y<<endl;
+        cout<<p2.x<<" "<<p2.y<<endl;
+        cout<<p3.x<<" "<<p3.y<<endl;
 
         Point *q;
 
@@ -1141,11 +1167,8 @@ class Circle : public Shape
     {
         double m;
         m = (center.y - q->y) / (center.x - q->x);
-        Point *p;
-        p->y = q->y - m * q->x;
-        p->x = 0;
         Line *l;
-        l = new Line(p, q); // will SEGFAULT
+        l = new Line(-(1/m), q->y + (1/m)*q->x); // will SEGFAULT
         return l;
     }
 

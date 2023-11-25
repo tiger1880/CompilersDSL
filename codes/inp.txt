@@ -1,24 +1,34 @@
 fig fig1(1, (0, 0)){
 
     $$
-    line l1 := (0, 0)-(1, 2)
-    line l2 := (0, 0)-(-1, 2)
+    line l1 := (0, 0)-(0, 3)
+    line l2 := (4, 0)-(0, 3)
     ANGLE_BISECTOR(l1, l2)
     $$
 
-    0, 0
-    3, 0
-    0, 4
-
+    tri t := Tri(3,4,5)
+    point q := t.INCENTER()
+    point r := t.EXCENTER((0,0))
     $$
-        tri t := Tri(3,4,5)
-
-        point q := t.INCENTER()
-        point r := t.EXCENTER((0,0))
     $$
+
+    circle c := Circle(5,(0,0))
+    point p := (3,4)
+    c.TANGENT(p)
 }
 
 fig1()
+
+
+
+
+
+
+
+
+
+
+
 
 
 

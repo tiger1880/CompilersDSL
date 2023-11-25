@@ -188,7 +188,7 @@ public:
     void show() {
         glLoadIdentity();
         glTranslatef(center_x, center_y, 0.0f);
-        // glScalef(scale, scale, 0.0f);
+        glScalef(scale, scale, 0.0f);
         glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_POINTS);

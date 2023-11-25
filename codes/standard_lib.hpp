@@ -383,7 +383,7 @@ class Line : public Shape {
     center(*Center)
     {
         // if (x1 != x2){
-            // cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
+            cout << "Line: " << a.x << ", " << a.y << " " << b.x << ", " << b.y << " pushed back\n";
         // }
 
         cout << this << "\n";
@@ -733,8 +733,8 @@ Line* ANGLE_BISECTOR(Line *a, Line *b){
 
 
     Line* x = new Line[2];
-
-    // vector<Line>* x = new vector<Line>();
+    a->printEquation();
+    b->printEquation();
 
     if (a->angle == 90 && b->angle == 90){
 
@@ -765,9 +765,6 @@ Line* ANGLE_BISECTOR(Line *a, Line *b){
         l2 = new Line((a->m*d2 + b->m*d1)/(d2 + d1), (a->c*d2 + b->c*d1)/(d2+d1), true);
     }
 
-    
-    // x->push_back(*l1);
-    // x->push_back(*l2);
     x[0] = *l1;
     x[1] = *l2;
     

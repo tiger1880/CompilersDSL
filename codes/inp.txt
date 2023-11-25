@@ -6,12 +6,20 @@ fig fig1(1, (0, 0)){
     ANGLE_BISECTOR(l1, l2)
     $$
 
-    tri t := Tri(3,4,5)
-    point q := t.INCENTER()
-    point r := t.EXCENTER((0,0))
+    0, 0
+    3, 0
+    0, 4
+
+    $$
+        tri t := Tri(3,4,5)
+
+        point q := t.INCENTER()
+        point r := t.EXCENTER((0,0))
+    $$
 }
 
 fig1()
+
 
 
 

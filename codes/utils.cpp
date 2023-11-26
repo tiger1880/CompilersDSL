@@ -316,7 +316,11 @@ void insertConstructTab() {
     ConstructTab[1]["SHORTEST_DISTANCE"] = {Func,REAL,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["passesThrough"] = {Func,BOOL,{{Var,POINT,"a",{}}},{}};
-    ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
+    ConstructTab[1]["a"] = {Var,REAL,{},{}};
+    ConstructTab[1]["b"] = {Var,REAL,{},{}};
+    ConstructTab[1]["m"] = {Var,REAL,{},{}};
+    ConstructTab[1]["c"] = {Var,REAL,{},{}};
+
 
     /*Circle*/
     ConstructTab[2]["TANGENT"] = {Func,LINE,{{Var,POINT,"a",{}}},{}};
@@ -324,6 +328,8 @@ void insertConstructTab() {
     ConstructTab[2]["COMMON_TANGENT"] = {Func,LINE,{{Var,CIRCLE,"c1",{}},{Var,CIRCLE,"c2",{}}},{}};
     ConstructTab[2]["AREA"] = {Func,REAL,{},{}};
     ConstructTab[2]["PERIMETER"]={Func,REAL,{},{}};
+    ConstructTab[2]["radius"] = {Var,REAL,{},{}};
+    ConstructTab[2]["getCenter"] = {Func,POINT,{},{}};
 
     /*Triangle*/
     ConstructTab[3]["CIRCUMCENTER"] = {Func,POINT,{},{}};
@@ -335,11 +341,16 @@ void insertConstructTab() {
     ConstructTab[3]["CENTROID"] = {Func,POINT,{},{}};
     ConstructTab[3]["AREA"] = {Func,REAL,{},{}};
     ConstructTab[3]["PERIMETER"] = {Func,REAL,{},{}};
+    ConstructTab[3]["getPoint1"] = {Func,POINT,{},{}};
+    ConstructTab[3]["getPoint2"] = {Func,POINT,{},{}};
+    ConstructTab[3]["getPoint3"] = {Func,POINT,{},{}};
+   
 
     /*Parallelogram*/
     ConstructTab[4]["DIAGONAL"]={Func,LINE,{},{}};
-    ConstructTab[3]["AREA"] = {Func,REAL,{},{}};
-    ConstructTab[3]["PERIMETER"] = {Func,REAL,{},{}};
+    ConstructTab[4]["AREA"] = {Func,REAL,{},{}};
+    ConstructTab[4]["PERIMETER"] = {Func,REAL,{},{}};
+ 
 
     /*Regular Polygon*/
     ConstructTab[5]["AREA"]={Func,REAL,{},{}};

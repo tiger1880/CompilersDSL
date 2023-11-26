@@ -23,7 +23,7 @@ void insertType(char* name, enum type t, enum eletype etype) {
     if (SymTab.empty()){
         SymTab.push_back(map<string,STentry>());
     }
-        
+
     if (SymTab.back().find(name) != SymTab.back().end()) {
         cerr << "Error: " << "Redeclaration of " << name << endl;
         exit(1); // ERROR_RECOVERY

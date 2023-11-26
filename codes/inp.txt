@@ -1,0 +1,46 @@
+fig fg(1,(0,0)) {
+    tri t := Tri(6,7,8)
+    point p := t.getPoint1()
+    point q := t.getPoint2()
+    point r:= t.getPoint3()
+
+    point e1 := t.EXCENTER(p)
+    point e2 := t.EXCENTER(q)
+    point e3 := t.EXCENTER(r)
+
+    tri t2 := Tri(e1,e2,e3)
+}
+
+fg()
+
+$ 1617 standard_lib.hpp
+$ 116 symbol_table.hpp
+$ 444 lexer
+$ 1305 new_parser.y
+$ 841 utils.cpp
+$ 4329 total 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

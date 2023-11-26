@@ -16,14 +16,14 @@ fig figure_1 (1,(0,0)){
     tri t := Tri(a,b,c)
     point o := t.CIRCUMCENTER()
     real r := || a-o ||
-    circle c := Circle(r,o)
+    circle c2 := Circle(r,o)
 }
 
 $ Figure to display a parallelogram and its diagonals and print its area
 fig figure_2 (1,(2,0)){
     para p := Para(3,60,8)
     real area := p.AREA()
-    print(area)
+    
 }
 
 $ Figure to display adjacent circles with radius equal to sequence of factorials
@@ -40,3 +40,10 @@ $ Syntax to display figures$
 figure_1()
 figure_2()
 figure_3()
+
+
+
+
+
+
+

@@ -2,8 +2,6 @@ $ function definition
 
 func void _ola9(int a, line b, regPoly p) {
 
-    int a := 1
-    int b := 10
 
     until (a < b)
     {
@@ -38,3 +36,6 @@ func real distOfIntersection(line l1, line l2)
     return ||p||
     
 }
+
+
+

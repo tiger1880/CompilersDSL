@@ -4,7 +4,7 @@ fig figure1 (9 + 10, (0, 0)) {
 
     repeat (int i := 1|i < 10|i++)
     {
-        Circle((0, 9), i^3)
+        Circle(i^3,(0,9))
     }
 
 }
@@ -32,6 +32,10 @@ fig figure_2 (scale := 0.1, center := (0, 1 +1000))
 
 figure1(0.8, (0, 9))
 figure2()
+
+
+
+
 
 
 

@@ -1,0 +1,34 @@
+$$
+repeat (int i := 0|i < 10|i++){
+    line l 
+    l := (0, i)-(10-i, 0)
+}
+
+repeat (int i := 0|i < 10|i++){
+    line l 
+    l := (0, -i)-(-10+i, 0)
+}
+
+fig hexagon(scale := 1, center := (0, 0)){
+
+    regPoly h := RegPoly(6, 2)
+
+    tri t1 := Tri((-2, 0), (1, 3^0.5), (1, -3^0.5))
+    tri t2 := Tri((2, 0), (-1, 3^0.5), (-1, -3^0.5))
+
+
+}
+
+repeat(real s := 1|s < 4|s++){
+
+    hexagon(s, (0, s))
+}
+$$
+
+circle c
+c := Circle(1, (0, 0))
+
+
+
+
+

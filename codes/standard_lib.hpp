@@ -1158,6 +1158,20 @@ public:
         return is_show;
     }
 
+    Point* getPoint1() {
+        return &this->p1;
+    }
+
+    Point* getPoint2() {
+        return &this->p2;
+    }
+
+    Point* getPoint3() {
+        return &this->p3;
+    }
+
+
+
     Point *CIRCUMCENTER()
     {
         double a = (p1.y * p1.y + p2.x * p3.x) * (p2.x - p3.x) + (p2.y * p2.y + p3.x * p1.x) * (p3.x - p1.x) + (p3.y * p3.y + p1.x * p2.x) * (p1.x - p2.x);
@@ -1325,7 +1339,7 @@ class Circle : public Shape
 {
 public:
     float radius;
-    Point center;
+    Point ctr;
     Point figCenter;
     double scale;
     bool is_show;
@@ -1333,9 +1347,8 @@ public:
     Circle(float radius, Point *Center, Point *fcenter = new Point(0, 0, false), double Scale = 1.0)
     {
         this->radius = radius;
-        this->center = center;
         scale = Scale;
-        center = *Center;
+        ctr = *Center;
         figCenter = *fcenter;
         is_show = true;
         shapeStore.push_back(this);
@@ -1344,9 +1357,8 @@ public:
     Circle(float radius, Point *Center, bool sh, Point *fcenter = new Point(0, 0, false), double Scale = 1.0)
     {
         this->radius = radius;
-        this->center = center;
         scale = Scale;
-        center = *Center;
+        ctr = *Center;
         figCenter = *fcenter;
         is_show = sh;
         shapeStore.push_back(this);
@@ -1355,7 +1367,7 @@ public:
     void show()
     {
         glScalef(scale, scale, 0.0f);
-        glTranslatef(center.x, center.y, 0.0f);
+        glTranslatef(figCenter.x, figCenter.y, 0.0f);
 
         glBegin(GL_LINE_LOOP);
         glColor3f(0.0f, 0.0f, 0.0f); // Blue
@@ -1368,8 +1380,9 @@ public:
         glEnd();
 
         // glLoadIdentity();
-        glTranslatef(-center.x, -center.y, 0.0f);
-        glScalef((1.0 / scale), (1.0 / scale), 0.0f);
+        glTranslatef(-figCenter.x, -figCenter.y, 0.0f);
+        glScalef((1.0/scale), (1.0/scale), 0.0f);
+
     }
 
     bool getIs_show()
@@ -1377,10 +1390,14 @@ public:
         return is_show;
     }
 
-    Line *TANGENT(Point *q)
+    Point* getCenter() {
+        return &this->ctr;
+    }
+
+    Line* TANGENT(Point *q)
     {
         double m;
-        m = (center.y - q->y) / (center.x - q->x);
+        m = (ctr.y - q->y) / (ctr.x - q->x);
         Line *l;
         l = new Line(-(1 / m), q->y + (1 / m) * q->x);
         return l;
@@ -1560,39 +1577,41 @@ public:
     }
 };
 
-// Non-memeber functions
-Point *
-INTERSECTION_CIRCLE(Circle *c1, Circle *c2)
-{
-    Point *p = NULL;
-    // Finding quadratic equation and then sove it.
-    double d = norm(&c1->center, &c2->center);
-    if (d > c1->radius + c2->radius)
-        return p;
-    if (d < abs(c1->radius - c2->radius))
-        return p;
-    if (d == 0 && (c1->radius - c2->radius) == 0)
-        return p;
-    double c, k;
-    c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->center.x * c2->center.x + c2->center.y * c2->center.y) - (c1->center.x * c1->center.x + c1->center.y * c1->center.y)) / (2 * (c2->center.x - c1->center.x));
-    k = (c1->center.y - c2->center.y) / (c2->center.x - c1->center.x);
-    double D = (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2)) - 4 * (k * k + 1) * (c1->center.x * c1->center.x + c1->center.y * c1->center.y + c * c - c1->radius * c1->radius - 2 * c * c1->radius);
 
-    if (D == 0)
+//Non-memeber functions
+Point*
+    INTERSECTION_CIRCLE(Circle *c1, Circle *c2)
     {
-        p = new Point[1];
-        p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1));
-        p[0].x = k * p[0].y + c;
-    }
-    else
-    {
+        Point* p = NULL;
+        // Finding quadratic equation and then sove it.
+        double d = norm(&c1->ctr,&c2->ctr);
+        if (d > c1->radius + c2->radius)
+            return p;
+        if (d < abs(c1->radius - c2->radius))
+            return p;
+        if (d == 0 && (c1->radius - c2->radius) == 0)
+            return p;
+        double c, k;
+        c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->ctr.x * c2->ctr.x + c2->ctr.y * c2->ctr.y) - (c1->ctr.x * c1->ctr.x + c1->ctr.y * c1->ctr.y)) / (2 * (c2->ctr.x - c1->ctr.x));
+        k = (c1->ctr.y - c2->ctr.y) / (c2->ctr.x - c1->ctr.x);
+        double D = (pow((2 * c * k - 2 * c1->ctr.x * k - 2 * c1->ctr.y), 2)) - 4 * (k * k + 1) * (c1->ctr.x * c1->ctr.x + c1->ctr.y * c1->ctr.y + c * c - c1->radius * c1->radius - 2 * c * c1->radius);
+        
+        if (D == 0)
+        {   
+            p = new Point[1];
+            p[0].y = -1 * (pow((2 * c * k - 2 * c1->ctr.x * k - 2 * c1->ctr.y), 2) / 2 * (k * k + 1));
+            p[0].x = k * p[0].y + c;
+        }
+        else
+        {
+            
+            p = new Point[2];
+            p[0].y = -1 * (pow((2 * c * k - 2 * c1->ctr.x * k - 2 * c1->ctr.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+            p[1].y =  1 * (pow((2 * c * k - 2 * c1->ctr.x * k - 2 * c1->ctr.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+            p[0].x = k * p[0].y + c;
+            p[1].x = k * p[1].y + c;
 
-        p = new Point[2];
-        p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-        p[1].y = 1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-        p[0].x = k * p[0].y + c;
-        p[1].x = k * p[1].y + c;
-    }
+        }
 
     return p;
 }

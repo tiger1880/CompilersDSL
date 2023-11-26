@@ -9,13 +9,12 @@
 
 using namespace std;
 
-const double  PI  = 3.14;
+const double PI = 3.14;
 double height = 640, width = 480, axisLength = 11, aspectRatio = 1, xAxis = 10, yAxis = 10;
 
 class Shape;
 
-
-vector<Shape*> shapeStore;
+vector<Shape *> shapeStore;
 
 class Shape
 {
@@ -24,23 +23,24 @@ public:
     virtual bool getIs_show() = 0;
     virtual double AREA() = 0;
     virtual double PERIMETER() = 0;
-    Shape(){
-       ;
+    Shape()
+    {
+        ;
     }
-    virtual void show(){}
+    virtual void show() {}
 };
-
 
 // OPENGL --------------------------------------
 
-void init(){
+void init()
+{
 
     glClearColor(1.0, 1.0, 1.0, 1.0); // sets the background
     glPointSize(3);
-
 }
 
-void reshape(int w, int h){
+void reshape(int w, int h)
+{
 
     height = h; // zero height debug
     width = w;
@@ -51,43 +51,43 @@ void reshape(int w, int h){
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
     if (h == 0)
         h = 1;
 
-    float aspect = (float)w/h;
+    float aspect = (float)w / h;
     aspectRatio = aspect;
 
     // projection
     glMatrixMode(GL_PROJECTION); // for setting projection matrices
-    glLoadIdentity(); // resets the axes
+    glLoadIdentity();            // resets the axes
 
     // -10 to 10 right now
 
     // to prevent shape distortion on resizing window => just increases the coordinate axes
-    if (w >= h){
-        gluOrtho2D(-axisLength*aspect, axisLength*aspect, -axisLength, axisLength); // left right bottom top
+    if (w >= h)
+    {
+        gluOrtho2D(-axisLength * aspect, axisLength * aspect, -axisLength, axisLength); // left right bottom top
 
-        xAxis = axisLength*aspect;
+        xAxis = axisLength * aspect;
         yAxis = axisLength;
     }
-    else {
-        gluOrtho2D(-axisLength, axisLength, -axisLength/aspect, axisLength/aspect); // left right bottom top
+    else
+    {
+        gluOrtho2D(-axisLength, axisLength, -axisLength / aspect, axisLength / aspect); // left right bottom top
 
         xAxis = axisLength;
-        yAxis = axisLength/aspect;
+        yAxis = axisLength / aspect;
     }
-
 
     glMatrixMode(GL_MODELVIEW); // always be in this mode
 }
 
-
-
-void renderBitmapString(float x, float y, const char *string) {
+void renderBitmapString(float x, float y, const char *string)
+{
     glRasterPos2f(x, y);
-    
-    for (const char *c = string; *c != '\0'; ++c) {
+
+    for (const char *c = string; *c != '\0'; ++c)
+    {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
 }
@@ -106,7 +106,7 @@ public:
     double center_y;
 
     Point()
-    {   
+    {
         scale = 1;
         center_x = 0;
         center_y = 0;
@@ -116,7 +116,7 @@ public:
         shapeStore.push_back(this);
     }
 
-    Point(double a, double b, string s,double Scale, double cx, double cy)
+    Point(double a, double b, string s, double Scale, double cx, double cy)
     {
         scale = Scale;
         center_x = cx;
@@ -157,7 +157,7 @@ public:
         // cerr<<x<<" "<<y<<endl;
         shapeStore.push_back(this);
     }
-    
+
     Point(double a, double b, string s, bool sh, double Scale, double cx, double cy)
     {
         scale = Scale;
@@ -172,7 +172,7 @@ public:
         shapeStore.push_back(this);
     }
 
-    Point(double a, double b,bool sh, double Scale, double cx, double cy)
+    Point(double a, double b, bool sh, double Scale, double cx, double cy)
     {
         scale = Scale;
         center_x = cx;
@@ -200,7 +200,8 @@ public:
         shapeStore.push_back(this);
     }
 
-    void show() {
+    void show()
+    {
 
         glLoadIdentity();
         glTranslatef(center_x, center_y, 0.0f);
@@ -208,15 +209,14 @@ public:
         glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_POINTS);
-        glVertex2f(x,y);
+        glVertex2f(x, y);
         glEnd();
-        renderBitmapString(x + 0.01,y + 0.01, tag.c_str());
+        renderBitmapString(x + 0.01, y + 0.01, tag.c_str());
         glLoadIdentity();
-
-
     }
 
-    void printPoint(){
+    void printPoint()
+    {
 
         cout << "--------------------------------------------------\n";
         cout << "x: " << x << "\n";
@@ -229,7 +229,8 @@ public:
         cout << "--------------------------------------------------\n";
     }
 
-    bool getIs_show(){
+    bool getIs_show()
+    {
         return is_show;
     }
 
@@ -243,15 +244,17 @@ public:
         return 0;
     }
 
-    bool operator==(const Point& r){
+    bool operator==(const Point &r)
+    {
 
         if (r.x == x && r.y == y)
             return true;
-        
+
         return false;
     }
 
-    Point(const Point& p){
+    Point(const Point &p)
+    {
 
         scale = p.scale;
         center_x = p.center_x;
@@ -260,10 +263,10 @@ public:
         y = p.y;
         tag = p.tag;
         is_show = p.is_show;
-
     }
 
-    Point& operator=(const Point& p){
+    Point &operator=(const Point &p)
+    {
 
         scale = p.scale;
         center_x = p.center_x;
@@ -272,7 +275,6 @@ public:
         y = p.y;
         tag = p.tag;
         is_show = p.is_show;
-
 
         return *this;
     }
@@ -302,34 +304,33 @@ double angleBetweenPoints(Point *p1, Point *p2, Point *p3, bool sh = true)
     return theta;
 }
 
-void display() {
+void display()
+{
 
-    glClear(GL_COLOR_BUFFER_BIT); 
-    glLoadIdentity(); 
+    glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
 
-    glColor3f(0.0, 0.0, 0.0); 
+    glColor3f(0.0, 0.0, 0.0);
 
-
-    for (int i = 0;i < shapeStore.size();i++){
+    for (int i = 0; i < shapeStore.size(); i++)
+    {
         // cerr<< "i: " << i<<" "<<shapeStore[i]<<endl;
         if (shapeStore[i]->getIs_show())
             shapeStore[i]->show();
     }
     // switch buffers
     glutSwapBuffers();
-
-
 }
 
-
-enum lineType {
-    SEGMENT, 
+enum lineType
+{
+    SEGMENT,
     RAY,
     LINE
 };
 
-
-class Line : public Shape {
+class Line : public Shape
+{
 
     // if both points are same then shows a point
     Point a;
@@ -340,91 +341,88 @@ class Line : public Shape {
     double m;
     double c;
 
-    lineType t; // RAY, LINE, SEGMENT
+    lineType t;   // RAY, LINE, SEGMENT
     double angle; // clockwise angle in degrees
 
     // figures
     double scale;
     Point center;
 
-    double R(bool positive, Point initial, Point final){
-
-        double r, r1, r2;
-        if (positive){
-
-            r1 = (yAxis - abs(final.y))/sin(angle*PI/180);       
-            r2 = (xAxis - abs(final.x))/cos(angle*PI/180);
-
-            r1 = abs(r1);
-            r2 = abs(r2);
-            r = min(r1, r2)-1;
-
-            return r;
-
-        }
-        else {
-
-            r1 = (abs(b.y) - yAxis)/sin(angle*PI/180);       
-            r2 = (abs(b.x) - xAxis)/cos(angle*PI/180);
-
-            r1 = abs(r1);
-            r2 = abs(r2);
-
-            
-            r = min(r1, r2)-1;
-
-            return r;
-            
-
-        }
-
-    }
-
-    public:
-
-    Line(){
-        shapeStore.push_back(this);
-    }
-
-    Line(Point *x1, Point *x2, lineType type = SEGMENT,Point *Center = new Point(0, 0, false), double Scale = 1.0):
-    a(*x1),
-    b(*x2),
-    t(type),
-    is_show(true),
-    m(0),
-    c(0),
-    scale(Scale),
-    center(*Center)
+    double R(bool positive, Point initial, Point final)
     {
 
+        double r, r1, r2;
+        if (positive)
+        {
+
+            r1 = (yAxis - abs(final.y)) / sin(angle * PI / 180);
+            r2 = (xAxis - abs(final.x)) / cos(angle * PI / 180);
+
+            r1 = abs(r1);
+            r2 = abs(r2);
+            r = min(r1, r2) - 1;
+
+            return r;
+        }
+        else
+        {
+
+            r1 = (abs(b.y) - yAxis) / sin(angle * PI / 180);
+            r2 = (abs(b.x) - xAxis) / cos(angle * PI / 180);
+
+            r1 = abs(r1);
+            r2 = abs(r2);
+
+            r = min(r1, r2) - 1;
+
+            return r;
+        }
+    }
+
+public:
+    Line()
+    {
+        shapeStore.push_back(this);
+    }
+
+    Line(Point *x1, Point *x2, lineType type = SEGMENT, Point *Center = new Point(0, 0, false), double Scale = 1.0) : a(*x1),
+                                                                                                                      b(*x2),
+                                                                                                                      t(type),
+                                                                                                                      is_show(true),
+                                                                                                                      m(0),
+                                                                                                                      c(0),
+                                                                                                                      scale(Scale),
+                                                                                                                      center(*Center)
+    {
 
         shapeStore.push_back(this);
-        
-        if (x1->x == x2->x){
+
+        if (x1->x == x2->x)
+        {
             angle = 90.0;
         }
-        else {
-            angle = atan((x2->y - x1->y)/(x2->x - x1->x))*180/PI;
+        else
+        {
+            angle = atan((x2->y - x1->y) / (x2->x - x1->x)) * 180 / PI;
         }
 
         if (angle < 0)
             angle += 180;
 
-        if (angle != 90){
-            m = (b.y - a.y)/(b.x-a.x);
-            c = b.y - m*b.x;
+        if (angle != 90)
+        {
+            m = (b.y - a.y) / (b.x - a.x);
+            c = b.y - m * b.x;
         }
-
     }
 
     // m, c constructor
     // y = mx + c
-    Line(double m1, double c1, bool sh = false, Point* Center = new Point(0, 0, false),double Scale = 1.0):
-    m(m1),
-    c(c1),
-    is_show(sh),
-    scale(Scale),
-    center(*Center)
+    Line(double m1, double c1, bool sh = false, Point *Center = new Point(0, 0, false), double Scale = 1.0) : m(m1),
+                                                                                                              c(c1),
+                                                                                                              is_show(sh),
+                                                                                                              scale(Scale),
+                                                                                                              center(*Center)
     {
 
         // (0, c), (1, m+c) taken as points
@@ -433,61 +431,59 @@ class Line : public Shape {
         a.y = c;
 
         b.x = 1;
-        b.y = m+c;
+        b.y = m + c;
 
-        angle = atan(m1)*180/PI;
+        angle = atan(m1) * 180 / PI;
         is_show = true;
         t = LINE;
 
         shapeStore.push_back(this);
-
     }
 
     // Copy Constructor
-    Line(const Line& l){
+    Line(const Line &l)
+    {
         a = l.a;
         b = l.b;
         is_show = l.is_show; // if its true already pushed
-        angle =  l.angle;
+        angle = l.angle;
         c = l.c;
         m = l.m;
         t = l.t;
-        
     }
 
     // copy assignment operator
-    Line& operator=(const Line& l){
+    Line &operator=(const Line &l)
+    {
 
         a = l.a;
         b = l.b;
         is_show = l.is_show; // if its true already pushed
-        angle =  l.angle;
+        angle = l.angle;
         c = l.c;
         m = l.m;
         t = l.t;
-        
-        
 
         return *this;
-
     }
 
-    void printEquation(){
+    void printEquation()
+    {
 
         cout << "m: " << m << endl;
         cout << "c: " << c << endl;
         cout << "angle: " << angle << endl;
-
     }
 
-    void setDisplay(bool d){
+    void setDisplay(bool d)
+    {
 
         is_show = d;
         return;
     }
 
-    void showSegment(){
-
+    void showSegment()
+    {
 
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
@@ -499,99 +495,104 @@ class Line : public Shape {
         glLoadIdentity();
     }
 
-    void showRay(){
+    void showRay()
+    {
 
         // 1/2 diagnol of unit length box
-        double arrowLength = width/(2*(1.14)*xAxis);
+        double arrowLength = width / (2 * (1.14) * xAxis);
 
         double xFinal, yFinal;
 
-        double r, rx, ry;   
+        double r, rx, ry;
 
-         if (a == b){
+        if (a == b)
+        {
             xFinal = b.x;
             yFinal = b.y;
         }
-        else {
+        else
+        {
 
-            
-           r = (b.x - a.x)/cos(angle*PI/180);
+            r = (b.x - a.x) / cos(angle * PI / 180);
 
-           if (r > 0){
+            if (r > 0)
+            {
 
-                if (b.x - a.x > 0){
+                if (b.x - a.x > 0)
+                {
 
-                    r = (xAxis - a.x)/cos(angle*PI/180);
+                    r = (xAxis - a.x) / cos(angle * PI / 180);
                 }
-                else {
+                else
+                {
 
-                    r = (-xAxis - a.x)/cos(angle*PI/180);
-
+                    r = (-xAxis - a.x) / cos(angle * PI / 180);
                 }
 
                 rx = r;
 
-                if (b.y - a.y > 0){
-                    r = (yAxis - a.y)/sin(angle*PI/180);
+                if (b.y - a.y > 0)
+                {
+                    r = (yAxis - a.y) / sin(angle * PI / 180);
                 }
-                else {
-                    r = (-yAxis - a.y)/sin(angle*PI/180);
+                else
+                {
+                    r = (-yAxis - a.y) / sin(angle * PI / 180);
                 }
 
                 ry = r;
 
                 r = abs(min(rx, ry));
 
-                if (r >= norm(&a, &b)+1)
-                    r = abs(r-1);
+                if (r >= norm(&a, &b) + 1)
+                    r = abs(r - 1);
 
-                xFinal = a.x + r*cos(angle*PI/180);
-                yFinal = a.y + r*sin(angle*PI/180);
-           
-           }
-           else {
+                xFinal = a.x + r * cos(angle * PI / 180);
+                yFinal = a.y + r * sin(angle * PI / 180);
+            }
+            else
+            {
 
-                if (b.x - a.x > 0){
+                if (b.x - a.x > 0)
+                {
 
-                    r = (a.x - xAxis)/cos(angle*PI/180);
+                    r = (a.x - xAxis) / cos(angle * PI / 180);
                 }
-                else {
+                else
+                {
 
-                    r = (xAxis + a.x)/cos(angle*PI/180);
-
+                    r = (xAxis + a.x) / cos(angle * PI / 180);
                 }
 
                 rx = r;
 
-                if (b.y - a.y > 0){
-                    r = (-yAxis + a.y)/sin(angle*PI/180);
+                if (b.y - a.y > 0)
+                {
+                    r = (-yAxis + a.y) / sin(angle * PI / 180);
                 }
-                else {
-                    r = (yAxis + a.y)/sin(angle*PI/180);
+                else
+                {
+                    r = (yAxis + a.y) / sin(angle * PI / 180);
                 }
 
                 ry = r;
 
                 r = abs(min(rx, ry));
 
-                if (r >= norm(&a, &b)+1)
-                    r = abs(r-1);
+                if (r >= norm(&a, &b) + 1)
+                    r = abs(r - 1);
 
-                xFinal = a.x - r*cos(angle*PI/180);
-                yFinal = a.y - r*sin(angle*PI/180);
-           
-           }
-
-
+                xFinal = a.x - r * cos(angle * PI / 180);
+                yFinal = a.y - r * sin(angle * PI / 180);
+            }
         }
-        
 
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_POINTS);
-        glVertex2f(a.x, a.y); 
+        glVertex2f(a.x, a.y);
         glVertex2f(b.x, b.y);
         glEnd();
 
@@ -599,7 +600,6 @@ class Line : public Shape {
         glVertex2f(a.x, a.y);
         glVertex2f(xFinal, yFinal);
         glEnd();
-
 
         glColor3f(1.0, 0.0, 0.0);
         glBegin(GL_POINTS);
@@ -621,163 +621,172 @@ class Line : public Shape {
         // glEnd();
     }
 
-
-    void showLine(){
-
+    void showLine()
+    {
 
         double r, rx, ry, xFinal1, yFinal1, xFinal2, yFinal2;
 
-
-        if (a == b){
+        if (a == b)
+        {
             xFinal1 = b.x;
             yFinal1 = b.y;
             xFinal2 = a.x;
             yFinal2 = a.y;
         }
-        else {
+        else
+        {
 
-           r = (b.x - a.x)/cos(angle*PI/180);
+            r = (b.x - a.x) / cos(angle * PI / 180);
 
-           if (r > 0){
+            if (r > 0)
+            {
 
-                if (b.x - a.x > 0){
+                if (b.x - a.x > 0)
+                {
 
-                    r = (xAxis - a.x)/cos(angle*PI/180);
+                    r = (xAxis - a.x) / cos(angle * PI / 180);
                 }
-                else {
+                else
+                {
 
-                    r = (-xAxis - a.x)/cos(angle*PI/180);
-
+                    r = (-xAxis - a.x) / cos(angle * PI / 180);
                 }
 
                 rx = r;
 
-                if (b.y - a.y > 0){
-                    r = (yAxis - a.y)/sin(angle*PI/180);
+                if (b.y - a.y > 0)
+                {
+                    r = (yAxis - a.y) / sin(angle * PI / 180);
                 }
-                else {
-                    r = (-yAxis - a.y)/sin(angle*PI/180);
+                else
+                {
+                    r = (-yAxis - a.y) / sin(angle * PI / 180);
                 }
 
                 ry = r;
 
                 r = abs(min(rx, ry));
 
-                if (r >= norm(&a, &b)+1)
-                    r = abs(r-1);
+                if (r >= norm(&a, &b) + 1)
+                    r = abs(r - 1);
 
-                xFinal1 = a.x + r*cos(angle*PI/180);
-                yFinal1 = a.y + r*sin(angle*PI/180);
-           
-           }
-           else {
+                xFinal1 = a.x + r * cos(angle * PI / 180);
+                yFinal1 = a.y + r * sin(angle * PI / 180);
+            }
+            else
+            {
 
-                if (b.x - a.x > 0){
+                if (b.x - a.x > 0)
+                {
 
-                    r = (a.x - xAxis)/cos(angle*PI/180);
+                    r = (a.x - xAxis) / cos(angle * PI / 180);
                 }
-                else {
+                else
+                {
 
-                    r = (xAxis + a.x)/cos(angle*PI/180);
-
+                    r = (xAxis + a.x) / cos(angle * PI / 180);
                 }
 
                 rx = r;
 
-                if (b.y - a.y > 0){
-                    r = (-yAxis + a.y)/sin(angle*PI/180);
+                if (b.y - a.y > 0)
+                {
+                    r = (-yAxis + a.y) / sin(angle * PI / 180);
                 }
-                else {
-                    r = (yAxis + a.y)/sin(angle*PI/180);
+                else
+                {
+                    r = (yAxis + a.y) / sin(angle * PI / 180);
                 }
 
                 ry = r;
 
                 r = abs(min(rx, ry));
 
-                if (r >= norm(&a, &b)+1)
-                    r = abs(r-1);
+                if (r >= norm(&a, &b) + 1)
+                    r = abs(r - 1);
 
-                xFinal1 = a.x - r*cos(angle*PI/180);
-                yFinal1 = a.y - r*sin(angle*PI/180);
-           
-           }
+                xFinal1 = a.x - r * cos(angle * PI / 180);
+                yFinal1 = a.y - r * sin(angle * PI / 180);
+            }
 
             swap(a.x, b.x);
             swap(a.y, b.y);
 
+            r = (b.x - a.x) / cos(angle * PI / 180);
 
-            r = (b.x - a.x)/cos(angle*PI/180);
+            if (r > 0)
+            {
 
-           if (r > 0){
+                if (b.x - a.x > 0)
+                {
 
-                if (b.x - a.x > 0){
-
-                    r = (xAxis - a.x)/cos(angle*PI/180);
+                    r = (xAxis - a.x) / cos(angle * PI / 180);
                 }
-                else {
+                else
+                {
 
-                    r = (-xAxis - a.x)/cos(angle*PI/180);
-
+                    r = (-xAxis - a.x) / cos(angle * PI / 180);
                 }
 
                 rx = r;
 
-                if (b.y - a.y > 0){
-                    r = (yAxis - a.y)/sin(angle*PI/180);
+                if (b.y - a.y > 0)
+                {
+                    r = (yAxis - a.y) / sin(angle * PI / 180);
                 }
-                else {
-                    r = (-yAxis - a.y)/sin(angle*PI/180);
+                else
+                {
+                    r = (-yAxis - a.y) / sin(angle * PI / 180);
                 }
 
                 ry = r;
 
                 r = abs(min(rx, ry));
 
-                if (r >= norm(&a, &b)+1)
-                    r = abs(r-1);
+                if (r >= norm(&a, &b) + 1)
+                    r = abs(r - 1);
 
-                xFinal2 = a.x + r*cos(angle*PI/180);
-                yFinal2 = a.y + r*sin(angle*PI/180);
-           
-           }
-           else {
+                xFinal2 = a.x + r * cos(angle * PI / 180);
+                yFinal2 = a.y + r * sin(angle * PI / 180);
+            }
+            else
+            {
 
-                if (b.x - a.x > 0){
+                if (b.x - a.x > 0)
+                {
 
-                    r = (a.x - xAxis)/cos(angle*PI/180);
+                    r = (a.x - xAxis) / cos(angle * PI / 180);
                 }
-                else {
+                else
+                {
 
-                    r = (xAxis + a.x)/cos(angle*PI/180);
-
+                    r = (xAxis + a.x) / cos(angle * PI / 180);
                 }
 
                 rx = r;
 
-                if (b.y - a.y > 0){
-                    r = (-yAxis + a.y)/sin(angle*PI/180);
+                if (b.y - a.y > 0)
+                {
+                    r = (-yAxis + a.y) / sin(angle * PI / 180);
                 }
-                else {
-                    r = (yAxis + a.y)/sin(angle*PI/180);
+                else
+                {
+                    r = (yAxis + a.y) / sin(angle * PI / 180);
                 }
 
                 ry = r;
 
                 r = abs(min(rx, ry));
 
-                if (r >= norm(&a, &b)+1)
-                    r = abs(r-1);
+                if (r >= norm(&a, &b) + 1)
+                    r = abs(r - 1);
 
-                xFinal2 = a.x - r*cos(angle*PI/180);
-                yFinal2 = a.y - r*sin(angle*PI/180);
-           
-           }
+                xFinal2 = a.x - r * cos(angle * PI / 180);
+                yFinal2 = a.y - r * sin(angle * PI / 180);
+            }
 
             swap(a.x, b.x);
             swap(a.y, b.y);
-
-
         }
 
         glTranslatef(center.x, center.y, 0.0f);
@@ -785,7 +794,7 @@ class Line : public Shape {
         glColor3f(0.0, 0.0, 0.0);
 
         glBegin(GL_POINTS);
-        glVertex2f(a.x, a.y); 
+        glVertex2f(a.x, a.y);
         glVertex2f(b.x, b.y);
         glEnd();
 
@@ -793,7 +802,6 @@ class Line : public Shape {
         glVertex2f(xFinal1, yFinal1);
         glVertex2f(xFinal2, yFinal2);
         glEnd();
-
 
         glColor3f(1.0, 0.0, 0.0);
         glBegin(GL_POINTS);
@@ -803,11 +811,11 @@ class Line : public Shape {
 
         glLoadIdentity();
         glColor3f(0.0, 0.0, 0.0);
-
     }
 
-    void show(){
-        
+    void show()
+    {
+
         switch (t)
         {
         case SEGMENT:
@@ -824,45 +832,44 @@ class Line : public Shape {
         }
     }
 
-    bool getIs_show(){
+    bool getIs_show()
+    {
         return is_show;
     }
 
-    friend Point* INTERSECTION(Line *l1, Line *l2);
-    friend Line* LINE_AT_ANGLE(double a, Line *l, Point *p);
-    friend Line* ANGLE_BISECTOR(Line *a, Line *b); // returns 1x2 array of lines
+    friend Point *INTERSECTION(Line *l1, Line *l2);
+    friend Line *LINE_AT_ANGLE(double a, Line *l, Point *p);
+    friend Line *ANGLE_BISECTOR(Line *a, Line *b); // returns 1x2 array of lines
     friend bool isPerpendicular(Line *l1, Line *l2);
     friend bool isParallel(Line *l1, Line *l2);
-    friend double SHORTEST_DISTANCE(Line* l1, Line* l2);
-   
-    Point *MIDPOINT_LINE(){
+    friend double SHORTEST_DISTANCE(Line *l1, Line *l2);
+
+    Point *MIDPOINT_LINE()
+    {
 
         if (t != SEGMENT)
             return &b;
-        
-        Point *p = new Point((a.x+b.x)/2, (a.y+b.y)/2);  
+
+        Point *p = new Point((a.x + b.x) / 2, (a.y + b.y) / 2);
 
         return p;
-
     }
 
-    bool passesThrough(Point *p){
+    bool passesThrough(Point *p)
+    {
 
+        if (angle == 90)
+        {
 
-        if (angle == 90){
-            
             if (p->x == a.x)
                 return true;
             return false;
-
         }
 
-        if (p->y == (m*p->x + c))
+        if (p->y == (m * p->x + c))
             return true;
-        
-        return false;
 
-        
+        return false;
     }
 
     double AREA() override
@@ -874,155 +881,156 @@ class Line : public Shape {
     {
         return 0;
     }
-
 };
 
-
-Point* rotatePoint(Point* point, Point* center, double theta) {
+Point *rotatePoint(Point *point, Point *center, double theta)
+{
     double x = center->x + (point->x - center->x) * std::cos(theta) - (point->y - center->y) * std::sin(theta);
     double y = center->y + (point->x - center->x) * std::sin(theta) + (point->y - center->y) * std::cos(theta);
     return new Point(x, y);
 }
 
-Line *LINE_AT_ANGLE(double a, Line *l, Point *p){
+Line *LINE_AT_ANGLE(double a, Line *l, Point *p)
+{
 
-
-    if (!l->passesThrough(p)){
+    if (!l->passesThrough(p))
+    {
 
         cout << "LINE_AT_ANGLE: p doesn't pass through l\n";
         return l;
     }
 
-    Point* rotatePoint1 = new Point(0, 0, false);
-    Point* rotatePoint2  = new Point (0, 0, false);
+    Point *rotatePoint1 = new Point(0, 0, false);
+    Point *rotatePoint2 = new Point(0, 0, false);
 
     while (a >= 180)
         a -= 180;
 
-    rotatePoint1 = rotatePoint(&l->a, p, a*PI/180);
-    rotatePoint2 = rotatePoint(&l->b, p, a*PI/180);
+    rotatePoint1 = rotatePoint(&l->a, p, a * PI / 180);
+    rotatePoint2 = rotatePoint(&l->b, p, a * PI / 180);
 
-    Line* l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE 
+    Line *l1 = new Line(rotatePoint1, rotatePoint2, LINE); // defaulting it LINE
 
-    return l1; 
-
+    return l1;
 }
 
-Point *INTERSECTION(Line *l1, Line *l2){
+Point *INTERSECTION(Line *l1, Line *l2)
+{
 
-    if (l1->m == l2->m){
-        cout << "Do not intersect parallel" << "\n";
+    if (l1->m == l2->m)
+    {
+        cout << "Do not intersect parallel"
+             << "\n";
         return &l1->a;
     }
 
-    Point *p =  new Point(0.0, 0.0, 1.0, 0, 0);  
-    
-    if (l1->angle == 90){
+    Point *p = new Point(0.0, 0.0, 1.0, 0, 0);
+
+    if (l1->angle == 90)
+    {
         p->x = l1->a.x;
-        p->y = l2->m*p->x + l2->c;
-
+        p->y = l2->m * p->x + l2->c;
 
         return p;
     }
 
-    if (l2->angle == 90){
+    if (l2->angle == 90)
+    {
         p->x = l2->a.x;
-        p->y = l1->m*p->x + l1->c;
+        p->y = l1->m * p->x + l1->c;
 
         return p;
     }
 
+    p->x = (l2->c - l1->c) / (l1->m - l2->m);
+    p->y = l1->m * p->x + l1->c;
 
-    p->x = (l2->c - l1->c)/(l1->m - l2->m);
-    p->y = l1->m*p->x + l1->c;
-    
     return p;
-
 }
 
-Line* ANGLE_BISECTOR(Line *a, Line *b){
+Line *ANGLE_BISECTOR(Line *a, Line *b)
+{
 
+    Line *x = new Line[2];
 
-    Line* x = new Line[2];
-  
-    if (a->angle == 90 && b->angle == 90){
+    if (a->angle == 90 && b->angle == 90)
+    {
 
         cout << "Parallel lines cannot have angle bisectors\n";
         return x;
     }
 
-    Line* l1, *l2;
-    double d1 = pow(1 + a->m*a->m, 0.5);
-    double d2 = pow(1 + b->m*b->m, 0.5);
+    Line *l1, *l2;
+    double d1 = pow(1 + a->m * a->m, 0.5);
+    double d2 = pow(1 + b->m * b->m, 0.5);
 
-    if (a->angle == 90){
+    if (a->angle == 90)
+    {
 
-        l1 = new Line(b->m - d2, b->c + a->a.x*d2, true);
-        l2 = new Line(b->m + d2, b->c - a->a.x*d2, true);
-
-        x[0] = *l1;
-        x[1] = *l2;
-    
-        return x;
-
-    }
-    else if (b->angle == 90){
-
-        l1 = new Line(a->m - d1, a->c + b->a.x*d1, true);
-        l2 = new Line(a->m + d1, a->c - b->a.x*d1, true);
+        l1 = new Line(b->m - d2, b->c + a->a.x * d2, true);
+        l2 = new Line(b->m + d2, b->c - a->a.x * d2, true);
 
         x[0] = *l1;
         x[1] = *l2;
-    
-        return x;
 
+        return x;
+    }
+    else if (b->angle == 90)
+    {
+
+        l1 = new Line(a->m - d1, a->c + b->a.x * d1, true);
+        l2 = new Line(a->m + d1, a->c - b->a.x * d1, true);
+
+        x[0] = *l1;
+        x[1] = *l2;
+
+        return x;
     }
 
-    if (a->m == b->m){
+    if (a->m == b->m)
+    {
         a->printEquation();
         b->printEquation();
         cout << "Parallel lines cannot have angle bisectors\n";
         return x;
     }
 
-    
-
-
-    if (d1 == d2){
+    if (d1 == d2)
+    {
         l1 = new Line(new Point(0, 0), new Point(0, 5));
         l2 = new Line(0.0, 0.0, true);
     }
-    else {
-        l1 = new Line((a->m*d2 - b->m*d1)/(d2 - d1), (a->c*d2 - b->c*d1)/(d2-d1), true);
-        l2 = new Line((a->m*d2 + b->m*d1)/(d2 + d1), (a->c*d2 + b->c*d1)/(d2+d1), true);
+    else
+    {
+        l1 = new Line((a->m * d2 - b->m * d1) / (d2 - d1), (a->c * d2 - b->c * d1) / (d2 - d1), true);
+        l2 = new Line((a->m * d2 + b->m * d1) / (d2 + d1), (a->c * d2 + b->c * d1) / (d2 + d1), true);
     }
 
     x[0] = *l1;
     x[1] = *l2;
-    
-    return x;
 
+    return x;
 }
 
-double SHORTEST_DISTANCE(Line* l1, Line* l2){
+double SHORTEST_DISTANCE(Line *l1, Line *l2)
+{
 
     if (l1->m == l2->m)
         return 0;
-    
-    return abs(l1->c - l2->c)/pow(1 + l1->m*l1->m, 0.5);
-}
 
+    return abs(l1->c - l2->c) / pow(1 + l1->m * l1->m, 0.5);
+}
 
 bool isPerpendicular(Line *l1, Line *l2)
 {
-    if (l1->m*l2->m == -1)
+    if (l1->m * l2->m == -1)
         return true;
     return false;
 }
 
-// upgrade 
+// upgrade
 bool isParallel(Line *l1, Line *l2)
-{   
+{
     if (l1->m == l2->m)
         return true;
 
@@ -1037,7 +1045,7 @@ public:
     Point p3;
     bool is_show;
     double scale;
-    Point center; 
+    Point center;
 
     Tri()
     {
@@ -1045,24 +1053,22 @@ public:
         center = *(new Point(0, 0, false));
     }
 
-    Tri(Point *point1, Point *point2, Point *point3, Point* Center = new Point(0, 0, false),double Scale = 1.0)
-    { 
-        
+    Tri(Point *point1, Point *point2, Point *point3, Point *Center = new Point(0, 0, false), double Scale = 1.0)
+    {
+
         p1 = *point1;
         p2 = *point2;
         p3 = *point3;
-        
+
         is_show = true;
         scale = Scale;
         center = *Center;
-        
-        //cerr << this << " " << shapeStore.size() << "\n";
-        shapeStore.push_back(this);
-        
 
+        // cerr << this << " " << shapeStore.size() << "\n";
+        shapeStore.push_back(this);
     }
 
-    Tri(Point *point1, Point *point2, Point *point3, bool sh, Point Center = Point(0, 0, false),double Scale = 1.0)
+    Tri(Point *point1, Point *point2, Point *point3, bool sh, Point Center = Point(0, 0, false), double Scale = 1.0)
     {
         p1 = *point1;
         p2 = *point2;
@@ -1071,11 +1077,9 @@ public:
         scale = Scale;
         center = Center;
         shapeStore.push_back(this);
-
     }
 
-
-    Tri(double s1, double s2, double s3,Point *Center = new Point(0, 0, false),double Scale = 1.0)
+    Tri(double s1, double s2, double s3, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         p1.x = 0;
         p2.x = 0;
@@ -1089,11 +1093,9 @@ public:
         center = *Center;
         scale = Scale;
         shapeStore.push_back(this);
-
-       
     }
 
-    Tri(double s1, double s2, double s3, bool sh ,Point *Center = new Point(0, 0, false),double Scale = 1.0)
+    Tri(double s1, double s2, double s3, bool sh, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         p1.x = 0;
         p2.x = 0;
@@ -1107,11 +1109,9 @@ public:
         center = *Center;
         scale = Scale;
         shapeStore.push_back(this);
-
-       
     }
 
-    Tri(double h, double s, Point *Center = new Point(0, 0, false),double Scale = 1.0)
+    Tri(double h, double s, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         p1.x = 0;
         p2.x = 0;
@@ -1122,9 +1122,8 @@ public:
         center = *Center;
         is_show = true;
         scale = Scale;
-        
-        shapeStore.push_back(this);
 
+        shapeStore.push_back(this);
     }
 
     // Tri(double h, double s, Point *Center = new Point(0, 0, false),double scale = 1.0,bool sh)
@@ -1134,13 +1133,13 @@ public:
     //     p3 = Point(0, sqrt(h * h - s * s));
     //     center = *Center;
     //     is_show = sh;
-        
+
     //     shapeStore.push_back(this);
 
     // }
 
     void show()
-    {  
+    {
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
@@ -1151,22 +1150,22 @@ public:
 
         glEnd();
         glTranslatef(-center.x, -center.y, 0.0f);
-        glScalef((1.0/scale), (1.0/scale), 0.0f);
-
+        glScalef((1.0 / scale), (1.0 / scale), 0.0f);
     }
 
-    bool getIs_show(){
+    bool getIs_show()
+    {
         return is_show;
     }
 
-    Point *CIRCUMCENTER() 
-    { 
+    Point *CIRCUMCENTER()
+    {
         double a = (p1.y * p1.y + p2.x * p3.x) * (p2.x - p3.x) + (p2.y * p2.y + p3.x * p1.x) * (p3.x - p1.x) + (p3.y * p3.y + p1.x * p2.x) * (p1.x - p2.x);
         double b = (p1.x * p1.x + p2.y * p3.y) * (p2.y - p3.y) + (p2.x * p2.x + p3.y * p1.y) * (p3.y - p1.y) + (p3.x * p3.x + p1.y * p2.y) * (p1.y - p2.y);
         double c = p2.y * (p3.x - p1.x) - p2.x * (p3.y - p1.y) - (p1.y * p3.x - p3.y * p1.x);
         double k = a / (2 * c);
         double h = -b / (2 * c);
-        
+
         return new Point(h, k);
     }
 
@@ -1195,10 +1194,9 @@ public:
         b->setDisplay(false);
         c->setDisplay(false);
 
-
-        Line* l1;
-        Line* l2;
-        Line* l3;
+        Line *l1;
+        Line *l2;
+        Line *l3;
 
         l1 = ANGLE_BISECTOR(a, b);
         l2 = ANGLE_BISECTOR(b, c);
@@ -1213,17 +1211,17 @@ public:
 
         if (p1.x == p->x && p1.y == p->y)
         {
-            
+
             return INTERSECTION(&l2[1], &l3[1]); // Assuming 1st index will give external angle bisector
         }
         else if (p2.x == p->x && p2.y == p->y)
         {
-            
+
             return INTERSECTION(&l3[1], &l1[1]);
         }
         else if (p3.x == p->x && p3.y == p->y)
         {
-            
+
             return INTERSECTION(&l1[1], &l2[1]);
         }
         else
@@ -1232,7 +1230,7 @@ public:
         }
     }
 
-    Point *INCENTER() 
+    Point *INCENTER()
     {
         Line *a = new Line(&p1, &p2);
         Line *b = new Line(&p2, &p3);
@@ -1242,8 +1240,8 @@ public:
         b->setDisplay(false);
         c->setDisplay(false);
 
-        Line* l1;
-        Line* l2;
+        Line *l1;
+        Line *l2;
         l1 = ANGLE_BISECTOR(a, b);
         l2 = ANGLE_BISECTOR(b, c);
         Point *i = INTERSECTION(&l1[0], &l2[0]); // Assuming 1st angle bisector is internal angle bisector
@@ -1251,7 +1249,7 @@ public:
         return i;
     }
 
-    Line *MEDIAN(Point *p) 
+    Line *MEDIAN(Point *p)
     {
         Point *q;
         if (p1.x == p->x && p1.y == p->y)
@@ -1275,9 +1273,9 @@ public:
         }
     }
 
-    Line*
+    Line *
     ALTITUDE(Point *p)
-    { 
+    {
         Point *q;
         if (p1.x == p->x && p1.y == p->y)
         {
@@ -1325,15 +1323,15 @@ public:
 
 class Circle : public Shape
 {
-    public:
+public:
     float radius;
     Point center;
     Point figCenter;
     double scale;
     bool is_show;
 
-    Circle(float radius, Point *Center , Point *fcenter = new Point(0,0,false),double Scale = 1.0)
-    {   
+    Circle(float radius, Point *Center, Point *fcenter = new Point(0, 0, false), double Scale = 1.0)
+    {
         this->radius = radius;
         this->center = center;
         scale = Scale;
@@ -1341,11 +1339,10 @@ class Circle : public Shape
         figCenter = *fcenter;
         is_show = true;
         shapeStore.push_back(this);
-        
     }
 
-    Circle(float radius, Point *Center ,bool sh ,Point *fcenter = new Point(0,0,false), double Scale = 1.0)
-    {   
+    Circle(float radius, Point *Center, bool sh, Point *fcenter = new Point(0, 0, false), double Scale = 1.0)
+    {
         this->radius = radius;
         this->center = center;
         scale = Scale;
@@ -1353,11 +1350,10 @@ class Circle : public Shape
         figCenter = *fcenter;
         is_show = sh;
         shapeStore.push_back(this);
-        
     }
 
     void show()
-    {   
+    {
         glScalef(scale, scale, 0.0f);
         glTranslatef(center.x, center.y, 0.0f);
 
@@ -1373,20 +1369,20 @@ class Circle : public Shape
 
         // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
-        glScalef((1.0/scale), (1.0/scale), 0.0f);
-
+        glScalef((1.0 / scale), (1.0 / scale), 0.0f);
     }
 
-    bool getIs_show(){
+    bool getIs_show()
+    {
         return is_show;
     }
 
-    Line* TANGENT(Point *q)
+    Line *TANGENT(Point *q)
     {
         double m;
         m = (center.y - q->y) / (center.x - q->x);
         Line *l;
-        l = new Line(-(1/m), q->y + (1/m)*q->x); 
+        l = new Line(-(1 / m), q->y + (1 / m) * q->x);
         return l;
     }
 
@@ -1405,22 +1401,22 @@ class Circle : public Shape
 class Para : public Shape
 {
 public:
-    Point p1;    // p1,p2,p3,p4 are attributes 
+    Point p1; // p1,p2,p3,p4 are attributes
     Point p2;
     Point p3;
     Point p4;
     double scale;
-    Point center; 
+    Point center;
     bool is_show;
 
     Para(double s1, double ang, double s2, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
-        
+
         p1.x = 0;
         p1.y = 0;
         p2.x = s1;
         p2.y = 0;
-        p3.x = s2 * cos(ang) + s1; 
+        p3.x = s2 * cos(ang) + s1;
         p3.y = s2 * sin(ang);
         p4.x = s2 * cos(ang);
         p4.y = s2 * sin(ang);
@@ -1428,17 +1424,16 @@ public:
         center = *Center;
         scale = Scale;
         shapeStore.push_back(this);
-
     }
 
-    Para(double s1, double ang, double s2, bool sh ,Point *Center = new Point(0, 0, false), double Scale = 1.0)
+    Para(double s1, double ang, double s2, bool sh, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
-        
+
         p1.x = 0;
         p1.y = 0;
         p2.x = s1;
         p2.y = 0;
-        p3.x = s2 * cos(ang) + s1; 
+        p3.x = s2 * cos(ang) + s1;
         p3.y = s2 * sin(ang);
         p4.x = s2 * cos(ang);
         p4.y = s2 * sin(ang);
@@ -1446,11 +1441,11 @@ public:
         center = *Center;
         scale = Scale;
         shapeStore.push_back(this);
-
     }
 
-    void show(){
-        
+    void show()
+    {
+
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3b(0, 0, 0);
@@ -1462,49 +1457,51 @@ public:
         glEnd();
         // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
-        glScalef((1.0/scale), (1.0/scale), 0.0f);
+        glScalef((1.0 / scale), (1.0 / scale), 0.0f);
     }
 
-    bool getIs_show(){
+    bool getIs_show()
+    {
         return is_show;
     }
 
-    Line** DIAGONAL() {
+    Line **DIAGONAL()
+    {
 
-        Line** diagonals = new Line*[2]; // free
-        
-        diagonals[0] = new Line(&p1,&p3);
-        diagonals[1] = new Line(&p2,&p4);
+        Line **diagonals = new Line *[2]; // free
+
+        diagonals[0] = new Line(&p1, &p3);
+        diagonals[1] = new Line(&p2, &p4);
 
         return diagonals;
     }
 
     double AREA() override
     {
-        double s1 = norm(&p1,&p2);
-        double s2 = norm(&p2,&p3);
-        double angle = angleBetweenPoints(&p1,&p2,&p3);
+        double s1 = norm(&p1, &p2);
+        double s2 = norm(&p2, &p3);
+        double angle = angleBetweenPoints(&p1, &p2, &p3);
         return s1 * s2 * sin(angle);
     }
 
     double PERIMETER() override
     {
-        double s1 = norm(&p1,&p2);
-        double s2 = norm(&p2,&p3);
+        double s1 = norm(&p1, &p2);
+        double s2 = norm(&p2, &p3);
         return 2 * (s1 + s2);
     }
 };
 
 class RegPoly : public Shape
 {
-    public:
+public:
     int numOfSides;
     double sideLength;
     double scale;
     Point center;
-    bool is_show; 
+    bool is_show;
 
-    RegPoly(int numOfSides, double sideLength, bool sh ,Point *Center = new Point(0, 0, false), double Scale = 1.0)
+    RegPoly(int numOfSides, double sideLength, bool sh, Point *Center = new Point(0, 0, false), double Scale = 1.0)
     {
         scale = Scale;
         center = *Center;
@@ -1512,7 +1509,6 @@ class RegPoly : public Shape
         this->sideLength = sideLength;
         is_show = sh;
         shapeStore.push_back(this);
-        
     }
 
     RegPoly(int numOfSides, double sideLength, Point *Center = new Point(0, 0, false), double Scale = 1.0)
@@ -1523,12 +1519,11 @@ class RegPoly : public Shape
         this->sideLength = sideLength;
         is_show = true;
         shapeStore.push_back(this);
-        
     }
 
     void show()
     {
-        
+
         glTranslatef(center.x, center.y, 0.0f);
         glScalef(scale, scale, 0.0f);
         glColor3f(0.0, 0.0, 0.0);
@@ -1540,17 +1535,17 @@ class RegPoly : public Shape
         for (int i = 0; i < numOfSides; i++)
         {
             glVertex2f(sideLength * cos(angle), sideLength * sin(angle));
-            angle += (PI / 180) *(360 / numOfSides);
+            angle += (PI / 180) * (360 / numOfSides);
         }
         glEnd();
 
         // glLoadIdentity();
         glTranslatef(-center.x, -center.y, 0.0f);
-        glScalef((1.0/scale), (1.0/scale), 0.0f);
-
+        glScalef((1.0 / scale), (1.0 / scale), 0.0f);
     }
 
-    bool getIs_show(){
+    bool getIs_show()
+    {
         return is_show;
     }
 
@@ -1565,115 +1560,113 @@ class RegPoly : public Shape
     }
 };
 
-
-//Non-memeber functions
-Point*
-    INTERSECTION_CIRCLE(Circle *c1, Circle *c2)
-    {
-        Point* p = NULL;
-        // Finding quadratic equation and then sove it.
-        double d = norm(&c1->center,&c2->center);
-        if (d > c1->radius + c2->radius)
-            return p;
-        if (d < abs(c1->radius - c2->radius))
-            return p;
-        if (d == 0 && (c1->radius - c2->radius) == 0)
-            return p;
-        double c, k;
-        c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->center.x * c2->center.x + c2->center.y * c2->center.y) - (c1->center.x * c1->center.x + c1->center.y * c1->center.y)) / (2 * (c2->center.x - c1->center.x));
-        k = (c1->center.y - c2->center.y) / (c2->center.x - c1->center.x);
-        double D = (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2)) - 4 * (k * k + 1) * (c1->center.x * c1->center.x + c1->center.y * c1->center.y + c * c - c1->radius * c1->radius - 2 * c * c1->radius);
-        
-        if (D == 0)
-        {   
-            p = new Point[1];
-            p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1));
-            p[0].x = k * p[0].y + c;
-        }
-        else
-        {
-            
-            p = new Point[2];
-            p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-            p[1].y =  1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
-            p[0].x = k * p[0].y + c;
-            p[1].x = k * p[1].y + c;
-
-        }
-
+// Non-memeber functions
+Point *
+INTERSECTION_CIRCLE(Circle *c1, Circle *c2)
+{
+    Point *p = NULL;
+    // Finding quadratic equation and then sove it.
+    double d = norm(&c1->center, &c2->center);
+    if (d > c1->radius + c2->radius)
         return p;
+    if (d < abs(c1->radius - c2->radius))
+        return p;
+    if (d == 0 && (c1->radius - c2->radius) == 0)
+        return p;
+    double c, k;
+    c = (c1->radius * c1->radius - (c2->radius * c2->radius) + (c2->center.x * c2->center.x + c2->center.y * c2->center.y) - (c1->center.x * c1->center.x + c1->center.y * c1->center.y)) / (2 * (c2->center.x - c1->center.x));
+    k = (c1->center.y - c2->center.y) / (c2->center.x - c1->center.x);
+    double D = (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2)) - 4 * (k * k + 1) * (c1->center.x * c1->center.x + c1->center.y * c1->center.y + c * c - c1->radius * c1->radius - 2 * c * c1->radius);
+
+    if (D == 0)
+    {
+        p = new Point[1];
+        p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1));
+        p[0].x = k * p[0].y + c;
+    }
+    else
+    {
+
+        p = new Point[2];
+        p[0].y = -1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+        p[1].y = 1 * (pow((2 * c * k - 2 * c1->center.x * k - 2 * c1->center.y), 2) / 2 * (k * k + 1)) + sqrt(D);
+        p[0].x = k * p[0].y + c;
+        p[1].x = k * p[1].y + c;
     }
 
-    // vector<class Line> COMMON_TANGENT(Circle *c1,Circle *c2) {
-    //     vector<Line> *tangents;
-    //     double c1c2 = norm(c1->center,c2->center);
+    return p;
+}
 
-    //     if(c1c2 < abs(c1->radius - c2->radius)) {
-    //         return *tangents;
-    //     }
-        
-    //     else if( c1c2 == abs(c1->radius - c2->radius)) {
-    //         vector<Point> intersect;
-    //         intersect = INTERSECTION_CIRCLE(c1,c2);
-    //         Line *l = c1->TANGENT(&intersect[0]);
-    //         tangents->push_back(*l);
-    //         return *tangents;
-    //     }
-        
-    //     else if(c1c2 > abs(c1->radius - c2->radius) && c1c2 < c1->radius + c2->radius) {
-    //         Point *p;
-    //         p->x = (c2->radius*c1->center.x - c1->radius*c2->center.x) / (c2->radius - c1->radius);
-    //         p->y = (c2->radius*c1->center.y - c1->radius*c2->center.y) / (c2->radius - c1->radius);
-    //         double d1 = norm(p,c1->center);
-    //         Circle *c = new Circle(sqrt(d1*d1 - c1->radius*c1->radius),*p,false);
-    //         vector<Point> intersect;
-    //         intersect = INTERSECTION_CIRCLE(*c1,*c);
-    //         tangents->push_back(Line(p,intersect[0]));
-    //         tangents->push_back(Line(p,intersect[1]));
-    //         return tangents;
-    //     }
-        
-    //     else if(c1c2 == c1.radius + c2.radius) {
-    //         vector<Point> intersect;
-    //         intersect = INTERSECTION_CIRCLE(c1,c2);
-    //         Line l = c1.TANGENT(intersect[0]);
-    //         tangents.push_back(l);
+// vector<class Line> COMMON_TANGENT(Circle *c1,Circle *c2) {
+//     vector<Line> *tangents;
+//     double c1c2 = norm(c1->center,c2->center);
 
-    //         Point p;
-    //         p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
-    //         p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
-    //         double d1 = norm(p,c1.center);
-    //         Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
-    //         vector<Point> intersect2;
-    //         intersect2 = INTERSECTION_CIRCLE(c1,c);
-    //         tangents.push_back(Line(p,intersect2[0]));
-    //         tangents.push_back(Line(p,intersect2[1]));
-    //         return tangents;
-    //     }
-        
-    //     else if(c1c2 > c1.radius + c2.radius) {
-    //         Point p;
-    //         p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
-    //         p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
-    //         double d1 = norm(p,c1.center);
-    //         Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
-    //         vector<Point> intersect;
-    //         intersect = INTERSECTION_CIRCLE(c1,c);
-    //         tangents.push_back(Line(p,intersect[0]));
-    //         tangents.push_back(Line(p,intersect[1]));
+//     if(c1c2 < abs(c1->radius - c2->radius)) {
+//         return *tangents;
+//     }
 
-    //         Point q;
-    //         q.x = (c2.radius*c1.center.x + c1.radius*c2.center.x) / (c2.radius + c1.radius);
-    //         q.y = (c2.radius*c1.center.y + c1.radius*c2.center.y) / (c2.radius + c1.radius);
-    //         double d2 = norm(q,c1.center);
-    //         Circle c_ = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
-    //         vector<Point> intersect2;
-    //         intersect2 = INTERSECTION_CIRCLE(c1,c_);
-    //         tangents.push_back(Line(q,intersect2[0]));
-    //         tangents.push_back(Line(q,intersect2[1]));
-    //         return tangents;
-    //     }
+//     else if( c1c2 == abs(c1->radius - c2->radius)) {
+//         vector<Point> intersect;
+//         intersect = INTERSECTION_CIRCLE(c1,c2);
+//         Line *l = c1->TANGENT(&intersect[0]);
+//         tangents->push_back(*l);
+//         return *tangents;
+//     }
 
-    //     return tangents;
+//     else if(c1c2 > abs(c1->radius - c2->radius) && c1c2 < c1->radius + c2->radius) {
+//         Point *p;
+//         p->x = (c2->radius*c1->center.x - c1->radius*c2->center.x) / (c2->radius - c1->radius);
+//         p->y = (c2->radius*c1->center.y - c1->radius*c2->center.y) / (c2->radius - c1->radius);
+//         double d1 = norm(p,c1->center);
+//         Circle *c = new Circle(sqrt(d1*d1 - c1->radius*c1->radius),*p,false);
+//         vector<Point> intersect;
+//         intersect = INTERSECTION_CIRCLE(*c1,*c);
+//         tangents->push_back(Line(p,intersect[0]));
+//         tangents->push_back(Line(p,intersect[1]));
+//         return tangents;
+//     }
 
-    // }
+//     else if(c1c2 == c1.radius + c2.radius) {
+//         vector<Point> intersect;
+//         intersect = INTERSECTION_CIRCLE(c1,c2);
+//         Line l = c1.TANGENT(intersect[0]);
+//         tangents.push_back(l);
+
+//         Point p;
+//         p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
+//         p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
+//         double d1 = norm(p,c1.center);
+//         Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
+//         vector<Point> intersect2;
+//         intersect2 = INTERSECTION_CIRCLE(c1,c);
+//         tangents.push_back(Line(p,intersect2[0]));
+//         tangents.push_back(Line(p,intersect2[1]));
+//         return tangents;
+//     }
+
+//     else if(c1c2 > c1.radius + c2.radius) {
+//         Point p;
+//         p.x = (c2.radius*c1.center.x - c1.radius*c2.center.x) / (c2.radius - c1.radius);
+//         p.y = (c2.radius*c1.center.y - c1.radius*c2.center.y) / (c2.radius - c1.radius);
+//         double d1 = norm(p,c1.center);
+//         Circle c = Circle(sqrt(d1*d1 - c1.radius*c1.radius),p,false);
+//         vector<Point> intersect;
+//         intersect = INTERSECTION_CIRCLE(c1,c);
+//         tangents.push_back(Line(p,intersect[0]));
+//         tangents.push_back(Line(p,intersect[1]));
+
+//         Point q;
+//         q.x = (c2.radius*c1.center.x + c1.radius*c2.center.x) / (c2.radius + c1.radius);
+//         q.y = (c2.radius*c1.center.y + c1.radius*c2.center.y) / (c2.radius + c1.radius);
+//         double d2 = norm(q,c1.center);
+//         Circle c_ = Circle(sqrt(d2*d2 - c1.radius*c1.radius),p,false);
+//         vector<Point> intersect2;
+//         intersect2 = INTERSECTION_CIRCLE(c1,c_);
+//         tangents.push_back(Line(q,intersect2[0]));
+//         tangents.push_back(Line(q,intersect2[1]));
+//         return tangents;
+//     }
+
+//     return tangents;
+
+// }

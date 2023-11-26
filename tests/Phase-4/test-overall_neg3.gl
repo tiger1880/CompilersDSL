@@ -1,0 +1,43 @@
+$ Usage of norm is shown below.
+point p := (2,3), q := (6,8)
+real k
+repeat(int i:= ||p||+||q|| | i < 20  | i++)
+{
+    if(i%2==0 and (i > 5 and i<15))
+    {
+        k := ||p-q||
+    }
+    else
+    {
+        int dist := 0
+        dist++
+        stop
+    }
+}
+
+ return 0
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

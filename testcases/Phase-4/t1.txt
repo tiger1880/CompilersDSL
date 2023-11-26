@@ -1,0 +1,20 @@
+fig figure_1(1,(0,0)) {
+    tri t := Tri((0, 0), (0, 4), (3, 0))
+
+    point p := t.INCENTER()
+    point e1 := t.EXCENTER((0,0))
+    point e2 := t.EXCENTER((0,4))
+    point e3 := t.EXCENTER((3,0))
+
+    tri t2 := Tri(e1,e2,e3)
+
+    point h := t2.CIRCUMCENTER()
+
+    real a := || h - e1 ||
+
+    circle c := Circle(a,h)
+}
+
+figure_1()
+
+

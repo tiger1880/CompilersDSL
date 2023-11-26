@@ -1,0 +1,49 @@
+$ check new constructs norm, ||, |-, ^=, ^ along with the rest
+
+func bool isRight(point p, point q,point r) {
+    real s1 := || p - q ||
+    real s2 := || q - r ||
+    real s3 := || r - s ||
+
+    if(s1 > s2 and s1 > s3) {
+        if(s1^2 == s2^2 + s3^2) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    else if(s2 > s3 and s2 > s1) {
+        if(s2^2 == s1^2 + s3^2) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    else if(s3 > s2 and s3 > s1) {
+        if(s3^2 == s1^2 + s2^2) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    else {
+        return false
+    }
+}
+
+int x := 4
+
+point p := (0,0)
+point q := (8,9)
+point r := (x--,++x)
+
+real d
+
+if(isRight(p,q,r)) {
+    d := ||r||
+    d ^:= 2
+}
+

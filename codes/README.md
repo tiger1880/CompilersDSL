@@ -7,6 +7,9 @@
 - make Commands
 - Authors
 
+## Installing OpenGL
+- Install GLUT,GLU, OpenGL and necessary dependencies
+
 ## Running
 To run the parser:
 
@@ -34,4 +37,5 @@ This project utilizes a `Makefile` for ease of compilation and testing. Here's a
 - Nitya Bhamidipaty - CS21BTECH11041
 - Deepshikha        - CS21BTECH11016
 - Muskan Jaiswal    - CS21BTECH11037
+
 

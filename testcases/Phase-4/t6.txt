@@ -1,0 +1,28 @@
+fig figure_1(1,(0,0)) {
+    tri t := Tri(3.0,4.0,5.0)
+    point p:= t.CIRCUMCENTER()
+    real r := || p ||
+    circle c := Circle(r,p)
+}
+
+figure_1()
+
+fig polygon(1,(0,0)) {
+    repeat(int i := 1 | i<5 | i++) {
+        RegPoly(5,i)
+    }
+}
+
+polygon()
+
+repeat (int i := 0|i < 10|i++){
+    line l := (0, i)-(10-i, 0)
+}
+
+repeat (int i := 0|i < 10|i++){
+    line l := (0, -i)-(-10+i, 0)
+}
+
+
+
+

@@ -1,0 +1,12 @@
+
+int a := 4
+
+if(a) {
+    int r := 5
+}
+else if(a==4) {
+    int s := 90
+}
+else {
+    int g := 10
+}

@@ -1,0 +1,74 @@
+real a := 7.55
+
+func int test(int x) {
+    int arr[][4] := {{1,2,3,4},{5,6,7,"8"}}
+    int b,c,d
+    b +:= a
+    c := true
+
+    d := 88%7
+
+    return d
+
+}
+
+func void test_2(int y,point p) {
+    real b,c,f
+
+    int d
+
+    c := 3 + 4*5 - 9/6
+    d := b/4 + c^3
+
+    repeat (int a := 0 | a <= y^3 | a++) {
+        b /:= c*f
+        d -:= a
+    
+    }
+
+    angle a := < (8,9) (5,6) p , false >
+
+    line l := p->f
+
+
+}
+
+bool h
+
+point y,z
+
+label s := "TESTING"
+
+until (not a*5 <= <(1,2) y z >) {
+    if (h) {
+        stop
+    }
+    elif (s + a and true) {
+        advance
+    }
+    else {
+        a := a + (h or false)
+    }
+}
+
+regPoly p := Circle( y, 5 )
+
+{
+    int x
+    {
+        real x := a + 2.444
+    }
+
+}
+
+fig figure1(2,(3,3)) {
+    point m,n
+    tri t := Tri(m,n,k)
+
+    real area := t.AREA()
+
+    t.ORTHOCENTRE()
+}
+
+
+

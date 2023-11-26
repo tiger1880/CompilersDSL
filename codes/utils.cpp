@@ -312,9 +312,10 @@ void insertConstructTab() {
     /*Line*/
     ConstructTab[1]["INTERSECTION"] = {Func,POINT,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["MIDPOINT_LINE"] = {Func,POINT,{{Var,LINE,"l",{}}},{}};
-    ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
+    //ConstructTab[1]["MIDPOINT_POINTS"] = {Func,LINE,{{Var,POINT,"a",{}},{Var,POINT,"b",{}}},{}};
     ConstructTab[1]["SHORTEST_DISTANCE"] = {Func,REAL,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
     ConstructTab[1]["ANGLE_BISECTOR"] = {Func,LINE,{{Var,LINE,"a",{}},{Var,LINE,"b",{}}},{}};
+    ConstructTab[1]["passesThrough"] = {Func,BOOL,{{Var,POINT,"a",{}}},{}};
     ConstructTab[1]["LINE_AT_ANGLE"] = {Func,LINE,{{Var,ANGLE,"ang",{}},{Var,LINE,"l",{}},{Var,POINT,"a",{}}},{}};
 
     /*Circle*/
@@ -351,7 +352,7 @@ exits ERROR_RECOVERY
 */
 void semanticError(const char* s){
        cerr << yylineno << ": "<< s << "\n";
-       exit(1);
+       //exit(1);
 }
   
 /*
@@ -404,10 +405,10 @@ bool arithCompatible(int e){
 * x/y can be : INT, REAL
 */
 enum eletype pointCheck (enum eletype x, enum eletype y){
-       if ((x == INT || x == REAL) && (y == INT || y == REAL ))
+       if ((arithCompatible(x) && arithCompatible(y)))
               return POINT;
        else {
-              cerr << "Error: Semantic error invalid point \n";
+              semanticError("Error: Semantic error invalid point \n");
               exit(1);
        }
 }

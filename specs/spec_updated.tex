@@ -225,12 +225,13 @@ Example use of figures:
 
 
 \section{Operators}
-\subsection{Compatible Types +}
-\begin{itemize}
-    \item POINT
-    \item LABEL
-    \item REAL, BOOL, INT, ANGLE are arithCompatible
-\end{itemize}
+
+% \subsection{Compatible Types +}
+% \begin{itemize}
+%     \item POINT
+%     \item LABEL
+%     \item REAL, BOOL, INT, ANGLE are arithCompatible
+% \end{itemize}
 
 
 We have two new operators , parallel ($\parallel$) and perpendicular ( $|-$ ) .
@@ -245,8 +246,7 @@ Example:
 \begin{verbatim}
     line l1, l2, l3 
 
-    $ Can have multiple lines aswell
-    if (l1 || l2 || l3)
+    if (l1 || l2)
         return 0;
         
 \end{verbatim}
@@ -338,8 +338,7 @@ We plan to implement some standard libraries to provide support for the followin
     \item Line 
 \begin{verbatim}
     point p := INTERSECTION(a,b)           $ a and b are lines
-    point p := MIDPOINT(l)                 $ l is a line segment
-    point p := MIDPOINT(a,b)               $ a, b are points
+    point p := MIDPOINT_LINES(l)                 $ l is a line segment
     real dist := SHORTEST_DISTANCE(a,b)    $ a, b are points
     line p := ANGLE_BISECTOR(a,b)          $ a, b are lines
     line p := LINE_AT_ANGLE(40,a,q)        $ (angle,line,point)

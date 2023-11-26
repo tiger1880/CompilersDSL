@@ -42,7 +42,7 @@ clean2:
 
 # Clean specification latex log files
 clean_latex:
-	rm -f ./specs/*.log ./specs/*.toc ./specs/*.fls ./specs/*.aux ./specs/*.fdb_latexmk ./specs/*.synctex.gz 
+	rm -f ./codes/specs/*.log ./../specs/*.toc ./../specs/*.fls ./../specs/*.aux ./../specs/*.fdb_latexmk ./../specs/*.synctex.gz 
 
 # Run target: build and run the target executable
 run: $(TARGET)

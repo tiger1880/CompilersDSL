@@ -52,6 +52,7 @@ int ret_fig_flag = 0;
 int is_member = 0;
 int isArray = 0;
 int is_fig = 0;
+int in_fig = 0;
 int is_decl_stmt = 0;
 int global_space = 1;
 int decl = 0;
@@ -341,7 +342,10 @@ argument : DATATYPE ID check_arr {
  
 /* Figure Definition */
               
-fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' empty_space stmt_block { 
+fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();  in_fig = 1;}  '(' params ')' empty_space stmt_block {
+                                                        
+                                                      
+
                                                         if (ret_fig_flag == 1)  
                                                                semanticError("Error: Return statement is not allowed in figures."); 
                                                         ret_fig_flag = 0;
@@ -357,9 +361,10 @@ fig: FIG ID {insertType($ID.name, Fig, UNDEF); addSymTabPtr();}  '(' params ')' 
                                                         
                                                         // reset scale and center
                                                         scale = "1.0";
-                                                        center = "Point(0, 0, false)";
+                                                        center = "new Point(0, 0, false)";
                                                         center_x = "0";
                                                         center_y = "0";
+                                                        in_fig = 0;
                                                         //cerr << "at fig end " << $ID.name << " " << is_member << "\n";
                                                  } 
 
@@ -444,8 +449,36 @@ lineArr: lineArr line_op vertex {$$.count = $$.count + 1;$$.text = new string; *
        | vertex line_op vertex {$$.count = 1;$$.text = new string;*$$.text = *$1.text + "|" + *$2.text + "|" + *$3.text;}
        ;
 
-construct :  constructor '(' construct_param_list ')' {$$.eletype = $1.eletype; construct_params.clear(); $$.text = new string;*$$.text = "new " + *$1.text + "(" + *$3.text + "," + center + "," + scale + ")" ;} 
-          | constructor '(' ')' {$$.eletype = $1.eletype; $$.text = new string;*$$.text = "new " + *$1.text + "(" + center + "," + scale + ")" ;} 
+construct :  constructor '(' construct_param_list ')' {
+                            $$.eletype = $1.eletype; 
+                            construct_params.clear(); 
+
+                            if (in_fig){
+                                   $$.text = new string;
+                                   *$$.text = "new " + *$1.text + "(" + *$3.text + "," + "center" + "," + "scale " + ")";
+
+                            }
+                            else {
+                                   $$.text = new string;
+                                   *$$.text = "new " + *$1.text + "(" + *$3.text + "," + center + "," + scale  + ")";
+
+                            }
+                            
+                            } 
+          | constructor '(' ')' {
+                            $$.eletype = $1.eletype; 
+                            
+                            if (in_fig){
+                                   $$.text = new string;
+                                   *$$.text = "new " + *$1.text + "("  "center" + "," + "scale " + ")";
+
+                            }
+                            else {
+                                   $$.text = new string;
+                                   *$$.text = "new " + *$1.text + "(" +  center + "," + scale  + ")";
+
+                            }
+                            } 
           ; 
 
 constructor : TRICONSTRUCT { $$.eletype = $1.eletype; $$.text = new string;*$$.text = *$1.text ;} 

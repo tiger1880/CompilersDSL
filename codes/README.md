@@ -38,11 +38,4 @@ This project utilizes a `Makefile` for ease of compilation and testing. Here's a
 - Deepshikha        - CS21BTECH11016
 - Muskan Jaiswal    - CS21BTECH11037
 
-/*
-Ignore 
-    1) testing some parts is left in Line
-    2) replace with loop and check .. Maybe should start properly => angle bisector
-    3) Test the extension fo 6 cases => change so that if initial points are outofRange update Range, => Depends on our set Range
-    4) Have to display midpoint ? 
-    5) we will have to use new update constructors properly and delete in main after MainLoop
-*/
+
